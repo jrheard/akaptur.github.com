@@ -4,7 +4,7 @@
   <title><![CDATA[Category: git | Of Interest]]></title>
   <link href="http://akaptur.github.com/blog/categories/git/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2012-12-19T14:10:55-05:00</updated>
+  <updated>2012-12-19T14:15:15-05:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -22,7 +22,7 @@
 
 <p>That's the why - here's the how.</p>
 
-<p><code>git add -p</code> launches what git calls the "interactive hunk selector."  This leads me to my other favorite reason to use -p: besides being useful, all the docs sound like an episode of The Bachelorette.  "Once you have decided the fate of all the hunks, if there is any hunk that is chosen, the index is updated with the selected hunks." And if not, our bachelorette takes the million dollars!</p>
+<p><code>git add -p</code> launches what git calls the "interactive hunk selector."  This leads me to my other favorite reason to use -p: besides being useful, all the <a href="http://www.kernel.org/pub/software/scm/git/docs/git-add.html">docs</a> sound like an episode of The Bachelorette.  "Once you have decided the fate of all the hunks, if there is any hunk that is chosen, the index is updated with the selected hunks." And if not, our bachelorette takes the million dollars!</p>
 
 <p>In practice, I only end up using three of the interactive hunk selector options: [y]es, [n]o, and [s]plit.  Split takes the current hunk and divides it into smaller hunks, then presents them for selection one at a time.  (If you're attempting to continue the Bachelorette metaphor, now is a good time to stop.)</p>
 
