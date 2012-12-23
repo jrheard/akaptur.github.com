@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Some wacky shell scripting - Of Interest</title>
+  <meta name="author" content="akaptur">
+
+  
+  <meta name="description" content="I&#8217;m currently digging into the source of virtualenv, a python utility for managing environments. It&#8217;s incredibly handy, and I&#8217;d &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://akaptur.github.com/blog/2012/12/23/some-wacky-shell-scripting/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Of Interest" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Of Interest</a></h1>
+  
+    <h2>An occasional blog on programming</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:akaptur.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Some Wacky Shell Scripting</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-23T16:16:00-07:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I&#8217;m currently digging into the source of virtualenv, a python utility for managing environments.  It&#8217;s incredibly handy, and I&#8217;d been using it for a while without really understanding how it worked.  I&#8217;ll have more later on the details, but in the meantime, I hit a particularly puzzling bit of code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if [ -z "$VIRTUAL_ENV_DISABLE_PROMPT" ] ; then
+</span><span class='line'>    _OLD_VIRTUAL_PS1="$PS1"
+</span><span class='line'>    if [ "x" != x ] ; then
+</span><span class='line'>        PS1="$PS1"
+</span><span class='line'>    else
+</span><span class='line'>    if [ "`basename \"$VIRTUAL_ENV\"`" = "__" ] ; then
+</span><span class='line'>        # special case for Aspen magic directories
+</span><span class='line'>        # see http://www.zetadev.com/software/aspen/
+</span><span class='line'>        PS1="[`basename \`dirname \"$VIRTUAL_ENV\"\``] $PS1"
+</span><span class='line'>    else
+</span><span class='line'>        PS1="(`basename \"$VIRTUAL_ENV\"`)$PS1"
+</span><span class='line'>    fi
+</span><span class='line'>    fi
+</span><span class='line'>    export PS1
+</span><span class='line'>fi</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is largely intelligible - clearly we&#8217;re modifying the $PS1 variable, which sets the bash prompt.  But what on earth is this line?</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if [ "x" != x ] ; then
+</span><span class='line'>    PS1="$PS1"</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>x</code> is not a variable defined elsewhere in the script, and bash will interpret both <code>"x"</code> and <code>x</code> as string literals anyway.  Is there some bizarre shell in which this test can possibly return true?</p>
+
+<p>As it turns out, there isn&#8217;t.  The reason this code looks so bizarre is that it&#8217;s automatically generated by virtualenv.  The original line of code is <a href="https://github.com/pypa/virtualenv/blob/develop/virtualenv_embedded/activate.sh#L59">this</a>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if [ "x__VIRTUAL_PROMPT__" != x ] ; then
+</span><span class='line'>    PS1="__VIRTUAL_PROMPT__$PS1"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And then elsewhere we find its <a href="https://github.com/pypa/virtualenv/blob/develop/virtualenv.py#L1582">complement</a>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>    content = content.replace('__VIRTUAL_PROMPT__', prompt or '')</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Together, this code is entirely reasonable.</p>
+
+<p>Thanks to user ruakh on <a href="http://stackoverflow.com/questions/13976472/what-does-if-x-x-do-in-bash">Stack Overflow</a> for the key insight here.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">akaptur</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-23T16:16:00-07:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://akaptur.github.com/blog/2012/12/23/some-wacky-shell-scripting/" data-via="" data-counturl="http://akaptur.github.com/blog/2012/12/23/some-wacky-shell-scripting/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/12/18/git-add-p-the-wave-of-the-future/" title="Previous Post: Git add -p: The Wave of the Future">&laquo; Git add -p: The Wave of the Future</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/12/23/some-wacky-shell-scripting/">Some wacky shell scripting</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/18/git-add-p-the-wave-of-the-future/">Git add -p: The Wave of the Future</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - akaptur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
