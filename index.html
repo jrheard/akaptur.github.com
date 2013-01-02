@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="I&#8217;m currently digging into the source of virtualenv, a python utility for managing environments. It&#8217;s incredibly handy, and I&#8217;d &hellip;">
+  <meta name="description" content="I encountered some surprising behavior in python&#8217;s list.sort() method. I was calling list.sort() with a function, then list.reverse(). This was &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -70,6 +70,96 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2013/01/02/surprised-by-stable-sort/">Surprised by Stable Sort</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-02T00:02:00-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I encountered some surprising behavior in python&#8217;s list.sort() method.  I was calling list.sort() with a function, then list.reverse().  This was silly - I forgot I could call list.sort(reverse=True).  As it turns out, these are not the always the same, or even usually the same.</p>
+
+<p>Here&#8217;s the code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>def two_sort(ex):
+</span><span class='line'>    ex_copy = ex[:]
+</span><span class='line'> 
+</span><span class='line'>    ex.sort(key=lambda tup: tup[1])
+</span><span class='line'>    ex.reverse()
+</span><span class='line'>    print "Ex:  ", ex
+</span><span class='line'> 
+</span><span class='line'>    ex_copy.sort(key=lambda tup: tup[1], reverse=True)
+</span><span class='line'>    print "Copy:", ex_copy
+</span><span class='line'> 
+</span><span class='line'>    assert ex == ex_copy # fails
+</span><span class='line'> 
+</span><span class='line'>ex = [('a', 0), ('b', 0), ('c', 2), ('d', 3)]
+</span><span class='line'>two_sort(ex)
+</span><span class='line'># Ex:   [('d', 3), ('c', 2), ('b', 0), ('a', 0)]
+</span><span class='line'># Copy: [('d', 3), ('c', 2), ('a', 0), ('b', 0)]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What&#8217;s happening here is that .sort() and sorted() in python are &#8220;stable sorts&#8221;, meaning that it&#8217;ll preserve the existing order when faced with a tie.  This leads to a nice side effect, as described in the <a href="http://wiki.python.org/moin/HowTo/Sorting/">python wiki</a>: you can sort by multiple criteria.  So if we wanted to sort primarily by number (ascending), and secondarily by letter, we could do that quite easily.  Just sort by the secondary key first, then by the primary key.  Since the sort is stable, you know that a tie in the second (primary) sort will preserve the order you had going in.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt;&gt;&gt; a = [('d', 3), ('c', 5), ('b', 0), ('a', 0)]
+</span><span class='line'>&gt;&gt;&gt; a.sort(key=lambda tup: tup[0])
+</span><span class='line'>&gt;&gt;&gt; a
+</span><span class='line'>[('a', 0), ('b', 0), ('c', 5), ('d', 3)]
+</span><span class='line'>&gt;&gt;&gt; a.sort(key=lambda tup:tup[1])
+</span><span class='line'>&gt;&gt;&gt; a
+</span><span class='line'>[('a', 0), ('b', 0), ('d', 3), ('c', 5)]</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2012/12/23/some-wacky-shell-scripting/">Some Wacky Shell Scripting</a></h1>
     
     
@@ -86,7 +176,7 @@
   
 
 
-<time datetime="2012-12-23T16:16:00-07:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2012</time>
+<time datetime="2012-12-23T16:16:00-05:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2012</time>
         
       </p>
     
@@ -182,7 +272,7 @@
   
 
 
-<time datetime="2012-12-18T16:12:00-07:00" pubdate data-updated="true">Dec 18<span>th</span>, 2012</time>
+<time datetime="2012-12-18T16:12:00-05:00" pubdate data-updated="true">Dec 18<span>th</span>, 2012</time>
         
       </p>
     
@@ -388,6 +478,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/01/02/surprised-by-stable-sort/">Surprised by Stable Sort</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/12/23/some-wacky-shell-scripting/">Some wacky shell scripting</a>
       </li>
     
@@ -409,7 +503,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2012 - akaptur -
+  Copyright &copy; 2013 - akaptur -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
