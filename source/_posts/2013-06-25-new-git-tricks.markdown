@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "new git tricks"
+title: "New git tricks"
 date: 2013-06-25 14:14
 comments: false
 categories: 
