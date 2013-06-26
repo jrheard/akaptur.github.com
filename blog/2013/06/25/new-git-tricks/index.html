@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>new git tricks - Of Interest</title>
+  <meta name="author" content="akaptur">
+
+  
+  <meta name="description" content="I picked up a couple of new tricks at Hacker School&#8217;s intermediate/advanced Git seminar, led by Peter Bell. 1
+$ git checkout - This checks out &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://akaptur.github.com/blog/2013/06/25/new-git-tricks/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Of Interest" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Of Interest</a></h1>
+  
+    <h2>An occasional blog on programming</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:akaptur.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">New Git Tricks</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-25T14:14:00-04:00" pubdate data-updated="true">Jun 25<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I picked up a couple of new tricks at Hacker School&#8217;s intermediate/advanced Git seminar, led by Peter Bell.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git checkout -</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This checks out whatever you had checked out last.  Thanks, <a href="https://github.com/nnja">Nina</a>!</p>
+
+<p>Draw a graph of the commit history:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git-advanced [master]\ $ git log --graph --oneline --all
+</span><span class='line'>*   b2da179 Merge branch 'test-graph'
+</span><span class='line'>|\  
+</span><span class='line'>| * d71e4fc testing graph thing
+</span><span class='line'>* | 8535311 still testing graph
+</span><span class='line'>|/  
+</span><span class='line'>* b90b105 Added contact form
+</span><span class='line'>* b36ba51 added gitignore to ignore generated log files
+</span><span class='line'>* 70461dc added about
+</span><span class='line'>* c57f995 added homepage</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can alias this with <code>git config --global alias.plog "log --graph --oneline --all"</code>.  (Looking at this graph may motivate you to start using <code>git merge --no-ff</code>.)  You can substitute whatever you want for <code>plog</code> above.</p>
+
+<p>If you get really screwed up, it&#8217;s reflog time!  (This is pronounced ref-log, not re-flog as I&#8217;d been reading it.  On the other hand, as my colleague <a href="https://github.com/happy4crazy">Alan</a> notes, &#8220;You damn well ought to feel penitent if you&#8217;re wedged enough to need the reflog.&#8221;)  Here, we&#8217;re using <code>git reset</code> to undo the last commit.  Even though the commit doesn&#8217;t appear in <code>git log</code> anymore, there&#8217;s still a references to it in the reflog.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git-advanced [master %]\ $ git add tester.css
+</span><span class='line'>git-advanced [master +]\ $ git commit -m "add some file"
+</span><span class='line'>git-advanced [master]\ $ git reset HEAD~1
+</span><span class='line'>git-advanced [master %]\ $ git add tester.css
+</span><span class='line'>git-advanced [master +]\ $ git commit -m "redoing some file"
+</span><span class='line'>
+</span><span class='line'>git-advanced [master]\ $ git log --oneline
+</span><span class='line'>8039ec5 redoing some file
+</span><span class='line'>b2da179 Merge branch 'test-graph'
+</span><span class='line'>8535311 still testing graph
+</span><span class='line'>d71e4fc testing graph thing
+</span><span class='line'>
+</span><span class='line'>git-advanced [master]\ $ git reflog
+</span><span class='line'>8039ec5 HEAD@{0}: commit: redoing some file
+</span><span class='line'>b2da179 HEAD@{1}: reset: moving to HEAD~1
+</span><span class='line'>848874d HEAD@{2}: commit: add some file</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It turns out that there is a better way to get a commit sha than running <code>git log</code> and copying and pasting the relevant shas.  You can use <code>rev-parse</code> instead.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git-advanced [master]\ $ git rev-parse HEAD~2
+</span><span class='line'>0fafe464f4b7d524c8ba707ea2115950d6dd4bdf
+</span><span class='line'>git-advanced [master]\ $ git rev-parse master
+</span><span class='line'>8039ec584485540f07aac1209389022f627bc8c5</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then you can inline with backticks!</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git-advanced [master]\ $ git diff `git rev-parse HEAD~2` `git rev-parse HEAD`</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now go forth and git in peace.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">akaptur</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-25T14:14:00-04:00" pubdate data-updated="true">Jun 25<span>th</span>, 2013</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://akaptur.github.com/blog/2013/06/25/new-git-tricks/" data-via="" data-counturl="http://akaptur.github.com/blog/2013/06/25/new-git-tricks/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/01/02/surprised-by-stable-sort/" title="Previous Post: Surprised by Stable Sort">&laquo; Surprised by Stable Sort</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/06/25/new-git-tricks/">new git tricks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/02/surprised-by-stable-sort/">Surprised by Stable Sort</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/23/some-wacky-shell-scripting/">Some wacky shell scripting</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/18/git-add-p-the-wave-of-the-future/">Git add -p: The Wave of the Future</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - akaptur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
