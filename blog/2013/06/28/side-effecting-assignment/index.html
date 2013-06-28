@@ -1,24 +1,96 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Of Interest]]></title>
-  <link href="http://akaptur.github.com/atom.xml" rel="self"/>
-  <link href="http://akaptur.github.com/"/>
-  <updated>2013-06-28T15:23:18-04:00</updated>
-  <id>http://akaptur.github.com/</id>
-  <author>
-    <name><![CDATA[akaptur]]></name>
-    
-  </author>
-  <generator uri="http://octopress.org/">Octopress</generator>
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Side-effecting Assignment - Of Interest</title>
+  <meta name="author" content="akaptur">
 
   
-  <entry>
-    <title type="html"><![CDATA[Side-effecting Assignment]]></title>
-    <link href="http://akaptur.github.com/blog/2013/06/28/side-effecting-assignment/"/>
-    <updated>2013-06-28T14:35:00-04:00</updated>
-    <id>http://akaptur.github.com/blog/2013/06/28/side-effecting-assignment</id>
-    <content type="html"><![CDATA[<h2>Surprises</h2>
+  <meta name="description" content="Surprises My colleague Dave told me about an interesting bit of Ruby the other day. If you make a new Class object, it initially has no name. If you &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://akaptur.github.com/blog/2013/06/28/side-effecting-assignment/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Of Interest" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Of Interest</a></h1>
+  
+    <h2>An occasional blog on programming</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:akaptur.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Side-effecting Assignment</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-28T14:35:00-04:00" pubdate data-updated="true">Jun 28<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Surprises</h2>
 
 <p>My colleague <a href="https://github.com/davidbalbert">Dave</a> told me about an interesting bit of Ruby the other day.  If you make a new <code>Class</code> object, it initially has no name. If you then assign a name to it, with your new class on the right-hand side of the assignment, the name is attached to the Class object.</p>
 
@@ -349,423 +421,121 @@
 
 
 <p>And there you have it - a (incredibly goofy) side-effecting assignment that mutates the object on the right-hand side of the assignment statement.</p>
-]]></content>
-  </entry>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
   
-  <entry>
-    <title type="html"><![CDATA[New git tricks]]></title>
-    <link href="http://akaptur.github.com/blog/2013/06/25/new-git-tricks/"/>
-    <updated>2013-06-25T14:14:00-04:00</updated>
-    <id>http://akaptur.github.com/blog/2013/06/25/new-git-tricks</id>
-    <content type="html"><![CDATA[<p>I picked up a couple of new tricks at Hacker School&#8217;s intermediate/advanced Git seminar, led by Peter Bell.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ git checkout -</span></code></pre></td></tr></table></div></figure>
+<span class="byline author vcard">Posted by <span class="fn">akaptur</span></span>
+
+      
 
 
-<p>This checks out whatever you had checked out last.  Thanks, <a href="https://github.com/nnja">Nina</a>!</p>
-
-<p>Draw a graph of the commit history:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git-advanced [master]\ $ git log --graph --oneline --all
-</span><span class='line'>*   b2da179 Merge branch 'test-graph'
-</span><span class='line'>|\  
-</span><span class='line'>| * d71e4fc testing graph thing
-</span><span class='line'>* | 8535311 still testing graph
-</span><span class='line'>|/  
-</span><span class='line'>* b90b105 Added contact form
-</span><span class='line'>* b36ba51 added gitignore to ignore generated log files
-</span><span class='line'>* 70461dc added about
-</span><span class='line'>* c57f995 added homepage</span></code></pre></td></tr></table></div></figure>
 
 
-<p>You can alias this with <code>git config --global alias.plog "log --graph --oneline --all"</code>.  (Looking at this graph may motivate you to start using <code>git merge --no-ff</code>.)  You can substitute whatever you want for <code>plog</code> above.</p>
-
-<p>If you get really screwed up, it&#8217;s reflog time!  (This is pronounced ref-log, not re-flog as I&#8217;d been reading it.  On the other hand, as my colleague <a href="https://github.com/happy4crazy">Alan</a> notes, &#8220;You damn well ought to feel penitent if you&#8217;re wedged enough to need the reflog.&#8221;)  Here, we&#8217;re using <code>git reset</code> to undo the last commit.  Even though the commit doesn&#8217;t appear in <code>git log</code> anymore, there&#8217;s still a references to it in the reflog.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git-advanced [master %]\ $ git add tester.css
-</span><span class='line'>git-advanced [master +]\ $ git commit -m "add some file"
-</span><span class='line'>git-advanced [master]\ $ git reset HEAD~1
-</span><span class='line'>git-advanced [master %]\ $ git add tester.css
-</span><span class='line'>git-advanced [master +]\ $ git commit -m "redoing some file"
-</span><span class='line'>
-</span><span class='line'>git-advanced [master]\ $ git log --oneline
-</span><span class='line'>8039ec5 redoing some file
-</span><span class='line'>b2da179 Merge branch 'test-graph'
-</span><span class='line'>8535311 still testing graph
-</span><span class='line'>d71e4fc testing graph thing
-</span><span class='line'>
-</span><span class='line'>git-advanced [master]\ $ git reflog
-</span><span class='line'>8039ec5 HEAD@{0}: commit: redoing some file
-</span><span class='line'>b2da179 HEAD@{1}: reset: moving to HEAD~1
-</span><span class='line'>848874d HEAD@{2}: commit: add some file</span></code></pre></td></tr></table></div></figure>
 
 
-<p>It turns out that there is a better way to get a commit sha than running <code>git log</code> and copying and pasting the relevant shas.  You can use <code>rev-parse</code> instead.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git-advanced [master]\ $ git rev-parse HEAD~2
-</span><span class='line'>0fafe464f4b7d524c8ba707ea2115950d6dd4bdf
-</span><span class='line'>git-advanced [master]\ $ git rev-parse master
-</span><span class='line'>8039ec584485540f07aac1209389022f627bc8c5</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Then you can inline with backticks!</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git-advanced [master]\ $ git diff `git rev-parse HEAD~2` `git rev-parse HEAD`</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now go forth and git in peace.</p>
-]]></content>
-  </entry>
   
-  <entry>
-    <title type="html"><![CDATA[Surprised by Stable Sort]]></title>
-    <link href="http://akaptur.github.com/blog/2013/01/02/surprised-by-stable-sort/"/>
-    <updated>2013-01-02T00:02:00-05:00</updated>
-    <id>http://akaptur.github.com/blog/2013/01/02/surprised-by-stable-sort</id>
-    <content type="html"><![CDATA[<p>I encountered some surprising behavior in python&#8217;s list.sort() method.  I was calling list.sort() with a function, then list.reverse().  This was silly - I forgot I could call list.sort(reverse=True).  As it turns out, these are not the always the same, or even usually the same.</p>
-
-<p>Here&#8217;s the code:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>def two_sort(ex):
-</span><span class='line'>    ex_copy = ex[:]
-</span><span class='line'> 
-</span><span class='line'>    ex.sort(key=lambda tup: tup[1])
-</span><span class='line'>    ex.reverse()
-</span><span class='line'>    print "Ex:  ", ex
-</span><span class='line'> 
-</span><span class='line'>    ex_copy.sort(key=lambda tup: tup[1], reverse=True)
-</span><span class='line'>    print "Copy:", ex_copy
-</span><span class='line'> 
-</span><span class='line'>    assert ex == ex_copy # fails
-</span><span class='line'> 
-</span><span class='line'>ex = [('a', 0), ('b', 0), ('c', 2), ('d', 3)]
-</span><span class='line'>two_sort(ex)
-</span><span class='line'># Ex:   [('d', 3), ('c', 2), ('b', 0), ('a', 0)]
-</span><span class='line'># Copy: [('d', 3), ('c', 2), ('a', 0), ('b', 0)]</span></code></pre></td></tr></table></div></figure>
 
 
-<p>What&#8217;s happening here is that .sort() and sorted() in python are &#8220;stable sorts&#8221;, meaning that it&#8217;ll preserve the existing order when faced with a tie.  This leads to a nice side effect, as described in the <a href="http://wiki.python.org/moin/HowTo/Sorting/">python wiki</a>: you can sort by multiple criteria.  So if we wanted to sort primarily by number (ascending), and secondarily by letter, we could do that quite easily.  Just sort by the secondary key first, then by the primary key.  Since the sort is stable, you know that a tie in the second (primary) sort will preserve the order you had going in.</p>
+<time datetime="2013-06-28T14:35:00-04:00" pubdate data-updated="true">Jun 28<span>th</span>, 2013</time>
+      
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt;&gt;&gt; a = [('d', 3), ('c', 5), ('b', 0), ('a', 0)]
-</span><span class='line'>&gt;&gt;&gt; a.sort(key=lambda tup: tup[0])
-</span><span class='line'>&gt;&gt;&gt; a
-</span><span class='line'>[('a', 0), ('b', 0), ('c', 5), ('d', 3)]
-</span><span class='line'>&gt;&gt;&gt; a.sort(key=lambda tup:tup[1])
-</span><span class='line'>&gt;&gt;&gt; a
-</span><span class='line'>[('a', 0), ('b', 0), ('d', 3), ('c', 5)]</span></code></pre></td></tr></table></div></figure>
 
-]]></content>
-  </entry>
+    </p>
+    
+      <div class="sharing">
   
-  <entry>
-    <title type="html"><![CDATA[Some wacky shell scripting]]></title>
-    <link href="http://akaptur.github.com/blog/2012/12/23/some-wacky-shell-scripting/"/>
-    <updated>2012-12-23T16:16:00-05:00</updated>
-    <id>http://akaptur.github.com/blog/2012/12/23/some-wacky-shell-scripting</id>
-    <content type="html"><![CDATA[<p>I&#8217;m currently digging into the source of virtualenv, a python utility for managing environments.  It&#8217;s incredibly handy, and I&#8217;d been using it for a while without really understanding how it worked.  I&#8217;ll have more later on the details, but in the meantime, I hit a particularly puzzling bit of code:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>if [ -z "$VIRTUAL_ENV_DISABLE_PROMPT" ] ; then
-</span><span class='line'>    _OLD_VIRTUAL_PS1="$PS1"
-</span><span class='line'>    if [ "x" != x ] ; then
-</span><span class='line'>        PS1="$PS1"
-</span><span class='line'>    else
-</span><span class='line'>    if [ "`basename \"$VIRTUAL_ENV\"`" = "__" ] ; then
-</span><span class='line'>        # special case for Aspen magic directories
-</span><span class='line'>        # see http://www.zetadev.com/software/aspen/
-</span><span class='line'>        PS1="[`basename \`dirname \"$VIRTUAL_ENV\"\``] $PS1"
-</span><span class='line'>    else
-</span><span class='line'>        PS1="(`basename \"$VIRTUAL_ENV\"`)$PS1"
-</span><span class='line'>    fi
-</span><span class='line'>    fi
-</span><span class='line'>    export PS1
-</span><span class='line'>fi</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is largely intelligible - clearly we&#8217;re modifying the $PS1 variable, which sets the bash prompt.  But what on earth is this line?</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>if [ "x" != x ] ; then
-</span><span class='line'>    PS1="$PS1"</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>x</code> is not a variable defined elsewhere in the script, and bash will interpret both <code>"x"</code> and <code>x</code> as string literals anyway.  Is there some bizarre shell in which this test can possibly return true?</p>
-
-<p>As it turns out, there isn&#8217;t.  The reason this code looks so bizarre is that it&#8217;s automatically generated by virtualenv.  The original line of code is <a href="https://github.com/pypa/virtualenv/blob/develop/virtualenv_embedded/activate.sh#L59">this</a>:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>if [ "x__VIRTUAL_PROMPT__" != x ] ; then
-</span><span class='line'>    PS1="__VIRTUAL_PROMPT__$PS1"</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And then elsewhere we find its <a href="https://github.com/pypa/virtualenv/blob/develop/virtualenv.py#L1582">complement</a>:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>    content = content.replace('__VIRTUAL_PROMPT__', prompt or '')</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Together, this code is entirely reasonable.</p>
-
-<p>Thanks to user ruakh on <a href="http://stackoverflow.com/questions/13976472/what-does-if-x-x-do-in-bash">Stack Overflow</a> for the key insight here.</p>
-]]></content>
-  </entry>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://akaptur.github.com/blog/2013/06/28/side-effecting-assignment/" data-via="" data-counturl="http://akaptur.github.com/blog/2013/06/28/side-effecting-assignment/" >Tweet</a>
   
-  <entry>
-    <title type="html"><![CDATA[Git add -p: The Wave of the Future]]></title>
-    <link href="http://akaptur.github.com/blog/2012/12/18/git-add-p-the-wave-of-the-future/"/>
-    <updated>2012-12-18T16:12:00-05:00</updated>
-    <id>http://akaptur.github.com/blog/2012/12/18/git-add-p-the-wave-of-the-future</id>
-    <content type="html"><![CDATA[<p>I recently started using git&#8217;s patch mode via <code>git add -p</code>. Patch mode makes my commits more granular, which means my commit messages are more accurate.  Better still, patch mode allows you to abstract away from adding &#8220;files&#8221; - you&#8217;re adding changes to be committed.  This is a closer mental model to what git is actually doing.  I&#8217;m finding it particularly useful for code review: make several changes in a friend&#8217;s program, group the changes by concept, and commit one concept at a time.</p>
-
-<p>That&#8217;s the why - here&#8217;s the how.</p>
-
-<p><code>git add -p</code> launches what git calls the &#8220;interactive hunk selector.&#8221;  This leads me to my other favorite reason to use -p: besides being useful, all the <a href="http://www.kernel.org/pub/software/scm/git/docs/git-add.html">docs</a> sound like an episode of The Bachelorette.  &#8220;Once you have decided the fate of all the hunks, if there is any hunk that is chosen, the index is updated with the selected hunks.&#8221; And if not, our bachelorette takes the million dollars!</p>
-
-<p>In practice, I only end up using three of the interactive hunk selector options: [y]es, [n]o, and [s]plit.  Split takes the current hunk and divides it into smaller hunks, then presents them for selection one at a time.  (If you&#8217;re attempting to continue the Bachelorette metaphor, now is a good time to stop.)</p>
-
-<p>Let&#8217;s look at an example.  Suppose I&#8217;m working on a function that recursively calculates the sum of element of a list.  My first draft looks like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>def sum(list_in):
-</span><span class='line'>    """ Returns the sum of elements of a list."""
-</span><span class='line'>    if list_in == []:
-</span><span class='line'>        return 0
-</span><span class='line'>    else:
-</span><span class='line'>        return list_in.pop() + sum(list_in)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Not bad, but it&#8217;s a little verbose.  Let&#8217;s take advantage of the fact that an empty list is falsey.  And, oops, we&#8217;re overwriting the built-in <code>sum</code> function in python - we probably don&#8217;t want to do that.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>def summer(list_in):
-</span><span class='line'>    """ Returns the sum of elements of a list."""
-</span><span class='line'>    if not list_in:
-</span><span class='line'>        return 0
-</span><span class='line'>    else:
-</span><span class='line'>        return list_in.pop() + summer(list_in)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Ok, these are two different thoughts, but we didn&#8217;t commit in between.  Interactive mode to the rescue - let&#8217;s stage those hunks.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sum [master]\ ⚲git add -p
-</span><span class='line'>diff --git a/sum.py b/sum.py
-</span><span class='line'>index fdccd3f..6d000f7 100644
-</span><span class='line'>--- a/sum.py
-</span><span class='line'>+++ b/sum.py
-</span><span class='line'>@@ -1,6 +1,6 @@
-</span><span class='line'>-def sum(list_in):
-</span><span class='line'>+def summer(list_in):
-</span><span class='line'>     """ Returns the sum of elements of a list."""
-</span><span class='line'>-    if list_in == []:
-</span><span class='line'>+    if not list_in:
-</span><span class='line'>         return 0
-</span><span class='line'>     else:
-</span><span class='line'>-        return list_in.pop() + sum(list_in)
-</span><span class='line'>+        return list_in.pop() + summer(list_in)
-</span><span class='line'>Stage this hunk [y,n,q,a,d,/,s,e,?]? </span></code></pre></td></tr></table></div></figure>
-
-
-<p>Our changes aren&#8217;t in the right hunks, so we&#8217;ll pick <code>s</code> to split them.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Stage this hunk [y,n,q,a,d,/,s,e,?]? s
-</span><span class='line'>Split into 3 hunks.
-</span><span class='line'>@@ -1,2 +1,2 @@
-</span><span class='line'>-def sum(list_in):
-</span><span class='line'>+def summer(list_in):
-</span><span class='line'>     """ Returns the sum of elements of a list."""
-</span><span class='line'>Stage this hunk [y,n,q,a,d,/,j,J,g,e,?]? </span></code></pre></td></tr></table></div></figure>
-
-
-<p>Let&#8217;s deal with the naming issue first.  <code>y</code>.  Next up:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>@@ -2,4 +2,4 @@
-</span><span class='line'>     """ Returns the sum of elements of a list."""
-</span><span class='line'>-    if list_in == []:
-</span><span class='line'>+    if not list_in:
-</span><span class='line'>         return 0
-</span><span class='line'>     else:</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This one&#8217;s different. <code>n</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Stage this hunk [y,n,q,a,d,/,K,j,J,g,e,?]? n
-</span><span class='line'>@@ -4,3 +4,3 @@
-</span><span class='line'>         return 0
-</span><span class='line'>     else:
-</span><span class='line'>-        return list_in.pop() + sum(list_in)
-</span><span class='line'>+        return list_in.pop() + summer(list_in)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Back to the naming issue.  <code>y</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sum [master *+]\ ⚲git commit -m "fix naming to not conflict with builtin"
-</span><span class='line'>[master caaa300] fix naming to not conflict with builtin
-</span><span class='line'> 1 file changed, 2 insertions(+), 2 deletions(-)</span></code></pre></td></tr></table></div></figure>
-
-
-<p> Now we can repeat this process for our other change.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'> sum [master *]\ ⚲git add -p
-</span><span class='line'>diff --git a/sum.py b/sum.py
-</span><span class='line'>index 77676b1..6d000f7 100644
-</span><span class='line'>--- a/sum.py
-</span><span class='line'>+++ b/sum.py
-</span><span class='line'>@@ -1,6 +1,6 @@
-</span><span class='line'> def summer(list_in):
-</span><span class='line'>     """ Returns the sum of elements of a list."""
-</span><span class='line'>-    if list_in == []:
-</span><span class='line'>+    if not list_in:
-</span><span class='line'>         return 0
-</span><span class='line'>     else:
-</span><span class='line'>         return list_in.pop() + summer(list_in)
-</span><span class='line'>Stage this hunk [y,n,q,a,d,/,e,?]? </span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is our only hunk now, so <code>y</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sum [master +]\ ⚲git commit -m "use falseyness of empty list"
-</span><span class='line'>[master 5209728] use falseyness of empty list
-</span><span class='line'> 1 file changed, 1 insertion(+), 1 deletion(-)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Of course, you may not want your commits to be quite <em>this</em> granular - but hopefully the example has demonstrated the strength of <code>git add -p</code> in creating single-concept commits.</p>
-]]></content>
-  </entry>
   
-</feed>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/06/25/new-git-tricks/" title="Previous Post: New git tricks">&laquo; New git tricks</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/06/28/side-effecting-assignment/">Side-effecting Assignment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/25/new-git-tricks/">New git tricks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/02/surprised-by-stable-sort/">Surprised by Stable Sort</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/23/some-wacky-shell-scripting/">Some wacky shell scripting</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/18/git-add-p-the-wave-of-the-future/">Git add -p: The Wave of the Future</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - akaptur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
