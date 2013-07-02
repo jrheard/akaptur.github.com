@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="I recently started using git&#8217;s patch mode via git add -p. Patch mode makes my commits more granular, which means my commit messages are more &hellip;">
+  <meta name="description" content="I recently started using git&rsquo;s patch mode via git add -p. Patch mode makes my commits more granular, which means my commit messages are more &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -90,15 +90,15 @@
   </header>
 
 
-<div class="entry-content"><p>I recently started using git&#8217;s patch mode via <code>git add -p</code>. Patch mode makes my commits more granular, which means my commit messages are more accurate.  Better still, patch mode allows you to abstract away from adding &#8220;files&#8221; - you&#8217;re adding changes to be committed.  This is a closer mental model to what git is actually doing.  I&#8217;m finding it particularly useful for code review: make several changes in a friend&#8217;s program, group the changes by concept, and commit one concept at a time.</p>
+<div class="entry-content"><p>I recently started using git&rsquo;s patch mode via <code>git add -p</code>. Patch mode makes my commits more granular, which means my commit messages are more accurate.  Better still, patch mode allows you to abstract away from adding &ldquo;files&rdquo; &ndash; you&rsquo;re adding changes to be committed.  This is a closer mental model to what git is actually doing.  I&rsquo;m finding it particularly useful for code review: make several changes in a friend&rsquo;s program, group the changes by concept, and commit one concept at a time.</p>
 
-<p>That&#8217;s the why - here&#8217;s the how.</p>
+<p>That&rsquo;s the why &ndash; here&rsquo;s the how.</p>
 
-<p><code>git add -p</code> launches what git calls the &#8220;interactive hunk selector.&#8221;  This leads me to my other favorite reason to use -p: besides being useful, all the <a href="http://www.kernel.org/pub/software/scm/git/docs/git-add.html">docs</a> sound like an episode of The Bachelorette.  &#8220;Once you have decided the fate of all the hunks, if there is any hunk that is chosen, the index is updated with the selected hunks.&#8221; And if not, our bachelorette takes the million dollars!</p>
+<p><code>git add -p</code> launches what git calls the &ldquo;interactive hunk selector.&rdquo;  This leads me to my other favorite reason to use -p: besides being useful, all the <a href="http://www.kernel.org/pub/software/scm/git/docs/git-add.html">docs</a> sound like an episode of The Bachelorette.  &ldquo;Once you have decided the fate of all the hunks, if there is any hunk that is chosen, the index is updated with the selected hunks.&rdquo; And if not, our bachelorette takes the million dollars!</p>
 
-<p>In practice, I only end up using three of the interactive hunk selector options: [y]es, [n]o, and [s]plit.  Split takes the current hunk and divides it into smaller hunks, then presents them for selection one at a time.  (If you&#8217;re attempting to continue the Bachelorette metaphor, now is a good time to stop.)</p>
+<p>In practice, I only end up using three of the interactive hunk selector options: [y]es, [n]o, and [s]plit.  Split takes the current hunk and divides it into smaller hunks, then presents them for selection one at a time.  (If you&rsquo;re attempting to continue the Bachelorette metaphor, now is a good time to stop.)</p>
 
-<p>Let&#8217;s look at an example.  Suppose I&#8217;m working on a function that recursively calculates the sum of element of a list.  My first draft looks like this:</p>
+<p>Let&rsquo;s look at an example.  Suppose I&rsquo;m working on a function that recursively calculates the sum of element of a list.  My first draft looks like this:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -114,7 +114,7 @@
 </span><span class='line'>        return list_in.pop() + sum(list_in)</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Not bad, but it&#8217;s a little verbose.  Let&#8217;s take advantage of the fact that an empty list is falsey.  And, oops, we&#8217;re overwriting the built-in <code>sum</code> function in python - we probably don&#8217;t want to do that.</p>
+<p>Not bad, but it&rsquo;s a little verbose.  Let&rsquo;s take advantage of the fact that an empty list is falsey.  And, oops, we&rsquo;re overwriting the built-in <code>sum</code> function in python &ndash; we probably don&rsquo;t want to do that.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -130,7 +130,7 @@
 </span><span class='line'>        return list_in.pop() + summer(list_in)</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Ok, these are two different thoughts, but we didn&#8217;t commit in between.  Interactive mode to the rescue - let&#8217;s stage those hunks.</p>
+<p>Ok, these are two different thoughts, but we didn&rsquo;t commit in between.  Interactive mode to the rescue &ndash; let&rsquo;s stage those hunks.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -166,7 +166,7 @@
 </span><span class='line'>Stage this hunk [y,n,q,a,d,/,s,e,?]? </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Our changes aren&#8217;t in the right hunks, so we&#8217;ll pick <code>s</code> to split them.</p>
+<p>Our changes aren&rsquo;t in the right hunks, so we&rsquo;ll pick <code>s</code> to split them.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -184,7 +184,7 @@
 </span><span class='line'>Stage this hunk [y,n,q,a,d,/,j,J,g,e,?]? </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Let&#8217;s deal with the naming issue first.  <code>y</code>.  Next up:</p>
+<p>Let&rsquo;s deal with the naming issue first.  <code>y</code>.  Next up:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -200,7 +200,7 @@
 </span><span class='line'>     else:</span></code></pre></td></tr></table></div></figure>
 
 
-<p>This one&#8217;s different. <code>n</code>.</p>
+<p>This one&rsquo;s different. <code>n</code>.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -268,7 +268,7 @@
 </span><span class='line'> 1 file changed, 1 insertion(+), 1 deletion(-)</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Of course, you may not want your commits to be quite <em>this</em> granular - but hopefully the example has demonstrated the strength of <code>git add -p</code> in creating single-concept commits.</p>
+<p>Of course, you may not want your commits to be quite <em>this</em> granular &ndash; but hopefully the example has demonstrated the strength of <code>git add -p</code> in creating single-concept commits.</p>
 </div>
 
 
@@ -330,6 +330,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/07/02/more-side-effecting/">More side effecting</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/06/28/side-effecting-assignment/">Side-effecting Assignment</a>
       </li>
     
@@ -345,13 +349,8 @@
         <a href="/blog/2012/12/23/some-wacky-shell-scripting/">Some wacky shell scripting</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2012/12/18/git-add-p-the-wave-of-the-future/">Git add -p: The Wave of the Future</a>
-      </li>
-    
   </ul>
 </section>
-
 
 
 

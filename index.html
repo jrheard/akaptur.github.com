@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="Surprises My colleague Dave told me about an interesting bit of Ruby the other day. If you make a new Class object, it initially has no name. If you &hellip;">
+  <meta name="description" content="Nick Coghlan added another interesting note in response to my last post about creating side-effecting assignments in python. Here&rsquo;s Nick: @ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -64,6 +64,214 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/07/02/more-side-effecting/">More Side Effecting</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-02T15:47:00-04:00" pubdate data-updated="true">Jul 2<span>nd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://twitter.com/ncoghlan_dev">Nick Coghlan</a> added another interesting note in response to my last post about creating side-effecting assignments in python.  Here&rsquo;s Nick:</p>
+
+<blockquote class="twitter-tweet" data-conversation="none" data-cards="hidden"><p><a href="https://twitter.com/brandon_rhodes">@brandon_rhodes</a> <a href="https://twitter.com/akaptur">@akaptur</a> You can do better if you&#39;re the one controlling the namespace creation (e.g. an importer): <a href="https://t.co/gA8LD121cD">https://t.co/gA8LD121cD</a></p>&mdash; Nick Coghlan (@ncoghlan_dev) <a href="https://twitter.com/ncoghlan_dev/statuses/350971160659378176">June 29, 2013</a></blockquote>
+
+
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+<p>Let&rsquo;s look at <a href="https://gist.github.com/ncoghlan/5891123#file-crazy-namespace-python-2">that gist</a>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">Madness</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>             <span class="n">value</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">attr</span>
+</span><span class='line'><span class="o">...</span>         <span class="nb">dict</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">code</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+</span><span class='line'><span class="s">... class Example(object): pass</span>
+</span><span class='line'><span class="s">... NewName = Example</span>
+</span><span class='line'><span class="s">... print(Example.__name__)</span>
+</span><span class='line'><span class="s">... &quot;&quot;&quot;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">Madness</span><span class="p">()</span>
+</span><span class='line'><span class="n">NewName</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is really fun stuff, and nicely illustrates a core feature of python &ndash; that namespaces are basically just dictionaries.</p>
+
+<p>So what&rsquo;s going on here?  In this case, I think it&rsquo;s easiest to work backwards from the end.</p>
+
+<p>Last we have <code>exec code in Madness()</code>. The <code>exec</code> keyword in python 2<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> executes a string as code.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="s">&quot;hello&quot;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;print a&quot;</span>
+</span><span class='line'><span class="n">hello</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>exec</code> optionally takes a context in which to execute the code.  A dictionary is a perfectly legal context to use:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;print b&quot;</span> <span class="ow">in</span> <span class="p">{</span><span class="s">&#39;b&#39;</span> <span class="p">:</span> <span class="s">&quot;hi there&quot;</span><span class="p">}</span>
+</span><span class='line'><span class="n">hi</span> <span class="n">there</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All the code is shown here &ndash; <code>b</code> is not defined elsewhere in the REPL session.</p>
+
+<p>If a dictionary is provided, it&rsquo;s presumed to contain both the global and the local variables.  This dictionary is the <strong>only</strong> context in which the code will be executed (it won&rsquo;t check the scope from which the <code>exec</code> statement was made).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="s">&quot;hello&quot;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;print a&quot;</span> <span class="ow">in</span> <span class="p">{</span><span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&quot;hi there&quot;</span><span class="p">}</span>
+</span><span class='line'><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+</span><span class='line'>  <span class="n">File</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="n">File</span> <span class="s">&quot;&lt;string&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+</span><span class='line'><span class="ne">NameError</span><span class="p">:</span> <span class="n">name</span> <span class="s">&#39;a&#39;</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">defined</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So without knowing anything about the <code>Madness()</code> object, we&rsquo;d expect it to be a dictionary-like thing.</p>
+
+<p>And sure enough, it is:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">Madness</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>__setitem__</code> is the standard way to override setting a key:value pair in a dictionary.  It works just like you&rsquo;d expect:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">d</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="s">&#39;hello&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">d</span>
+</span><span class='line'><span class="p">{</span><span class="s">&#39;hello&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;re intercepting any attempt to write to the Madness dictionary-like object.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>             <span class="n">value</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">attr</span>
+</span><span class='line'><span class="o">...</span>         <span class="nb">dict</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If the value of the key:value pair that we&rsquo;re setting is an instance of the <code>type</code> type &ndash; that is, if the object in question is a class &ndash; then grab that class&rsquo;s <strong>name</strong> and set it to the key.  (This step will blow up if the key in question isn&rsquo;t a legal name in the first place.)  Then use the parent class (<code>dict</code>)&rsquo;s <code>__setitem__</code> to actually write to the Madness object.</p>
+
+<p>We can execute the code string one line at a time to better see what&rsquo;s happening.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span> <span class="o">=</span> <span class="n">Madness</span><span class="p">()</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</span><span class='line'><span class="p">[]</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;class Example(object): pass&quot;</span> <span class="ow">in</span> <span class="n">m</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</span><span class='line'><span class="p">[</span><span class="s">&#39;__builtins__&#39;</span><span class="p">,</span> <span class="s">&#39;Example&#39;</span><span class="p">]</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="p">[</span><span class="s">&#39;Example&#39;</span><span class="p">]</span>
+</span><span class='line'><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">Example</span><span class="s">&#39;&gt;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;NewName = Example&quot;</span> <span class="ow">in</span> <span class="n">m</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</span><span class='line'><span class="p">[</span><span class="s">&#39;__builtins__&#39;</span><span class="p">,</span> <span class="s">&#39;NewName&#39;</span><span class="p">,</span> <span class="s">&#39;Example&#39;</span><span class="p">]</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="p">[</span><span class="s">&#39;Example&#39;</span><span class="p">]</span>
+</span><span class='line'><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">NewName</span><span class="s">&#39;&gt;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="p">[</span><span class="s">&#39;NewName&#39;</span><span class="p">]</span>
+</span><span class='line'><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">NewName</span><span class="s">&#39;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;OtherName = Example&quot;</span> <span class="ow">in</span> <span class="n">m</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="p">[</span><span class="s">&#39;Example&#39;</span><span class="p">]</span>
+</span><span class='line'><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">OtherName</span><span class="s">&#39;&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(I&rsquo;m using <code>m.keys()</code> to examine the state of the namespace instead of just printing <code>m</code> because the reference to <code>__builtins__</code> pukes a bunch of tiresome definitions and copyright statements into the REPL.  <code>exec</code> adds a reference to <code>__builtins__</code> on the execution of any statement.)</p>
+
+<p>We&rsquo;re now quite close to the original Ruby behavior &ndash; with a deeper understanding of python namespaces!</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>All of this works in python 3, too, with slightly different syntax because <code>exec</code> is a function, not a keyword.  Nick&rsquo;s gist includes the python 3 version too.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -167,15 +375,15 @@
 
 <p>Wow.</p>
 
-<p>Luckily for our intuition, this is a pretty special case, and not a way that Ruby generally behaves.  But it got me wondering if there&#8217;s something similar in python.</p>
+<p>Luckily for our intuition, this is a pretty special case, and not a way that Ruby generally behaves.  But it got me wondering if there&rsquo;s something similar in python.</p>
 
 <h2>What about python?</h2>
 
-<p>The simplest answer is &#8220;no&#8221;.  In python, <a href="http://docs.python.org/2/reference/simple_stmts.html#assignment-statements">assignment is a simple statement</a>, not an operator, so you can&#8217;t do things like operator overloading.  This also means we can&#8217;t somehow add a hook to assignment.</p>
+<p>The simplest answer is &ldquo;no&rdquo;.  In python, <a href="http://docs.python.org/2/reference/simple_stmts.html#assignment-statements">assignment is a simple statement</a>, not an operator, so you can&rsquo;t do things like operator overloading.  This also means we can&rsquo;t somehow add a hook to assignment.</p>
 
-<p>Ok, fine.  But wait - we&#8217;re programmers!  We don&#8217;t give up that easily.</p>
+<p>Ok, fine.  But wait &ndash; we&rsquo;re programmers!  We don&rsquo;t give up that easily.</p>
 
-<p>What about hooking on <code>__getattribute__</code>?  (Defining your own <code>__getattribute__</code> is &#8220;the bad way&#8221; to do it.  You almost always want to define your own <code>__getattr__</code>, unless you&#8217;re doing something silly and/or malicious, like we are.  Note that we have to use the parent class (<code>object</code>)&#8217;s <code>__getattribute__</code> to extract and save the attribute we want.  If we didn&#8217;t do that, we&#8217;d trigger an infinitely recursive lookup.)</p>
+<p>What about hooking on <code>__getattribute__</code>?  (Defining your own <code>__getattribute__</code> is &ldquo;the bad way&rdquo; to do it.  You almost always want to define your own <code>__getattr__</code>, unless you&rsquo;re doing something silly and/or malicious, like we are.  Note that we have to use the parent class (<code>object</code>)&rsquo;s <code>__getattribute__</code> to extract and save the attribute we want.  If we didn&rsquo;t do that, we&rsquo;d trigger an infinitely recursive lookup.)</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -217,7 +425,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Unfortunately, this behavior has nothing to do with assignment.  The object was mutated when <code>__getattribute__</code> was called, which happened to be in an assignment statement in this code above.  We&#8217;d get exactly the same behavior without the assignment:</p>
+<p>Unfortunately, this behavior has nothing to do with assignment.  The object was mutated when <code>__getattribute__</code> was called, which happened to be in an assignment statement in this code above.  We&rsquo;d get exactly the same behavior without the assignment:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -238,13 +446,13 @@
 
 <p>Darn.</p>
 
-<p>But we&#8217;re programmers, right?  We don&#8217;t give up that easily.</p>
+<p>But we&rsquo;re programmers, right?  We don&rsquo;t give up that easily.</p>
 
 <h2>Trace functions to the rescue</h2>
 
-<p>There&#8217;s a <code>settrace</code> function in python&#8217;s <code>sys</code> module that we can use to examine stack frames, events, and lots of other code data while our program is running.  <code>sys.settrace(fn)</code> takes a trace function as an argument, and that trace function must take <code>frame, event, args</code> as arguments.  It will then get called every time an event happens.  A line of code, a function call, a function return, and an exception are all &#8220;events&#8221;.  We can use this to inspect each line of code before it runs and check manually if it&#8217;s an assignment statement.</p>
+<p>There&rsquo;s a <code>settrace</code> function in python&rsquo;s <code>sys</code> module that we can use to examine stack frames, events, and lots of other code data while our program is running.  <code>sys.settrace(fn)</code> takes a trace function as an argument, and that trace function must take <code>frame, event, args</code> as arguments.  It will then get called every time an event happens.  A line of code, a function call, a function return, and an exception are all &ldquo;events&rdquo;.  We can use this to inspect each line of code before it runs and check manually if it&rsquo;s an assignment statement.</p>
 
-<p>(I know this is silly, but isn&#8217;t it fun?)</p>
+<p>(I know this is silly, but isn&rsquo;t it fun?)</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -287,7 +495,7 @@
 
 <p>(The trace function returns a reference to itself to indicate that tracing should continue.)</p>
 
-<p>Now let&#8217;s write our code to mess up assignment.</p>
+<p>Now let&rsquo;s write our code to mess up assignment.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -342,9 +550,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Here our &#8220;box&#8221; object is pretty silly.  It takes the original object and wraps it in a box.  (You could implement <code>__getattr__</code> and <code>__setattr__</code> so that the box behaves basically like the original object, which I haven&#8217;t done.)  The box then explodes when you try to print it.  We&#8217;re also tracking which names we&#8217;ve seen with the aptly-named <code>JANKY_NAMESPACE_MANAGER</code> (which has all kinds of scope issues, but whatever).</p>
+<p>Here our &ldquo;box&rdquo; object is pretty silly.  It takes the original object and wraps it in a box.  (You could implement <code>__getattr__</code> and <code>__setattr__</code> so that the box behaves basically like the original object, which I haven&rsquo;t done.)  The box then explodes when you try to print it.  We&rsquo;re also tracking which names we&rsquo;ve seen with the aptly-named <code>JANKY_NAMESPACE_MANAGER</code> (which has all kinds of scope issues, but whatever).</p>
 
-<p>Meanwhile, in the <code>mess_up_on_assignment</code> code, we check to see if any of the whitespace-separated words on the right-hand side of the equation are names we recognize from <code>frame.f_locals</code> or <code>frame.f_globals</code>.  If so, and if we haven&#8217;t seen them before, throw them in a self-destructing box!</p>
+<p>Meanwhile, in the <code>mess_up_on_assignment</code> code, we check to see if any of the whitespace-separated words on the right-hand side of the equation are names we recognize from <code>frame.f_locals</code> or <code>frame.f_globals</code>.  If so, and if we haven&rsquo;t seen them before, throw them in a self-destructing box!</p>
 
 <p>Add a simple helper to get things set up.</p>
 
@@ -423,7 +631,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>And there you have it - a (incredibly goofy) side-effecting assignment that mutates the object on the right-hand side of the assignment statement.</p>
+<p>And there you have it &ndash; a (incredibly goofy) side-effecting assignment that mutates the object on the right-hand side of the assignment statement.</p>
 </div>
   
   
@@ -459,7 +667,7 @@
   </header>
 
 
-  <div class="entry-content"><p>I picked up a couple of new tricks at Hacker School&#8217;s intermediate/advanced Git seminar, led by Peter Bell.</p>
+  <div class="entry-content"><p>I picked up a couple of new tricks at Hacker School&rsquo;s intermediate/advanced Git seminar, led by Peter Bell.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>$ git checkout -</span></code></pre></td></tr></table></div></figure>
@@ -493,7 +701,7 @@
 
 <p>You can alias this with <code>git config --global alias.plog "log --graph --oneline --all"</code>.  (Looking at this graph may motivate you to start using <code>git merge --no-ff</code>.)  You can substitute whatever you want for <code>plog</code> above.</p>
 
-<p>If you get really screwed up, it&#8217;s reflog time!  (This is pronounced ref-log, not re-flog as I&#8217;d been reading it.  On the other hand, as my colleague <a href="https://github.com/happy4crazy">Alan</a> notes, &#8220;You damn well ought to feel penitent if you&#8217;re wedged enough to need the reflog.&#8221;)  Here, we&#8217;re using <code>git reset</code> to undo the last commit.  Even though the commit doesn&#8217;t appear in <code>git log</code> anymore, there&#8217;s still a references to it in the reflog.</p>
+<p>If you get really screwed up, it&rsquo;s reflog time!  (This is pronounced ref-log, not re-flog as I&rsquo;d been reading it.  On the other hand, as my colleague <a href="https://github.com/happy4crazy">Alan</a> notes, &ldquo;You damn well ought to feel penitent if you&rsquo;re wedged enough to need the reflog.&rdquo;)  Here, we&rsquo;re using <code>git reset</code> to undo the last commit.  Even though the commit doesn&rsquo;t appear in <code>git log</code> anymore, there&rsquo;s still a references to it in the reflog.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -583,9 +791,9 @@
   </header>
 
 
-  <div class="entry-content"><p>I encountered some surprising behavior in python&#8217;s list.sort() method.  I was calling list.sort() with a function, then list.reverse().  This was silly - I forgot I could call list.sort(reverse=True).  As it turns out, these are not the always the same, or even usually the same.</p>
+  <div class="entry-content"><p>I encountered some surprising behavior in python&rsquo;s list.sort() method.  I was calling list.sort() with a function, then list.reverse().  This was silly &ndash; I forgot I could call list.sort(reverse=True).  As it turns out, these are not the always the same, or even usually the same.</p>
 
-<p>Here&#8217;s the code:</p>
+<p>Here&rsquo;s the code:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -621,7 +829,7 @@
 </span><span class='line'># Copy: [('d', 3), ('c', 2), ('a', 0), ('b', 0)]</span></code></pre></td></tr></table></div></figure>
 
 
-<p>What&#8217;s happening here is that .sort() and sorted() in python are &#8220;stable sorts&#8221;, meaning that it&#8217;ll preserve the existing order when faced with a tie.  This leads to a nice side effect, as described in the <a href="http://wiki.python.org/moin/HowTo/Sorting/">python wiki</a>: you can sort by multiple criteria.  So if we wanted to sort primarily by number (ascending), and secondarily by letter, we could do that quite easily.  Just sort by the secondary key first, then by the primary key.  Since the sort is stable, you know that a tie in the second (primary) sort will preserve the order you had going in.</p>
+<p>What&rsquo;s happening here is that .sort() and sorted() in python are &ldquo;stable sorts&rdquo;, meaning that it&rsquo;ll preserve the existing order when faced with a tie.  This leads to a nice side effect, as described in the <a href="http://wiki.python.org/moin/HowTo/Sorting/">python wiki</a>: you can sort by multiple criteria.  So if we wanted to sort primarily by number (ascending), and secondarily by letter, we could do that quite easily.  Just sort by the secondary key first, then by the primary key.  Since the sort is stable, you know that a tie in the second (primary) sort will preserve the order you had going in.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -673,7 +881,7 @@
   </header>
 
 
-  <div class="entry-content"><p>I&#8217;m currently digging into the source of virtualenv, a python utility for managing environments.  It&#8217;s incredibly handy, and I&#8217;d been using it for a while without really understanding how it worked.  I&#8217;ll have more later on the details, but in the meantime, I hit a particularly puzzling bit of code:</p>
+  <div class="entry-content"><p>I&rsquo;m currently digging into the source of virtualenv, a python utility for managing environments.  It&rsquo;s incredibly handy, and I&rsquo;d been using it for a while without really understanding how it worked.  I&rsquo;ll have more later on the details, but in the meantime, I hit a particularly puzzling bit of code:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -707,7 +915,7 @@
 </span><span class='line'>fi</span></code></pre></td></tr></table></div></figure>
 
 
-<p>This is largely intelligible - clearly we&#8217;re modifying the $PS1 variable, which sets the bash prompt.  But what on earth is this line?</p>
+<p>This is largely intelligible &ndash; clearly we&rsquo;re modifying the $PS1 variable, which sets the bash prompt.  But what on earth is this line?</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -717,7 +925,7 @@
 
 <p><code>x</code> is not a variable defined elsewhere in the script, and bash will interpret both <code>"x"</code> and <code>x</code> as string literals anyway.  Is there some bizarre shell in which this test can possibly return true?</p>
 
-<p>As it turns out, there isn&#8217;t.  The reason this code looks so bizarre is that it&#8217;s automatically generated by virtualenv.  The original line of code is <a href="https://github.com/pypa/virtualenv/blob/develop/virtualenv_embedded/activate.sh#L59">this</a>:</p>
+<p>As it turns out, there isn&rsquo;t.  The reason this code looks so bizarre is that it&rsquo;s automatically generated by virtualenv.  The original line of code is <a href="https://github.com/pypa/virtualenv/blob/develop/virtualenv_embedded/activate.sh#L59">this</a>:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -769,15 +977,15 @@
   </header>
 
 
-  <div class="entry-content"><p>I recently started using git&#8217;s patch mode via <code>git add -p</code>. Patch mode makes my commits more granular, which means my commit messages are more accurate.  Better still, patch mode allows you to abstract away from adding &#8220;files&#8221; - you&#8217;re adding changes to be committed.  This is a closer mental model to what git is actually doing.  I&#8217;m finding it particularly useful for code review: make several changes in a friend&#8217;s program, group the changes by concept, and commit one concept at a time.</p>
+  <div class="entry-content"><p>I recently started using git&rsquo;s patch mode via <code>git add -p</code>. Patch mode makes my commits more granular, which means my commit messages are more accurate.  Better still, patch mode allows you to abstract away from adding &ldquo;files&rdquo; &ndash; you&rsquo;re adding changes to be committed.  This is a closer mental model to what git is actually doing.  I&rsquo;m finding it particularly useful for code review: make several changes in a friend&rsquo;s program, group the changes by concept, and commit one concept at a time.</p>
 
-<p>That&#8217;s the why - here&#8217;s the how.</p>
+<p>That&rsquo;s the why &ndash; here&rsquo;s the how.</p>
 
-<p><code>git add -p</code> launches what git calls the &#8220;interactive hunk selector.&#8221;  This leads me to my other favorite reason to use -p: besides being useful, all the <a href="http://www.kernel.org/pub/software/scm/git/docs/git-add.html">docs</a> sound like an episode of The Bachelorette.  &#8220;Once you have decided the fate of all the hunks, if there is any hunk that is chosen, the index is updated with the selected hunks.&#8221; And if not, our bachelorette takes the million dollars!</p>
+<p><code>git add -p</code> launches what git calls the &ldquo;interactive hunk selector.&rdquo;  This leads me to my other favorite reason to use -p: besides being useful, all the <a href="http://www.kernel.org/pub/software/scm/git/docs/git-add.html">docs</a> sound like an episode of The Bachelorette.  &ldquo;Once you have decided the fate of all the hunks, if there is any hunk that is chosen, the index is updated with the selected hunks.&rdquo; And if not, our bachelorette takes the million dollars!</p>
 
-<p>In practice, I only end up using three of the interactive hunk selector options: [y]es, [n]o, and [s]plit.  Split takes the current hunk and divides it into smaller hunks, then presents them for selection one at a time.  (If you&#8217;re attempting to continue the Bachelorette metaphor, now is a good time to stop.)</p>
+<p>In practice, I only end up using three of the interactive hunk selector options: [y]es, [n]o, and [s]plit.  Split takes the current hunk and divides it into smaller hunks, then presents them for selection one at a time.  (If you&rsquo;re attempting to continue the Bachelorette metaphor, now is a good time to stop.)</p>
 
-<p>Let&#8217;s look at an example.  Suppose I&#8217;m working on a function that recursively calculates the sum of element of a list.  My first draft looks like this:</p>
+<p>Let&rsquo;s look at an example.  Suppose I&rsquo;m working on a function that recursively calculates the sum of element of a list.  My first draft looks like this:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -793,7 +1001,7 @@
 </span><span class='line'>        return list_in.pop() + sum(list_in)</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Not bad, but it&#8217;s a little verbose.  Let&#8217;s take advantage of the fact that an empty list is falsey.  And, oops, we&#8217;re overwriting the built-in <code>sum</code> function in python - we probably don&#8217;t want to do that.</p>
+<p>Not bad, but it&rsquo;s a little verbose.  Let&rsquo;s take advantage of the fact that an empty list is falsey.  And, oops, we&rsquo;re overwriting the built-in <code>sum</code> function in python &ndash; we probably don&rsquo;t want to do that.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -809,7 +1017,7 @@
 </span><span class='line'>        return list_in.pop() + summer(list_in)</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Ok, these are two different thoughts, but we didn&#8217;t commit in between.  Interactive mode to the rescue - let&#8217;s stage those hunks.</p>
+<p>Ok, these are two different thoughts, but we didn&rsquo;t commit in between.  Interactive mode to the rescue &ndash; let&rsquo;s stage those hunks.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -845,7 +1053,7 @@
 </span><span class='line'>Stage this hunk [y,n,q,a,d,/,s,e,?]? </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Our changes aren&#8217;t in the right hunks, so we&#8217;ll pick <code>s</code> to split them.</p>
+<p>Our changes aren&rsquo;t in the right hunks, so we&rsquo;ll pick <code>s</code> to split them.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -863,7 +1071,7 @@
 </span><span class='line'>Stage this hunk [y,n,q,a,d,/,j,J,g,e,?]? </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Let&#8217;s deal with the naming issue first.  <code>y</code>.  Next up:</p>
+<p>Let&rsquo;s deal with the naming issue first.  <code>y</code>.  Next up:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -879,7 +1087,7 @@
 </span><span class='line'>     else:</span></code></pre></td></tr></table></div></figure>
 
 
-<p>This one&#8217;s different. <code>n</code>.</p>
+<p>This one&rsquo;s different. <code>n</code>.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -947,7 +1155,7 @@
 </span><span class='line'> 1 file changed, 1 insertion(+), 1 deletion(-)</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Of course, you may not want your commits to be quite <em>this</em> granular - but hopefully the example has demonstrated the strength of <code>git add -p</code> in creating single-concept commits.</p>
+<p>Of course, you may not want your commits to be quite <em>this</em> granular &ndash; but hopefully the example has demonstrated the strength of <code>git add -p</code> in creating single-concept commits.</p>
 </div>
   
   
@@ -968,6 +1176,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/07/02/more-side-effecting/">More side effecting</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/06/28/side-effecting-assignment/">Side-effecting Assignment</a>
       </li>
     
@@ -983,13 +1195,8 @@
         <a href="/blog/2012/12/23/some-wacky-shell-scripting/">Some wacky shell scripting</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2012/12/18/git-add-p-the-wave-of-the-future/">Git add -p: The Wave of the Future</a>
-      </li>
-    
   </ul>
 </section>
-
 
 
 
