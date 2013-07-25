@@ -3,7 +3,7 @@ layout: post
 title: "Systematic Debugging"
 date: 2013-07-24 13:54
 comments: true
-categories: 
+categories: python
 ---
 
 We've asked many of our residents at Hacker School what qualities all great programmers share.  There's very little agreement - clearly, there are a multitude of ways to be a great programmer, and you can think of a counter-example for almost every quality you can name.  One of the rare non-controversial statements came first from Jessica McKellar, who identified systematic debugging as a key skill.

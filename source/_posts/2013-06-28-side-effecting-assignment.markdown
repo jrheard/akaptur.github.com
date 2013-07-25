@@ -3,7 +3,7 @@ layout: post
 title: "Side-effecting Assignment"
 date: 2013-06-28 14:35
 comments: false
-categories: 
+categories: python
 ---
 
 ##Surprises

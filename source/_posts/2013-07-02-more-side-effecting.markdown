@@ -3,7 +3,7 @@ layout: post
 title: "More side effecting"
 date: 2013-07-02 15:47
 comments: false
-categories: 
+categories: python
 ---
 
 [Nick Coghlan](https://twitter.com/ncoghlan_dev) added another interesting note in response to my last post about creating side-effecting assignments in python.  Here's Nick:

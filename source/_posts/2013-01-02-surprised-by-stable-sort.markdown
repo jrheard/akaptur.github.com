@@ -3,7 +3,7 @@ layout: post
 title: "Surprised by Stable Sort"
 date: 2013-01-02 00:02
 comments: false
-categories: 
+categories: python
 ---
 
 I encountered some surprising behavior in python's list.sort() method.  I was calling list.sort() with a function, then list.reverse().  This was silly - I forgot I could call list.sort(reverse=True).  As it turns out, these are not the always the same, or even usually the same.  
