@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="We&rsquo;ve asked many of our residents at Hacker School what qualities all great programmers share. There&rsquo;s very little agreement &ndash; &hellip;">
+  <meta name="description" content="Last week at Hacker School I did a quick presentation on python bytecode and the dis module. The disassembler is a very powerful tool with a gentle &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +76,224 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/14/python-bytecode-fun-with-dis/">Python Bytecode: Fun With Dis</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-08-14T16:04:00-04:00" pubdate data-updated="true">Aug 14<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Last week at <a href="https://www.hackerschool.com/">Hacker School</a> I did a quick presentation on python bytecode and the <code>dis</code> module.  The disassembler is a very powerful tool with a gentle learning curve &ndash; that is, you can get a fair amount out of it without really knowing much about what&rsquo;s going on.  This post is a quick introduction to how and why you should use it.</p>
+
+<h3>What&rsquo;s bytecode?</h3>
+
+<p>Bytecode is the internal representation of a python program in the compiler.  Here, we&rsquo;ll be looking at bytecode from cpython, the default compiler.  If you don&rsquo;t know what compiler you&rsquo;re using, it&rsquo;s probably cpython.</p>
+
+<h3>How do I get bytecode?</h3>
+
+<p>You already have it!  Bytecode is what&rsquo;s contained in those .pyc files you see when you import a module.  It&rsquo;s also created on the fly by running any python code.</p>
+
+<h3>Disassembling</h3>
+
+<p>Ok, so you have some bytecode, and you want to understand it.  Let&rsquo;s look at it without using the <code>dis</code> module first.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">b</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">foo</span> <span class="n">at</span> <span class="mh">0x106353530</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span>
+</span><span class='line'><span class="s">&#39;d</span><span class="se">\x01\x00</span><span class="s">}</span><span class="se">\x00\x00</span><span class="s">d</span><span class="se">\x02\x00</span><span class="s">}</span><span class="se">\x01\x00</span><span class="s">|</span><span class="se">\x00\x00</span><span class="s">|</span><span class="se">\x01\x00\x17</span><span class="s">S&#39;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span><span class="p">]</span>
+</span><span class='line'><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">83</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hmm, that was &hellip; not very enlightening.  We can see that we have a bunch of bytes (some printable, others not), but we have no idea what they mean.</p>
+
+<p>Let&rsquo;s run it through <code>dis.dis</code> instead.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">dis</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">3</span>           <span class="mi">6</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">b</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">4</span>          <span class="mi">12</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">15</span> <span class="n">LOAD_FAST</span>                <span class="mi">1</span> <span class="p">(</span><span class="n">b</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">18</span> <span class="n">BINARY_ADD</span>
+</span><span class='line'>             <span class="mi">19</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>dis</code> takes each byte, finds the opcode that corresponds to it in <code>opcodes.py</code>, and prints it as a nice, readable constant.  If we look at <code>opcodes.py</code> we see that <code>LOAD_CONST</code> is 100, <code>STORE_FAST</code> is 125, etc. <code>dis</code> also shows the line numbers on the left and the values or names on the right.  So without ever seeing something like before, we have an idea what&rsquo;s going on: we first load a constant, 2, then somehow store it as <code>a</code>.  Then we repeat this with 3 and <code>b</code>.  We load <code>a</code> and <code>b</code> back up, do <code>BINARY_ADD</code>, which presumably adds the numbers, and then do <code>RETURN_VALUE</code>.</p>
+
+<p>Examining the bytecode can sometimes increase your understanding of python code.  Here are two examples.</p>
+
+<h3>elif</h3>
+
+<p><code>elif</code> is identical in bytecode to <code>else ... if</code>.  Take a look:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">flat</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="s">&quot;Fizz&quot;</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">elif</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="s">&quot;Buzz&quot;</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">else</span><span class="p">:</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="n">num</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">nested</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="s">&quot;Fizz&quot;</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">else</span><span class="p">:</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span class='line'><span class="o">...</span>             <span class="k">print</span> <span class="s">&quot;Buzz&quot;</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">else</span><span class="p">:</span>
+</span><span class='line'><span class="o">...</span>             <span class="k">print</span> <span class="n">num</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;ve read <a href="http://www.python.org/dev/peps/pep-0008/">PEP 8</a> so we know that <em>flat is better than nested</em> for style and readability.  But is there a performance difference?  Not at all &ndash; in fact, these two functions have identical bytecode.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">6</span> <span class="n">BINARY_MODULO</span>
+</span><span class='line'>              <span class="mi">7</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">10</span> <span class="n">COMPARE_OP</span>               <span class="mi">2</span> <span class="p">(</span><span class="o">==</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">13</span> <span class="n">POP_JUMP_IF_FALSE</span>       <span class="mi">24</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">3</span>          <span class="mi">16</span> <span class="n">LOAD_CONST</span>               <span class="mi">3</span> <span class="p">(</span><span class="s">&#39;Fizz&#39;</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">19</span> <span class="n">PRINT_ITEM</span>
+</span><span class='line'>             <span class="mi">20</span> <span class="n">PRINT_NEWLINE</span>
+</span><span class='line'>             <span class="mi">21</span> <span class="n">JUMP_FORWARD</span>            <span class="mi">29</span> <span class="p">(</span><span class="n">to</span> <span class="mi">53</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">4</span>     <span class="o">&gt;&gt;</span>   <span class="mi">24</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">27</span> <span class="n">LOAD_CONST</span>               <span class="mi">4</span> <span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">30</span> <span class="n">BINARY_MODULO</span>
+</span><span class='line'>             <span class="mi">31</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">34</span> <span class="n">COMPARE_OP</span>               <span class="mi">2</span> <span class="p">(</span><span class="o">==</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">37</span> <span class="n">POP_JUMP_IF_FALSE</span>       <span class="mi">48</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">5</span>          <span class="mi">40</span> <span class="n">LOAD_CONST</span>               <span class="mi">5</span> <span class="p">(</span><span class="s">&#39;Buzz&#39;</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">43</span> <span class="n">PRINT_ITEM</span>
+</span><span class='line'>             <span class="mi">44</span> <span class="n">PRINT_NEWLINE</span>
+</span><span class='line'>             <span class="mi">45</span> <span class="n">JUMP_FORWARD</span>             <span class="mi">5</span> <span class="p">(</span><span class="n">to</span> <span class="mi">53</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">7</span>     <span class="o">&gt;&gt;</span>   <span class="mi">48</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">51</span> <span class="n">PRINT_ITEM</span>
+</span><span class='line'>             <span class="mi">52</span> <span class="n">PRINT_NEWLINE</span>
+</span><span class='line'>        <span class="o">&gt;&gt;</span>   <span class="mi">53</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">56</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That makes sense &ndash; <code>else</code> just means &ldquo;start executing here if the <code>if</code> was false&rdquo; &ndash; there&rsquo;s no more computation to do.  <code>elif</code> is just <a href="https://en.wikipedia.org/wiki/Syntactic_sugar">syntactic sugar</a>.</p>
+
+<h3>Further reading:</h3>
+
+<p>This just scratches the surface of what&rsquo;s interesting about python bytecode.</p>
+
+<p>If you enjoyed this, you might enjoy diving into Yaniv Aknin&rsquo;s <a href="http://tech.blog.aknin.name/category/my-projects/pythons-innards/">series</a> on python internals.  If you&rsquo;re excited about bytecode, you should contribute to Ned Batchelder&rsquo;s <a href="https://github.com/nedbat/byterun">byterun</a>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1952,6 +2170,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/08/14/python-bytecode-fun-with-dis/">Python Bytecode: Fun with dis</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/07/24/systematic-debugging/">Systematic Debugging</a>
       </li>
     
@@ -1965,10 +2187,6 @@
     
       <li class="post">
         <a href="/blog/2013/06/25/new-git-tricks/">New git tricks</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/01/02/surprised-by-stable-sort/">Surprised by Stable Sort</a>
       </li>
     
   </ul>
