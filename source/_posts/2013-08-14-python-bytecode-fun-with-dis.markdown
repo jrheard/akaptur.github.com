@@ -2,8 +2,8 @@
 layout: post
 title: "Python Bytecode: Fun with dis"
 date: 2013-08-14 16:04
-comments: true
-categories: 
+comments: false
+categories: python
 ---
 
 Last week at [Hacker School](https://www.hackerschool.com/) I did a quick presentation on python bytecode and the `dis` module.  The disassembler is a very powerful tool with a gentle learning curve - that is, you can get a fair amount out of it without really knowing much about what's going on.  This post is a quick introduction to how and why you should use it.

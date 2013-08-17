@@ -2,7 +2,7 @@
 layout: post
 title: "Systematic Debugging"
 date: 2013-07-24 13:54
-comments: true
+comments: false
 categories: python
 ---
 
