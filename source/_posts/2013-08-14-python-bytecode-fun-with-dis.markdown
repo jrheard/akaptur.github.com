@@ -50,9 +50,9 @@ Let's run it through `dis.dis` instead.
              19 RETURN_VALUE  
 ```
 
-`dis` takes each byte, finds the opcode that corresponds to it in `opcodes.py`, and prints it as a nice, readable constant.  If we look at `opcodes.py` we see that `LOAD_CONST` is 100, `STORE_FAST` is 125, etc. `dis` also shows the line numbers on the left and the values or names on the right.  So without ever seeing something like before, we have an idea what's going on: we first load a constant, 2, then somehow store it as `a`.  Then we repeat this with 3 and `b`.  We load `a` and `b` back up, do `BINARY_ADD`, which presumably adds the numbers, and then do `RETURN_VALUE`.
+Now this starts to make some sense.  `dis` takes each byte, finds the opcode that corresponds to it in `opcodes.py`, and prints it as a nice, readable constant.  If we look at `opcodes.py` we see that `LOAD_CONST` is 100, `STORE_FAST` is 125, etc. `dis` also shows the line numbers on the left and the values or names on the right.  So without ever seeing something like before, we have an idea what's going on: we first load a constant, 2, then somehow store it as `a`.  Then we repeat this with 3 and `b`.  We load `a` and `b` back up, do `BINARY_ADD`, which presumably adds the numbers, and then do `RETURN_VALUE`.
 
-Examining the bytecode can sometimes increase your understanding of python code.  Here are two examples.
+Examining the bytecode can sometimes increase your understanding of python code.  Here is one example.
 
 ### elif
 `elif` is identical in bytecode to `else ... if`.  Take a look:
