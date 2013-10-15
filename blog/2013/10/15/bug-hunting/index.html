@@ -1,0 +1,257 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Bug hunting - Of Interest</title>
+  <meta name="author" content="akaptur">
+
+  
+  <meta name="description" content="I&rsquo;ve managed to encounter three different bugs with the same obscure source in the last week. I think Hacker School might be cursed. Here&rsquo &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://akaptur.github.com/blog/2013/10/15/bug-hunting/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Of Interest" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42870230-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Of Interest</a></h1>
+  
+    <h2>An occasional blog on programming</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:akaptur.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Bug Hunting</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-15T08:01:00-04:00" pubdate data-updated="true">Oct 15<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I&rsquo;ve managed to encounter three different bugs with the same obscure source in the last week.  I think Hacker School might be cursed.  Here&rsquo;s a blog post attempting to rid us of the curse.</p>
+
+<h3>Bug 1: Flask app on Heroku can&rsquo;t find images and stylesheets</h3>
+
+<p>The first bug was a Flask app deployed to Heroku.  It worked fine locally, but when deployed, none of the images or stylesheets rendered.</p>
+
+<h3>Bug 2: A project fails to build</h3>
+
+<p>A Hacker Schooler cloned into a project and tried to build it with <code>python setup.py install</code>.  The build failed with the error <code>Supposed package directory '[project]' exists but is not a directory.</code></p>
+
+<h3>Bug 3: Heroku-deployed app crashes</h3>
+
+<p>I deployed a new feature to the Hacker School site (which is a Rails app), and crashed the application.  Again, everything worked fine locally on my machine and my colleague&rsquo;s machines.</p>
+
+<p>The solution and explanations are below the fold.  If you&rsquo;d like to try to guess, you can ask me debugging questions on twitter <a href="https://twitter.com/akaptur">(@akaptur)</a>, and I&rsquo;ll respond within 24 hours until Friday, October 18th, 2013. If you don&rsquo;t like guessing, or your own bugs are plenty for you, you can click through now.</p>
+
+<!-- more -->
+
+
+<h2>PSA: Mac OS X is a case-insensitive file system, y&#8217;all</h2>
+
+<p>Remarkably enough, all these bugs were caused by converting from a case-insensitve file system, like Mac OS X, to a case-sensitive one, like Ubuntu.</p>
+
+<h3>The flask app</h3>
+
+<p>In the flask app, the author had named his static folder <code>Static</code>.  Flask looks for static assets in <code>static</code> by default. No problem on his MacBook &ndash; but a big problem on Heroku.</p>
+
+<h3>The build</h3>
+
+<p>This was my personal favorite, and a new bit of trivia: when can <code>git clone</code> result in a local repo state that&rsquo;s different from the remote repo?  If the project was developed on a case-sensitive file system, and there exists both a <code>project</code> script and a <code>Project</code> folder, git will first clone the script and then <strong>silently</strong> fail to write the identically-named folder or the files that belong in it.  Interestingly, all the blobs are still there in your local repo: <code>git status</code> will show all the files in <code>Project/</code> and the <code>Project/</code> folder itself as deleted.  Simple demo <a href="https://github.com/paulvstheworld/case-sensitive-test">here</a>. (Thanks, Paul!)</p>
+
+<h3>The Hacker School deploy</h3>
+
+<p>Same story as #1 with different details: my colleague and I had done <code>require 'JSON'</code> instead of <code>require 'json'</code>, which worked fine locally and brought the entire app down on heroku.</p>
+
+<p>I&rsquo;ve finally learned to look for this bug when something mysterious happens between my machine and some other machine &ndash; which I&rsquo;m sure means I&rsquo;ll never encounter it again!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">akaptur</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-15T08:01:00-04:00" pubdate data-updated="true">Oct 15<span>th</span>, 2013</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://akaptur.github.com/blog/2013/10/15/bug-hunting/" data-via="" data-counturl="http://akaptur.github.com/blog/2013/10/15/bug-hunting/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/08/14/python-bytecode-fun-with-dis/" title="Previous Post: Python Bytecode: Fun with dis">&laquo; Python Bytecode: Fun with dis</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/10/15/bug-hunting/">Bug hunting</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/14/python-bytecode-fun-with-dis/">Python Bytecode: Fun with dis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/24/systematic-debugging/">Systematic Debugging</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/02/more-side-effecting/">More side effecting</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/28/side-effecting-assignment/">Side-effecting Assignment</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - akaptur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

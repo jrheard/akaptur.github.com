@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="Last week at Hacker School I did a quick presentation on python bytecode and the dis module. The disassembler is a very powerful tool with a gentle &hellip;">
+  <meta name="description" content="I&rsquo;ve managed to encounter three different bugs with the same obscure source in the last week. I think Hacker School might be cursed. Here&rsquo &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +76,61 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/15/bug-hunting/">Bug Hunting</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-15T08:01:00-04:00" pubdate data-updated="true">Oct 15<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&rsquo;ve managed to encounter three different bugs with the same obscure source in the last week.  I think Hacker School might be cursed.  Here&rsquo;s a blog post attempting to rid us of the curse.</p>
+
+<h3>Bug 1: Flask app on Heroku can&rsquo;t find images and stylesheets</h3>
+
+<p>The first bug was a Flask app deployed to Heroku.  It worked fine locally, but when deployed, none of the images or stylesheets rendered.</p>
+
+<h3>Bug 2: A project fails to build</h3>
+
+<p>A Hacker Schooler cloned into a project and tried to build it with <code>python setup.py install</code>.  The build failed with the error <code>Supposed package directory '[project]' exists but is not a directory.</code></p>
+
+<h3>Bug 3: Heroku-deployed app crashes</h3>
+
+<p>I deployed a new feature to the Hacker School site (which is a Rails app), and crashed the application.  Again, everything worked fine locally on my machine and my colleague&rsquo;s machines.</p>
+
+<p>The solution and explanations are below the fold.  If you&rsquo;d like to try to guess, you can ask me debugging questions on twitter <a href="https://twitter.com/akaptur">(@akaptur)</a>, and I&rsquo;ll respond within 24 hours until Friday, October 18th, 2013. If you don&rsquo;t like guessing, or your own bugs are plenty for you, you can click through now.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/10/15/bug-hunting/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -175,9 +230,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><code>dis</code> takes each byte, finds the opcode that corresponds to it in <code>opcodes.py</code>, and prints it as a nice, readable constant.  If we look at <code>opcodes.py</code> we see that <code>LOAD_CONST</code> is 100, <code>STORE_FAST</code> is 125, etc. <code>dis</code> also shows the line numbers on the left and the values or names on the right.  So without ever seeing something like before, we have an idea what&rsquo;s going on: we first load a constant, 2, then somehow store it as <code>a</code>.  Then we repeat this with 3 and <code>b</code>.  We load <code>a</code> and <code>b</code> back up, do <code>BINARY_ADD</code>, which presumably adds the numbers, and then do <code>RETURN_VALUE</code>.</p>
+<p>Now this starts to make some sense.  <code>dis</code> takes each byte, finds the opcode that corresponds to it in <code>opcodes.py</code>, and prints it as a nice, readable constant.  If we look at <code>opcodes.py</code> we see that <code>LOAD_CONST</code> is 100, <code>STORE_FAST</code> is 125, etc. <code>dis</code> also shows the line numbers on the left and the values or names on the right.  So without ever seeing something like before, we have an idea what&rsquo;s going on: we first load a constant, 2, then somehow store it as <code>a</code>.  Then we repeat this with 3 and <code>b</code>.  We load <code>a</code> and <code>b</code> back up, do <code>BINARY_ADD</code>, which presumably adds the numbers, and then do <code>RETURN_VALUE</code>.</p>
 
-<p>Examining the bytecode can sometimes increase your understanding of python code.  Here are two examples.</p>
+<p>Examining the bytecode can sometimes increase your understanding of python code.  Here is one example.</p>
 
 <h3>elif</h3>
 
@@ -2170,6 +2225,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/10/15/bug-hunting/">Bug hunting</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/08/14/python-bytecode-fun-with-dis/">Python Bytecode: Fun with dis</a>
       </li>
     
@@ -2183,10 +2242,6 @@
     
       <li class="post">
         <a href="/blog/2013/06/28/side-effecting-assignment/">Side-effecting Assignment</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/06/25/new-git-tricks/">New git tricks</a>
       </li>
     
   </ul>

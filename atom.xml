@@ -4,7 +4,7 @@
   <title><![CDATA[Of Interest]]></title>
   <link href="http://akaptur.github.com/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2013-08-14T17:07:52-04:00</updated>
+  <updated>2013-10-15T17:35:14-04:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,6 +12,50 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Bug hunting]]></title>
+    <link href="http://akaptur.github.com/blog/2013/10/15/bug-hunting/"/>
+    <updated>2013-10-15T08:01:00-04:00</updated>
+    <id>http://akaptur.github.com/blog/2013/10/15/bug-hunting</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve managed to encounter three different bugs with the same obscure source in the last week.  I think Hacker School might be cursed.  Here&rsquo;s a blog post attempting to rid us of the curse.</p>
+
+<h3>Bug 1: Flask app on Heroku can&rsquo;t find images and stylesheets</h3>
+
+<p>The first bug was a Flask app deployed to Heroku.  It worked fine locally, but when deployed, none of the images or stylesheets rendered.</p>
+
+<h3>Bug 2: A project fails to build</h3>
+
+<p>A Hacker Schooler cloned into a project and tried to build it with <code>python setup.py install</code>.  The build failed with the error <code>Supposed package directory '[project]' exists but is not a directory.</code></p>
+
+<h3>Bug 3: Heroku-deployed app crashes</h3>
+
+<p>I deployed a new feature to the Hacker School site (which is a Rails app), and crashed the application.  Again, everything worked fine locally on my machine and my colleague&rsquo;s machines.</p>
+
+<p>The solution and explanations are below the fold.  If you&rsquo;d like to try to guess, you can ask me debugging questions on twitter <a href="https://twitter.com/akaptur">(@akaptur)</a>, and I&rsquo;ll respond within 24 hours until Friday, October 18th, 2013. If you don&rsquo;t like guessing, or your own bugs are plenty for you, you can click through now.</p>
+
+<!-- more -->
+
+
+<h2>PSA: Mac OS X is a case-insensitive file system, y&#8217;all</h2>
+
+<p>Remarkably enough, all these bugs were caused by converting from a case-insensitve file system, like Mac OS X, to a case-sensitive one, like Ubuntu.</p>
+
+<h3>The flask app</h3>
+
+<p>In the flask app, the author had named his static folder <code>Static</code>.  Flask looks for static assets in <code>static</code> by default. No problem on his MacBook &ndash; but a big problem on Heroku.</p>
+
+<h3>The build</h3>
+
+<p>This was my personal favorite, and a new bit of trivia: when can <code>git clone</code> result in a local repo state that&rsquo;s different from the remote repo?  If the project was developed on a case-sensitive file system, and there exists both a <code>project</code> script and a <code>Project</code> folder, git will first clone the script and then <strong>silently</strong> fail to write the identically-named folder or the files that belong in it.  Interestingly, all the blobs are still there in your local repo: <code>git status</code> will show all the files in <code>Project/</code> and the <code>Project/</code> folder itself as deleted.  Simple demo <a href="https://github.com/paulvstheworld/case-sensitive-test">here</a>. (Thanks, Paul!)</p>
+
+<h3>The Hacker School deploy</h3>
+
+<p>Same story as #1 with different details: my colleague and I had done <code>require 'JSON'</code> instead of <code>require 'json'</code>, which worked fine locally and brought the entire app down on heroku.</p>
+
+<p>I&rsquo;ve finally learned to look for this bug when something mysterious happens between my machine and some other machine &ndash; which I&rsquo;m sure means I&rsquo;ll never encounter it again!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Python Bytecode: Fun with dis]]></title>
@@ -88,9 +132,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><code>dis</code> takes each byte, finds the opcode that corresponds to it in <code>opcodes.py</code>, and prints it as a nice, readable constant.  If we look at <code>opcodes.py</code> we see that <code>LOAD_CONST</code> is 100, <code>STORE_FAST</code> is 125, etc. <code>dis</code> also shows the line numbers on the left and the values or names on the right.  So without ever seeing something like before, we have an idea what&rsquo;s going on: we first load a constant, 2, then somehow store it as <code>a</code>.  Then we repeat this with 3 and <code>b</code>.  We load <code>a</code> and <code>b</code> back up, do <code>BINARY_ADD</code>, which presumably adds the numbers, and then do <code>RETURN_VALUE</code>.</p>
+<p>Now this starts to make some sense.  <code>dis</code> takes each byte, finds the opcode that corresponds to it in <code>opcodes.py</code>, and prints it as a nice, readable constant.  If we look at <code>opcodes.py</code> we see that <code>LOAD_CONST</code> is 100, <code>STORE_FAST</code> is 125, etc. <code>dis</code> also shows the line numbers on the left and the values or names on the right.  So without ever seeing something like before, we have an idea what&rsquo;s going on: we first load a constant, 2, then somehow store it as <code>a</code>.  Then we repeat this with 3 and <code>b</code>.  We load <code>a</code> and <code>b</code> back up, do <code>BINARY_ADD</code>, which presumably adds the numbers, and then do <code>RETURN_VALUE</code>.</p>
 
-<p>Examining the bytecode can sometimes increase your understanding of python code.  Here are two examples.</p>
+<p>Examining the bytecode can sometimes increase your understanding of python code.  Here is one example.</p>
 
 <h3>elif</h3>
 
