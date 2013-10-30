@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Surprised by Stable Sort - Of Interest</title>
+  <title>A Python puzzle - Of Interest</title>
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="I encountered some surprising behavior in python&rsquo;s list.sort() method. I was calling list.sort() with a function, then list.reverse(). This was &hellip;">
+  <meta name="description" content="A couple of Hacker Schoolers were discussing an interesting corner of python today. We discovered a nice bit of trivia: there exist three lines of &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://akaptur.github.com/blog/2013/01/02/surprised-by-stable-sort/">
+  <link rel="canonical" href="http://akaptur.github.com/blog/2013/10/29/a-python-puzzle/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -79,7 +79,7 @@
   
   <header>
     
-      <h1 class="entry-title">Surprised by Stable Sort</h1>
+      <h1 class="entry-title">A Python Puzzle</h1>
     
     
       <p class="meta">
@@ -95,18 +95,16 @@
   
 
 
-<time datetime="2013-01-02T00:02:00-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2013</time>
+<time datetime="2013-10-29T19:40:00-04:00" pubdate data-updated="true">Oct 29<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>I encountered some surprising behavior in python&rsquo;s list.sort() method.  I was calling list.sort() with a function, then list.reverse().  This was silly &ndash; I forgot I could call list.sort(reverse=True).  As it turns out, these are not the always the same, or even usually the same.</p>
+<div class="entry-content"><p>A couple of Hacker Schoolers were discussing an interesting corner of python today.  We discovered a nice bit of trivia: there exist three lines of python code that display the following behavior:</p>
 
-<p>Here&rsquo;s the code:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -118,45 +116,35 @@
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>def two_sort(ex):
-</span><span class='line'>    ex_copy = ex[:]
-</span><span class='line'> 
-</span><span class='line'>    ex.sort(key=lambda tup: tup[1])
-</span><span class='line'>    ex.reverse()
-</span><span class='line'>    print "Ex:  ", ex
-</span><span class='line'> 
-</span><span class='line'>    ex_copy.sort(key=lambda tup: tup[1], reverse=True)
-</span><span class='line'>    print "Copy:", ex_copy
-</span><span class='line'> 
-</span><span class='line'>    assert ex == ex_copy # fails
-</span><span class='line'> 
-</span><span class='line'>ex = [('a', 0), ('b', 0), ('c', 2), ('d', 3)]
-</span><span class='line'>two_sort(ex)
-</span><span class='line'># Ex:   [('d', 3), ('c', 2), ('b', 0), ('a', 0)]
-</span><span class='line'># Copy: [('d', 3), ('c', 2), ('a', 0), ('b', 0)]</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">LINE_A</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">LINE_B</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">LINE_C</span>
+</span><span class='line'><span class="bp">False</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">LINE_A</span><span class="p">;</span> <span class="n">LINE_B</span><span class="p">;</span> <span class="n">LINE_C</span>
+</span><span class='line'><span class="bp">True</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">my_function</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">LINE_A</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">LINE_B</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">LINE_C</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">my_function</span><span class="p">()</span>
+</span><span class='line'><span class="bp">True</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>What&rsquo;s happening here is that .sort() and sorted() in python are &ldquo;stable sorts&rdquo;, meaning that it&rsquo;ll preserve the existing order when faced with a tie.  This leads to a nice side effect, as described in the <a href="http://wiki.python.org/moin/HowTo/Sorting/">python wiki</a>: you can sort by multiple criteria.  So if we wanted to sort primarily by number (ascending), and secondarily by letter, we could do that quite easily.  Just sort by the secondary key first, then by the primary key.  Since the sort is stable, you know that a tie in the second (primary) sort will preserve the order you had going in.</p>
+<p>What are the lines?</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt;&gt;&gt; a = [('d', 3), ('c', 5), ('b', 0), ('a', 0)]
-</span><span class='line'>&gt;&gt;&gt; a.sort(key=lambda tup: tup[0])
-</span><span class='line'>&gt;&gt;&gt; a
-</span><span class='line'>[('a', 0), ('b', 0), ('c', 5), ('d', 3)]
-</span><span class='line'>&gt;&gt;&gt; a.sort(key=lambda tup:tup[1])
-</span><span class='line'>&gt;&gt;&gt; a
-</span><span class='line'>[('a', 0), ('b', 0), ('d', 3), ('c', 5)]</span></code></pre></td></tr></table></div></figure>
+<p>Some ground rules:</p>
 
+<ul>
+<li>Introspection of any kind is cheating (e.g. noting the line number).</li>
+<li>No dunder (<code>__foo__</code>) methods allowed.</li>
+<li>Each line is a valid python expression.</li>
+<li>You can&rsquo;t rely on order: while the lines will always execute A &ndash;> B &ndash;> C, a complete solution behaves identically if e.g. the semicolon version happens before the separate-line version.</li>
+<li>No cheating with the function: e.g. you can&rsquo;t add a <code>return</code> unless you add it everywhere.</li>
+</ul>
+
+
+<p>For bonus points, code golf!  My solution to this is 14 characters long, not counting whitespace.</p>
 </div>
 
 
@@ -179,21 +167,15 @@
   
 
 
-<time datetime="2013-01-02T00:02:00-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2013</time>
+<time datetime="2013-10-29T19:40:00-04:00" pubdate data-updated="true">Oct 29<span>th</span>, 2013</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/python/'>python</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://akaptur.github.com/blog/2013/01/02/surprised-by-stable-sort/" data-via="" data-counturl="http://akaptur.github.com/blog/2013/01/02/surprised-by-stable-sort/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://akaptur.github.com/blog/2013/10/29/a-python-puzzle/" data-via="" data-counturl="http://akaptur.github.com/blog/2013/10/29/a-python-puzzle/" >Tweet</a>
   
   
   
@@ -202,10 +184,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2012/12/23/some-wacky-shell-scripting/" title="Previous Post: Some wacky shell scripting">&laquo; Some wacky shell scripting</a>
+        <a class="basic-alignment left" href="/blog/2013/10/15/bug-hunting/" title="Previous Post: Bug hunting">&laquo; Bug hunting</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2013/06/25/new-git-tricks/" title="Next Post: New git tricks">New git tricks &raquo;</a>
       
     </p>
   </footer>
