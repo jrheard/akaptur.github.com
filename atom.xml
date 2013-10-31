@@ -4,7 +4,7 @@
   <title><![CDATA[Of Interest]]></title>
   <link href="http://akaptur.github.com/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2013-10-29T20:21:09-04:00</updated>
+  <updated>2013-10-31T17:33:01-04:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,6 +12,278 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Python Puzzle Solutions]]></title>
+    <link href="http://akaptur.github.com/blog/2013/10/31/python-puzzle-solutions/"/>
+    <updated>2013-10-31T10:47:00-04:00</updated>
+    <id>http://akaptur.github.com/blog/2013/10/31/python-puzzle-solutions</id>
+    <content type="html"><![CDATA[<p>I really enjoyed seeing all the clever solutions to the <a href="http://akaptur.github.io/blog/2013/10/29/a-python-puzzle/">python puzzle I posted</a>.  You&rsquo;re all very creative!  Here&rsquo;s a discussion of the solutions I&rsquo;ve seen, plus some clarifications.  All spoilers are below the fold.</p>
+
+<p>First, clarifications.  (These weren&rsquo;t always clear in the problem statement, particularly if you got the problem off of twitter, so award yourself full marks as desired.)</p>
+
+<h4>Order doesn&rsquo;t matter</h4>
+
+<p>&ldquo;Order doesn&rsquo;t matter&rdquo; means that the three-line version <em>always</em> returns <code>False</code>, and the semicolon version <em>always</em> returns <code>True</code>.</p>
+
+<h4>You control only the contents of the lines</h4>
+
+<p>Several people, including <a href="https://twitter.com/pepijndevos">Pepijn De Vos</a>, <a href="https://twitter.com/wolever">David Wolever</a>, and <a href="https://twitter.com/diarmuidbourke">diarmuidbourke</a> suggested something like the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="s">&quot;&quot;&quot;a; b; c&quot;&quot;&quot;</span> <span class="o">==</span> <span class="s">&#39;a; b; c&#39;</span>
+</span><span class='line'><span class="bp">True</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="s">&quot;&quot;&quot;a</span>
+</span><span class='line'><span class="s">... b</span>
+</span><span class='line'><span class="s">... c&quot;&quot;&quot;</span> <span class="o">==</span> <span class="s">&#39;a; b; c&#39;</span>
+</span><span class='line'><span class="bp">False</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;m being pedantic here, but I rule this cheating, since (a) each line has to be a valid python expression or statement, and a multi-line string literal is only one expression, and (b) the string <code>"""a; b; c"""</code> is not the same as the string <code>"""a\nb\nc"""</code>.</p>
+
+<p>Solutions appear below the fold.</p>
+
+<!-- more -->
+
+
+<h3>Solutions!</h3>
+
+<h4>Jessica McKellar</h4>
+
+<p><a href="https://twitter.com/jessicamckellar">Jessica</a> suggests the following solution:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">global</span> <span class="n">a</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="s">&quot;a&quot;</span> <span class="k">if</span> <span class="s">&quot;a&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">))</span>
+</span><span class='line'><span class="bp">False</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">global</span> <span class="n">a</span><span class="p">;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="s">&quot;a&quot;</span> <span class="k">if</span> <span class="s">&quot;a&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()</span> <span class="k">else</span> <span class="s">&quot;&quot;</span><span class="p">;</span> <span class="k">print</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">))</span>
+</span><span class='line'><span class="bp">True</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">my_function</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">global</span> <span class="n">a</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="s">&quot;a&quot;</span> <span class="k">if</span> <span class="s">&quot;a&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">))</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">my_function</span><span class="p">()</span>
+</span><span class='line'><span class="bp">True</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+However, Jessica&rsquo;s solution fails the &ldquo;order doesn&rsquo;t matter&rdquo; test, and it&rsquo;s stateful:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">global</span> <span class="n">a</span><span class="p">;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="s">&quot;a&quot;</span> <span class="k">if</span> <span class="s">&quot;a&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()</span> <span class="k">else</span> <span class="s">&quot;&quot;</span><span class="p">;</span> <span class="k">print</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">))</span>
+</span><span class='line'><span class="bp">False</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">global</span> <span class="n">a</span><span class="p">;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="s">&quot;a&quot;</span> <span class="k">if</span> <span class="s">&quot;a&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()</span> <span class="k">else</span> <span class="s">&quot;&quot;</span><span class="p">;</span> <span class="k">print</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">))</span>
+</span><span class='line'><span class="bp">True</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Javier Novoa Cataño</h4>
+
+<p><a href="https://twitter.com/JaviStitch">Javier</a> suggests a simpler solution for Python 2 that fails in the same way Jessica&rsquo;s does:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="bp">True</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">True</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">a</span>
+</span><span class='line'><span class="bp">True</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="bp">True</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">True</span><span class="p">;</span> <span class="n">a</span> <span class="o">=</span> <span class="bp">True</span><span class="p">;</span> <span class="k">print</span> <span class="n">a</span>
+</span><span class='line'><span class="bp">False</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Again, this depends on order and is stateful.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="bp">True</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">True</span><span class="p">;</span> <span class="n">a</span> <span class="o">=</span> <span class="bp">True</span><span class="p">;</span> <span class="k">print</span> <span class="n">a</span>
+</span><span class='line'><span class="bp">False</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="bp">True</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">True</span><span class="p">;</span> <span class="n">a</span> <span class="o">=</span> <span class="bp">True</span><span class="p">;</span> <span class="k">print</span> <span class="n">a</span>
+</span><span class='line'><span class="bp">True</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Alex Gaynor</h4>
+
+<p><a href="https://twitter.com/alex_gaynor">Alex</a> suggests using <code>sys._getframe(0)</code>.  I might quibble that <code>sys._getframe</code> constitutes introspection, but Alex is on to something.  He notices that each line of code executed in the interpreter gets its own frame.  (<em>foreshadowing</em>)</p>
+
+<p>Alex gets full credit because I just discovered that the behavior underlying the original puzzle works in CPython, but is different in PyPy.  Sorry, Alex!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">b</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">==</span> <span class="n">b</span>
+</span><span class='line'><span class="bp">False</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="n">b</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="n">a</span> <span class="o">==</span> <span class="n">b</span>
+</span><span class='line'><span class="bp">True</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">my_function</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>  <span class="n">a</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>  <span class="n">b</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>  <span class="k">return</span> <span class="n">a</span> <span class="o">==</span> <span class="n">b</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">my_function</span><span class="p">()</span>
+</span><span class='line'><span class="bp">True</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Anton Dubrau</h4>
+
+<p>For sheer inventiveness and creativity I have to hand it to <a href="https://twitter.com/ant6n">Anton</a>, working in the iPython REPL:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">In</span> <span class="p">[</span><span class="mi">145</span><span class="p">]:</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">):</span><span class="n">x</span><span class="o">=</span><span class="n">n</span> <span class="ow">or</span> <span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span><span class="n">x</span><span class="o">+=</span><span class="mi">2</span><span class="p">;</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">(</span><span class="s">&quot;False&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s">&quot;True&quot;</span><span class="p">))</span>
+</span><span class='line'><span class="bp">True</span>
+</span><span class='line'><span class="n">In</span> <span class="p">[</span><span class="mi">142</span><span class="p">]:</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">):</span><span class="n">x</span><span class="o">=</span><span class="n">n</span> <span class="ow">or</span> <span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="n">In</span> <span class="p">[</span><span class="mi">143</span><span class="p">]:</span> <span class="n">x</span><span class="o">+=</span><span class="mi">2</span><span class="p">;</span>
+</span><span class='line'><span class="n">In</span> <span class="p">[</span><span class="mi">144</span><span class="p">]:</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">(</span><span class="s">&quot;False&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s">&quot;True&quot;</span><span class="p">))</span>
+</span><span class='line'><span class="bp">False</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>He&rsquo;s exploiting the fact that when executed on a single line, all three lines are considered part of the <code>for</code> loop. When the lines are broken up, only the <code>x=n or x-1</code> part belongs to the loop.  (This pretty much works in the standard CPython REPL too, but you have to throw in an extra line break.)</p>
+
+<h4>Alexey Bezn</h4>
+
+<p><a href="https://twitter.com/allait">Alexey</a> was the only person outside of Hacker School to hit on my solution.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">257</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">257</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="ow">is</span> <span class="n">b</span>
+</span><span class='line'><span class="bp">False</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">257</span><span class="p">;</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">257</span><span class="p">;</span> <span class="n">a</span> <span class="ow">is</span> <span class="n">b</span>
+</span><span class='line'><span class="bp">True</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Nicely done, Alexey!</p>
+
+<p>(For the pedantic among us, like me: this was the version I had in mind when I described my solution as 14 non-whitespace characters. Of course, to make the function version work too, we have to add <code>print</code> to the last line, taking us up to 19.)</p>
+
+<p>So what&rsquo;s going on here, and why is this interesting?</p>
+
+<h2>Analyzing this solution</h2>
+
+<p>I described Alex Gaynor&rsquo;s solution as foreshadowing earlier.  Alex appears to have started from a good question: what&rsquo;s different about executing three lines of code versus executing three statements as one line of code?</p>
+
+<p>One thing to note is that each time you get an interpreter prompt back (<code>&gt;&gt;&gt;</code>), your python has compiled and executed some code.  Every prompt corresponds to at least one code object.</p>
+
+<p>How can we use the difference in code objects to generate this behavior? One way is to use constants: in CPython, two instances of the same number (larger than 256) are different objects. This explains why <code>a is b</code> returns <code>False</code> in the REPL (in the extended version, without semicolons).  In the semicolon version, all three statements are part of one code object.  We&rsquo;re giving the CPython compiler a chance to optimize.  It notices that we have two constants with the same value, and only hangs on to one copy.</p>
+
+<p>Let&rsquo;s take a look.  It&rsquo;s easy to get a handle on the code object corresponding to a function &ndash; use <code>f.func_code</code> in Python 2, and <code>f.__code__</code> in Python 3.  Getting a handle on a code object corresponding to a line in the REPL is a little bit trickier, but we can do it if we compile them by hand.  In Python 2.x:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">code_obj_a</span> <span class="o">=</span> <span class="nb">compile</span><span class="p">(</span><span class="s">&quot;a = 257&quot;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&quot;exec&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">code_obj_a</span><span class="o">.</span><span class="n">co_consts</span>
+</span><span class='line'><span class="p">(</span><span class="mi">257</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">code_obj_b</span> <span class="o">=</span> <span class="nb">compile</span><span class="p">(</span><span class="s">&quot;b = 257&quot;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&quot;exec&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">code_obj_b</span><span class="o">.</span><span class="n">co_consts</span>
+</span><span class='line'><span class="p">(</span><span class="mi">257</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">code_obj_both</span> <span class="o">=</span> <span class="nb">compile</span><span class="p">(</span><span class="s">&quot;a = 257; b = 257&quot;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&quot;exec&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">code_obj_both</span><span class="o">.</span><span class="n">co_consts</span>
+</span><span class='line'><span class="p">(</span><span class="mi">257</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">f</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">a</span> <span class="o">=</span> <span class="mi">257</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">b</span> <span class="o">=</span> <span class="mi">257</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">print</span> <span class="n">a</span> <span class="ow">is</span> <span class="n">b</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">f</span><span class="p">()</span>
+</span><span class='line'><span class="bp">True</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">f</span><span class="o">.</span><span class="n">func_code</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">f</span> <span class="n">at</span> <span class="mh">0x107133cb0</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">f</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_consts</span>
+</span><span class='line'><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">257</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The compiler&rsquo;s being a little smart here, and we only get one occurence of the constant <code>257</code> per code object.  When we execute the assignment statements on two different lines, we get two different code objects with two different instances of the integer <code>257</code>. This explains why <code>is</code>, which is comparing object identity, sees one as the same and the others as different.</p>
+
+<p>This came up originally at Hacker School when <a href="https://github.com/phsteve">Steve Katz</a> stumbled across that thing with small integers and <code>is</code> versus <code>==</code> in python.  (If you&rsquo;re not familiar with it, you can read <a href="http://stackoverflow.com/questions/306313/python-is-operator-behaves-unexpectedly-with-integers">many questions on Stack Overflow about it</a>.  As a general rule, don&rsquo;t use <code>is</code> for integer comparisons.)  Steve went on to notice that the behavior changes when run from a script rather than in the REPL.</p>
+
+<p>I didn&rsquo;t realize when posing this problem that it was an implementation detail of CPython, and <a href="http://pypy.readthedocs.org/en/latest/cpython_differences.html#object-identity-of-primitive-values-is-and-id">PyPy behaves differently</a> (and arguably correctly). That&rsquo;s why Alex Gaynor had to hook into the frame object.</p>
+
+<h3>Thanks, everyone!</h3>
+
+<p>This was fun!  If I missed your solution and you want it to be included, <a href="https://twitter.com/akaptur">ping me on twitter</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[A Python puzzle]]></title>
