@@ -182,8 +182,8 @@ More cleverness in my twitter feed!
 
 [Ned Batchelder](https://twitter.com/nedbat) suggests using `-9` instead of `257` to shave off a few characters.
 
-#### [Anonymous until I get permission]
-[Anon] came up with my favorite so far, in 14 characters *including* the print.  He exploits the intricacies of floating-point arithmetic:
+#### Zev Benjamin
+[Zev](https://github.com/zbenjamin) came up with my favorite so far, in 14 characters *including* the print.  He exploits the intricacies of floating-point arithmetic:
 
 ``` python
 >>> x = .1
