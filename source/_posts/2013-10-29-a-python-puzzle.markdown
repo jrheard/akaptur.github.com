@@ -32,5 +32,6 @@ Some ground rules:
 * Each line is a valid python expression.
 * You can't rely on order: while the lines will always execute A -> B -> C, a complete solution behaves identically if e.g. the semicolon version happens before the separate-line version.
 * No cheating with the function: e.g. you can't add a `return` unless you add it everywhere.
+* _Edit: And nothing stateful._
 
-For bonus points, code golf!  My solution to this is 14 characters long, not counting whitespace.
+For bonus points, code golf!  My solution to this is ~~14~~ 19 characters long, not counting whitespace.

@@ -51,7 +51,7 @@ True
 >>> my_function()
 True
 ``` 
-However, Jessica's solution fails the "order doesn't matter" test, and it's stateful:
+However, Jessica's solution ~~fails the "order doesn't matter" test, and it~~ is stateful:
 
 ``` python
 >>> global a; a = a + "a" if "a" in globals() else ""; print(bool(len(a) % 3))
@@ -60,8 +60,10 @@ False
 True
 ```
 
+_Edit: As Jessica points out, I'm wrong here: her solution does pass the order test.  She also notes that the restriction against state wasn't present in the blog post (and she didn't see the [original tweet](https://twitter.com/akaptur/status/395252265117687808)).  Full credit to Jessica, then!_
+
 #### Javier Novoa Cataño
-[Javier](https://twitter.com/JaviStitch) suggests a simpler solution for Python 2 that fails in the same way Jessica's does:
+[Javier](https://twitter.com/JaviStitch) suggests a solution for Python 2 that fails the order test:
 
 ``` python
 >>> True = not True
@@ -84,6 +86,8 @@ True
 [Alex](https://twitter.com/alex_gaynor) suggests using `sys._getframe(0)`.  I might quibble that `sys._getframe` constitutes introspection, but Alex is on to something.  He notices that each line of code executed in the interpreter gets its own frame.  (_foreshadowing_)  
 
 Alex gets full credit because I just discovered that the behavior underlying the original puzzle works in CPython, but is different in PyPy.  Sorry, Alex!
+
+_Edit: Never mind - there is a simpler solution in PyPy. See below._
 
 ``` python
 >>> a = sys._getframe(0)
@@ -117,7 +121,7 @@ False
 
 He's exploiting the fact that when executed on a single line, all three lines are considered part of the `for` loop. When the lines are broken up, only the `x=n or x-1` part belongs to the loop.  (This pretty much works in the standard CPython REPL too, but you have to throw in an extra line break.)
 
-#### Alexey Bezn
+#### Alexey Bezhan
 [Alexey](https://twitter.com/allait) was the only person outside of Hacker School to hit on my solution.
 
 ``` python
@@ -130,7 +134,7 @@ True
 ```
 Nicely done, Alexey!
 
-(For the pedantic among us, like me: this was the version I had in mind when I described my solution as 14 non-whitespace characters. Of course, to make the function version work too, we have to add `print` to the last line, taking us up to 19.)
+(For the pedantic among us, like me: this was the version I had in mind when I described my solution as 14 non-whitespace characters. Of course, to make the function version work too, we have to add `print` to the last line, taking us up to 19.  I've edited the original post.)
 
 So what's going on here, and why is this interesting?
 
@@ -172,6 +176,36 @@ The compiler's being a little smart here, and we only get one occurence of the c
 This came up originally at Hacker School when [Steve Katz](https://github.com/phsteve) stumbled across that thing with small integers and `is` versus `==` in python.  (If you're not familiar with it, you can read [many questions on Stack Overflow about it](http://stackoverflow.com/questions/306313/python-is-operator-behaves-unexpectedly-with-integers).  As a general rule, don't use `is` for integer comparisons.)  Steve went on to notice that the behavior changes when run from a script rather than in the REPL.
 
 I didn't realize when posing this problem that it was an implementation detail of CPython, and [PyPy behaves differently](http://pypy.readthedocs.org/en/latest/cpython_differences.html#object-identity-of-primitive-values-is-and-id) (and arguably correctly). That's why Alex Gaynor had to hook into the frame object.
+
+### _Edit: Late submissions_
+More cleverness in my twitter feed!
+
+[Ned Batchelder](https://twitter.com/nedbat) suggests using `-9` instead of `257` to shave off a few characters.
+
+#### [Anonymous until I get permission]
+[Anon] came up with my favorite so far, in 14 characters *including* the print.  He exploits the intricacies of floating-point arithmetic:
+
+``` python
+>>> x = .1
+>>> print x is .1
+False
+>>> x = .1; print x is .1
+True
+```
+
+If you've never dug around with floating-point math, do yourself a favor: it's really interesting stuff.  The Julia language suggests some good [background reading](http://docs.julialang.org/en/latest/manual/integers-and-floating-point-numbers/#background-and-references).
+
+#### Nick Olson-Harris
+[Nick](https://twitter.com/TheNyktos) has a fix to the PyPy integer handling: use a string instead of an int.
+
+``` python
+>>>> a = "f"
+>>>> b = "f"
+>>>> a is b
+False
+>>>> a = "f"; b = "f"; a is b
+True
+```
 
 ### Thanks, everyone!
 This was fun!  If I missed your solution and you want it to be included, [ping me on twitter](https://twitter.com/akaptur).
