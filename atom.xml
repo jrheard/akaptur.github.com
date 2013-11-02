@@ -4,7 +4,7 @@
   <title><![CDATA[Of Interest]]></title>
   <link href="http://akaptur.github.com/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2013-11-01T11:16:07-04:00</updated>
+  <updated>2013-11-01T21:47:36-04:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -291,7 +291,7 @@ However, Jessica&rsquo;s solution <del>fails the &ldquo;order doesn&rsquo;t matt
 
 <h4>Zev Benjamin</h4>
 
-<p><a href="https://github.com/zbenjamin">Zev</a> came up with my favorite so far, in 14 characters <em>including</em> the print.  He exploits the intricacies of floating-point arithmetic:</p>
+<p><a href="https://github.com/zbenjamin">Zev</a> came up with my favorite so far, in 14 characters <em>including</em> the print.  <del>He exploits the intricacies of floating-point arithmetic</del></p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -307,6 +307,8 @@ However, Jessica&rsquo;s solution <del>fails the &ldquo;order doesn&rsquo;t matt
 
 
 <p>If you&rsquo;ve never dug around with floating-point math, do yourself a favor: it&rsquo;s really interesting stuff.  The Julia language suggests some good <a href="http://docs.julialang.org/en/latest/manual/integers-and-floating-point-numbers/#background-and-references">background reading</a>.</p>
+
+<p><em>Edit 2: Zev emails that floating-point precision isn&rsquo;t involved here. Instead, he&rsquo;s exploiting the fact that floating-point numbers &ndash; even those that can be precisely represented &ndash; are not interned.  We&rsquo;d get the same results using <code>1.</code> instead of <code>.1</code>. This suggests a broader point: many solutions here could have used <code>a = thing; a is thing</code>, omitting LINE_B.</em></p>
 
 <h4>Nick Olson-Harris</h4>
 
