@@ -183,7 +183,7 @@ More cleverness in my twitter feed!
 [Ned Batchelder](https://twitter.com/nedbat) suggests using `-9` instead of `257` to shave off a few characters.
 
 #### Zev Benjamin
-[Zev](https://github.com/zbenjamin) came up with my favorite so far, in 14 characters *including* the print.  He exploits the intricacies of floating-point arithmetic:
+[Zev](https://github.com/zbenjamin) came up with my favorite so far, in 14 characters *including* the print.  ~~He exploits the intricacies of floating-point arithmetic~~ 
 
 ``` python
 >>> x = .1
@@ -194,6 +194,8 @@ True
 ```
 
 If you've never dug around with floating-point math, do yourself a favor: it's really interesting stuff.  The Julia language suggests some good [background reading](http://docs.julialang.org/en/latest/manual/integers-and-floating-point-numbers/#background-and-references).
+
+_Edit 2: Zev emails that floating-point precision isn't involved here. Instead, he's exploiting the fact that floating-point numbers - even those that can be precisely represented - are not interned.  We'd get the same results using `1.` instead of `.1`. This suggests a broader point: many solutions here could have used `a = thing; a is thing`, omitting LINE_B._
 
 #### Nick Olson-Harris
 [Nick](https://twitter.com/TheNyktos) has a fix to the PyPy integer handling: use a string instead of an int.
