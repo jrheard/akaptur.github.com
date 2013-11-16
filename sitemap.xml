@@ -51,11 +51,17 @@
         <lastmod>2013-11-15T19:13:17-05:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2/
+        </loc>
+        <lastmod>2013-11-15T19:26:18-05:00</lastmod>
+    </url>
+    <url>
         <loc>http://akaptur.github.com/blog/archives/</loc>
-        <lastmod>2013-11-15T19:13:17-05:00</lastmod>
+        <lastmod>2013-11-15T19:26:18-05:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/</loc>
-        <lastmod>2013-11-15T19:13:17-05:00</lastmod>
+        <lastmod>2013-11-15T19:26:18-05:00</lastmod>
     </url>
 </urlset>
