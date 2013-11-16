@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: python, | Of Interest]]></title>
-  <link href="http://akaptur.github.com/blog/categories/python/atom.xml" rel="self"/>
+  <title><![CDATA[Category: python-internals | Of Interest]]></title>
+  <link href="http://akaptur.github.com/blog/categories/python-internals/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
   <updated>2013-11-15T19:14:05-05:00</updated>
   <id>http://akaptur.github.com/</id>

@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Introduction to the Python Interpreter, Part 1: Function Objects - Of Interest</title>
+  <meta name="author" content="akaptur">
+
+  
+  <meta name="description" content="Over the last three months, I&rsquo;ve spent a lot of time working with Ned Batchelder on byterun, a python bytecode interpreter written in python. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Of Interest" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42870230-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Of Interest</a></h1>
+  
+    <h2>An occasional blog on programming</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:akaptur.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Introduction to the Python Interpreter, Part 1: Function Objects</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-15T18:50:00-05:00" pubdate data-updated="true">Nov 15<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Over the last three months, I&rsquo;ve spent a lot of time working with Ned Batchelder on <a href="https://github.com/nedbat/byterun">byterun</a>, a python bytecode interpreter written in python.  Working on byterun has been tremendously educational and a lot of fun for me.  At the end of this series, I&rsquo;m going to attempt to convince you that it would be interesting and fun for you to play with byterun, too.  But before we do that, we need a bit of a warm-up: an overview of how python&rsquo;s internals work, so that we can understand what an interpreter is, what it does, and what it doesn&rsquo;t do.</p>
+
+<p>This series assumes that you&rsquo;re in a similar position to where I was three months ago: you know python, but you don&rsquo;t know anything about the internals.</p>
+
+<p>One quick note: I&rsquo;m going to work in and talk about Python 2.7 in this post.  The interpreter in Python 3 is mostly pretty similar.  There are also some syntax and naming differences, which I&rsquo;m going to ignore, but everything we do here is possible in Python 3 as well.</p>
+
+<h3>How does it python?</h3>
+
+<p>We&rsquo;ll start out with a really (really) high-level view of python&rsquo;s internals.  What happens when you execute a line of code in your python REPL?</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">~</span> <span class="err">$</span> <span class="n">python</span>
+</span><span class='line'><span class="n">Python</span> <span class="mf">2.7</span><span class="o">.</span><span class="mi">2</span> <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Jun</span> <span class="mi">20</span> <span class="mi">2012</span><span class="p">,</span> <span class="mi">16</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">33</span><span class="p">)</span>
+</span><span class='line'><span class="p">[</span><span class="n">GCC</span> <span class="mf">4.2</span><span class="o">.</span><span class="mi">1</span> <span class="n">Compatible</span> <span class="n">Apple</span> <span class="n">Clang</span> <span class="mf">4.0</span> <span class="p">(</span><span class="n">tags</span><span class="o">/</span><span class="n">Apple</span><span class="o">/</span><span class="n">clang</span><span class="o">-</span><span class="mf">418.0</span><span class="o">.</span><span class="mi">60</span><span class="p">)]</span> <span class="n">on</span> <span class="n">darwin</span>
+</span><span class='line'><span class="n">Type</span> <span class="s">&quot;help&quot;</span><span class="p">,</span> <span class="s">&quot;copyright&quot;</span><span class="p">,</span> <span class="s">&quot;credits&quot;</span> <span class="ow">or</span> <span class="s">&quot;license&quot;</span> <span class="k">for</span> <span class="n">more</span> <span class="n">information</span><span class="o">.</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="s">&quot;hello&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are four steps that python takes when you hit return: lexing, parsing, compiling, and interpreting. Lexing is breaking the line of code you just typed into tokens.  The parser takes those tokens and generates a structure that shows their relationship to each other (in this case, an Abstract Syntax Tree).  The compiler then takes the AST and turns it into one (or more) code objects.  Finally, the interpreter takes each code object executes the code it represents.</p>
+
+<p>I&rsquo;m not going to talk about lexing, parsing, or compiling at all today, mainly because I don&rsquo;t know anything about these steps yet.  Instead, we&rsquo;ll suppose that all that went just fine, and we&rsquo;ll have a proper python code object for the interpreter to interpret.</p>
+
+<p>Before we get to code objects, let me clear up some common confusion.  In this series, we&rsquo;re going to talk about function objects, code objects, and bytecode. They&rsquo;re all different things.  Let&rsquo;s start with function objects.  We don&rsquo;t really have to understand function objects to get to the interpreter, but I want to stress that function objects and code objects are not the same &ndash; and besides, function objects are cool.</p>
+
+<h3>Function objects</h3>
+
+<p>You might have heard of &ldquo;function objects.&rdquo;  These are the things people are talking about when they say things like &ldquo;Functions are first-class objects,&rdquo; or &ldquo;Python has first-class functions.&rdquo;  Let&rsquo;s take a look at one.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">a</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">function</span> <span class="n">foo</span> <span class="n">at</span> <span class="mh">0x107ef7aa0</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&ldquo;Functions are first-class objects,&rdquo; means that function are objects, like a list is an object or an instance of <code>MyObject</code> is an object.  Since <code>foo</code> is an object, we can talk about it without invoking it (that is, there&rsquo;s a difference between <code>foo</code> and <code>foo()</code>).  We can pass <code>foo</code> into another function as an argument, or we could bind it to a new name (<code>other_function = foo</code>). With first-class functions, all sorts of possibilities are open to us!</p>
+
+<p>In Part 2, we&rsquo;ll dive down a level and look at the code object.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">akaptur</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-15T18:50:00-05:00" pubdate data-updated="true">Nov 15<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/python/'>python,</a>, <a class='category' href='/blog/categories/python-internals/'>python-internals</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/" data-via="" data-counturl="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/10/31/python-puzzle-solutions/" title="Previous Post: Python Puzzle Solutions">&laquo; Python Puzzle Solutions</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Introduction to the Python Interpreter, Part 1: Function Objects</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/31/python-puzzle-solutions/">Python Puzzle Solutions</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/29/a-python-puzzle/">A Python puzzle</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/15/bug-hunting/">Bug hunting</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/14/python-bytecode-fun-with-dis/">Python Bytecode: Fun with dis</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - akaptur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
