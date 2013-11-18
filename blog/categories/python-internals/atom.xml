@@ -4,7 +4,7 @@
   <title><![CDATA[Category: python-internals | Of Interest]]></title>
   <link href="http://akaptur.github.com/blog/categories/python-internals/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2013-11-16T12:26:02-05:00</updated>
+  <updated>2013-11-17T18:59:18-05:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,6 +12,102 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 3: Understanding Bytecode]]></title>
+    <link href="http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3/"/>
+    <updated>2013-11-17T09:56:00-05:00</updated>
+    <id>http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3</id>
+    <content type="html"><![CDATA[<p><em>This is Part 3 in a series on the Python interpreter.  Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</a>, Part 2 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">here</a>.  If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
+
+<h3>Bytecode</h3>
+
+<p>When we left our heroes, they had come across some odd-looking output:</p>
+
+<p>```python</p>
+
+<blockquote><blockquote><blockquote><p>foo.func_code.co_code
+&rsquo;d\x01\x00}\x01\x00|\x01\x00|\x00\x00\x17S'
+```</p></blockquote></blockquote></blockquote>
+
+<p>This is python <em>bytecode</em>.</p>
+
+<p>You recall from Part 2 that &ldquo;python bytecode&rdquo; and &ldquo;a python code object&rdquo; are not the same thing: the bytecode is an attribute of the code object, among many other attributes.  Bytecode is found in the <code>co_code</code> attribute of the code object, and contains instructions for the interpreter.</p>
+
+<p>So what is bytecode?  Well, it&rsquo;s just a series of bytes.  They look wacky when we print them because some bytes are printable and others aren&rsquo;t, so let&rsquo;s take the <code>ord</code> of each byte to see that they&rsquo;re just numbers.</p>
+
+<p>``` python</p>
+
+<blockquote><blockquote><blockquote><p>[ord(b) for b in foo.func_code.co_code]
+[100, 1, 0, 125, 1, 0, 124, 1, 0, 124, 0, 0, 23, 83]
+```</p></blockquote></blockquote></blockquote>
+
+<p>Here are the bytes that make up python bytecode.  The interpreter will loop through each byte, look up what it should do for each one, and then do that thing.  Notice that the bytecode itself doesn&rsquo;t include any python objects, or references to objects, or anything like that.</p>
+
+<p>One way to understand python bytecode would be to find the CPython interpreter file (it&rsquo;s <code>ceval.c</code>), and flip through it looking up what <code>100</code> means, then <code>1</code>, then <code>0</code>, and so on.  We&rsquo;ll do this later in the series!  For now, there&rsquo;s a simpler way: the <code>dis</code> module.</p>
+
+<h3>Disassembling bytecode</h3>
+
+<p>Disassembling bytecode means taking this series of bytes and printing out something we humans can understand.  It&rsquo;s not a step in python execution; the <code>dis</code> module just helps us understand an intermediate state of python internals. I can&rsquo;t think of a reason why you&rsquo;d ever want to use <code>dis</code> in production code &ndash; it&rsquo;s for humans, not for machines.</p>
+
+<p>Today, however, taking some bytecode and making it human-readable is exactly what we&rsquo;re trying to do, so <code>dis</code> is a great tool.  We&rsquo;ll use the function <code>dis.dis</code> to analyze the code object of our function <code>foo</code>.</p>
+
+<p>``` python</p>
+
+<blockquote><blockquote><blockquote><p>def foo(a):
+&hellip;     x = 3
+&hellip;     return x + a
+&hellip;
+import dis
+dis.dis(foo.func_code)
+  2           0 LOAD_CONST               1 (3)</p>
+
+<pre><code>          3 STORE_FAST               1 (x)
+</code></pre></blockquote></blockquote></blockquote>
+
+<p>  3           6 LOAD_FAST                1 (x)</p>
+
+<pre><code>          9 LOAD_FAST                0 (a)
+         12 BINARY_ADD          
+         13 RETURN_VALUE
+</code></pre>
+
+<p>```</p>
+
+<p>(You usually see this called as <code>dis.dis(foo)</code>, directly on the function object.  That&rsquo;s just a convenience: <code>dis</code> is really analyzing the code object.  If it&rsquo;s passed a function, it just gets its code object.)</p>
+
+<p>The numbers in the left-hand column are line numbers in the original source code.  The second column is the offset into the bytecode: <code>LOAD_CONST</code> appears at position 0, <code>STORE_FAST</code> at position 3, and so on.  The middle column shows the names of bytes. These names are just for our (human) benefit &ndash; the interpreter doesn&rsquo;t need the names.</p>
+
+<p>The last two columns give details about the instructions&rsquo;s argument, if there is an argument.  The fourth column shows the argument itself, which represents an index into other attributes of the code object. In the example, <code>LOAD_CONST</code>&rsquo;s argument is an index into the list <code>co_consts</code>, and <code>STORE_FAST</code>&rsquo;s argument is an index into <code>co_varnames</code>.  Finally, in the fifth column, <code>dis</code> has looked up the constants or names in the place the fourth column specified and told us what it found there. We can easily verify this:</p>
+
+<p>``` python</p>
+
+<blockquote><blockquote><blockquote><p>foo.func_code.co_consts[1]
+3
+foo.func_code.co_varnames[1]
+&lsquo;x&rsquo;
+```</p></blockquote></blockquote></blockquote>
+
+<p>This also explains why the second instruction, <code>STORE_FAST</code>, is found at bytecode position 3.  If a bytecode has an argument, the next two bytes are that argument. It&rsquo;s the interpreter&rsquo;s job to handle this correctly.</p>
+
+<p>(You may be surprised that <code>BINARY_ADD</code> doesn&rsquo;t have arguments. We&rsquo;ll come back to this in a future installment, when we get to the interpreter itself.)</p>
+
+<p>People often say that <code>dis</code> is a disassembler of python bytecode.  This is true enough &ndash; the <code>dis</code> module&rsquo;s docs say it &ndash; but <code>dis</code> knows about more than just the bytecode, too: it uses the whole code object to give us an understandable printout.  The middle three columns show information actually encoded in the bytecode, while the first and the last columns show other information.  Again, the bytecode itself is really limited: it&rsquo;s just a series of numbers, and things like names and constants are not a part of it.</p>
+
+<p>How does the <code>dis</code> module get from bytes like <code>100</code> to names like <code>LOAD_CONST</code> and back?  Try to think of a way you&rsquo;d do it.  If you thought &ldquo;Well, you could have a list that has the byte names in the right order,&rdquo; or you thought, &ldquo;I guess you could have a dictionary where the names are the keys and the byte values are the values,&rdquo; then congratulations!  That&rsquo;s exactly what&rsquo;s going on.  The file <code>opcode.py</code> defines the list and the dictionary.  It&rsquo;s full of lines like these (<code>def_op</code> inserts the mapping in both the list and the dictionary):</p>
+
+<p><code>python
+def_op('LOAD_CONST', 100)       # Index in const list
+def_op('BUILD_TUPLE', 102)      # Number of tuple items
+def_op('BUILD_LIST', 103)       # Number of list items
+def_op('BUILD_SET', 104)        # Number of set items
+</code></p>
+
+<p>There&rsquo;s even a friendly comment telling us what each byte&rsquo;s argument means.</p>
+
+<p>Ok, now we understand what python bytecode is (and isn&rsquo;t), and how to use <code>dis</code> to make sense of it. In Part 4, we&rsquo;ll look at another example to see how Python can compile down to bytecode but still be a dynamic language.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 2: Code Objects]]></title>

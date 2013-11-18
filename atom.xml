@@ -4,7 +4,7 @@
   <title><![CDATA[Of Interest]]></title>
   <link href="http://akaptur.github.com/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2013-11-16T12:26:02-05:00</updated>
+  <updated>2013-11-17T18:59:11-05:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,6 +12,118 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 3: Understanding Bytecode]]></title>
+    <link href="http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3/"/>
+    <updated>2013-11-17T09:56:00-05:00</updated>
+    <id>http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3</id>
+    <content type="html"><![CDATA[<p><em>This is Part 3 in a series on the Python interpreter.  Part 1 <a href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/">here</a>, Part 2 <a href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2/">here</a>.  If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
+
+<h3>Bytecode</h3>
+
+<p>When we left our heroes, they had come across some odd-looking output:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span>
+</span><span class='line'><span class="s">&#39;d</span><span class="se">\x01\x00</span><span class="s">}</span><span class="se">\x01\x00</span><span class="s">|</span><span class="se">\x01\x00</span><span class="s">|</span><span class="se">\x00\x00\x17</span><span class="s">S&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is python <em>bytecode</em>.</p>
+
+<p>You recall from Part 2 that &ldquo;python bytecode&rdquo; and &ldquo;a python code object&rdquo; are not the same thing: the bytecode is an attribute of the code object, among many other attributes.  Bytecode is found in the <code>co_code</code> attribute of the code object, and contains instructions for the interpreter.</p>
+
+<p>So what is bytecode?  Well, it&rsquo;s just a series of bytes.  They look wacky when we print them because some bytes are printable and others aren&rsquo;t, so let&rsquo;s take the <code>ord</code> of each byte to see that they&rsquo;re just numbers.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span><span class="p">]</span>
+</span><span class='line'><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">83</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here are the bytes that make up python bytecode.  The interpreter will loop through each byte, look up what it should do for each one, and then do that thing.  Notice that the bytecode itself doesn&rsquo;t include any python objects, or references to objects, or anything like that.</p>
+
+<p>One way to understand python bytecode would be to find the CPython interpreter file (it&rsquo;s <code>ceval.c</code>), and flip through it looking up what <code>100</code> means, then <code>1</code>, then <code>0</code>, and so on.  We&rsquo;ll do this later in the series!  For now, there&rsquo;s a simpler way: the <code>dis</code> module.</p>
+
+<h3>Disassembling bytecode</h3>
+
+<p>Disassembling bytecode means taking this series of bytes and printing out something we humans can understand.  It&rsquo;s not a step in python execution; the <code>dis</code> module just helps us understand an intermediate state of python internals. I can&rsquo;t think of a reason why you&rsquo;d ever want to use <code>dis</code> in production code &ndash; it&rsquo;s for humans, not for machines.</p>
+
+<p>Today, however, taking some bytecode and making it human-readable is exactly what we&rsquo;re trying to do, so <code>dis</code> is a great tool.  We&rsquo;ll use the function <code>dis.dis</code> to analyze the code object of our function <code>foo</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">a</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">dis</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">3</span>           <span class="mi">6</span> <span class="n">LOAD_FAST</span>                <span class="mi">1</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">BINARY_ADD</span>
+</span><span class='line'>             <span class="mi">13</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(You usually see this called as <code>dis.dis(foo)</code>, directly on the function object.  That&rsquo;s just a convenience: <code>dis</code> is really analyzing the code object.  If it&rsquo;s passed a function, it just gets its code object.)</p>
+
+<p>The numbers in the left-hand column are line numbers in the original source code.  The second column is the offset into the bytecode: <code>LOAD_CONST</code> appears at position 0, <code>STORE_FAST</code> at position 3, and so on.  The middle column shows the names of bytes. These names are just for our (human) benefit &ndash; the interpreter doesn&rsquo;t need the names.</p>
+
+<p>The last two columns give details about the instructions&rsquo;s argument, if there is an argument.  The fourth column shows the argument itself, which represents an index into other attributes of the code object. In the example, <code>LOAD_CONST</code>&rsquo;s argument is an index into the list <code>co_consts</code>, and <code>STORE_FAST</code>&rsquo;s argument is an index into <code>co_varnames</code>.  Finally, in the fifth column, <code>dis</code> has looked up the constants or names in the place the fourth column specified and told us what it found there. We can easily verify this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_consts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'><span class="mi">3</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_varnames</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'><span class="s">&#39;x&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This also explains why the second instruction, <code>STORE_FAST</code>, is found at bytecode position 3.  If a bytecode has an argument, the next two bytes are that argument. It&rsquo;s the interpreter&rsquo;s job to handle this correctly.</p>
+
+<p>(You may be surprised that <code>BINARY_ADD</code> doesn&rsquo;t have arguments. We&rsquo;ll come back to this in a future installment, when we get to the interpreter itself.)</p>
+
+<p>People often say that <code>dis</code> is a disassembler of python bytecode.  This is true enough &ndash; the <code>dis</code> module&rsquo;s docs say it &ndash; but <code>dis</code> knows about more than just the bytecode, too: it uses the whole code object to give us an understandable printout.  The middle three columns show information actually encoded in the bytecode, while the first and the last columns show other information.  Again, the bytecode itself is really limited: it&rsquo;s just a series of numbers, and things like names and constants are not a part of it.</p>
+
+<p>How does the <code>dis</code> module get from bytes like <code>100</code> to names like <code>LOAD_CONST</code> and back?  Try to think of a way you&rsquo;d do it.  If you thought &ldquo;Well, you could have a list that has the byte names in the right order,&rdquo; or you thought, &ldquo;I guess you could have a dictionary where the names are the keys and the byte values are the values,&rdquo; then congratulations!  That&rsquo;s exactly what&rsquo;s going on.  The file <code>opcode.py</code> defines the list and the dictionary.  It&rsquo;s full of lines like these (<code>def_op</code> inserts the mapping in both the list and the dictionary):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">def_op</span><span class="p">(</span><span class="s">&#39;LOAD_CONST&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>       <span class="c"># Index in const list</span>
+</span><span class='line'><span class="n">def_op</span><span class="p">(</span><span class="s">&#39;BUILD_TUPLE&#39;</span><span class="p">,</span> <span class="mi">102</span><span class="p">)</span>      <span class="c"># Number of tuple items</span>
+</span><span class='line'><span class="n">def_op</span><span class="p">(</span><span class="s">&#39;BUILD_LIST&#39;</span><span class="p">,</span> <span class="mi">103</span><span class="p">)</span>       <span class="c"># Number of list items</span>
+</span><span class='line'><span class="n">def_op</span><span class="p">(</span><span class="s">&#39;BUILD_SET&#39;</span><span class="p">,</span> <span class="mi">104</span><span class="p">)</span>        <span class="c"># Number of set items</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There&rsquo;s even a friendly comment telling us what each byte&rsquo;s argument means.</p>
+
+<p>Ok, now we understand what python bytecode is (and isn&rsquo;t), and how to use <code>dis</code> to make sense of it. In Part 4, we&rsquo;ll look at another example to see how Python can compile down to bytecode but still be a dynamic language.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 2: Code Objects]]></title>
@@ -149,6 +261,191 @@ Part 1 <a href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-py
 <p>&ldquo;Functions are first-class objects,&rdquo; means that function are objects, like a list is an object or an instance of <code>MyObject</code> is an object.  Since <code>foo</code> is an object, we can talk about it without invoking it (that is, there&rsquo;s a difference between <code>foo</code> and <code>foo()</code>).  We can pass <code>foo</code> into another function as an argument, or we could bind it to a new name (<code>other_function = foo</code>). With first-class functions, all sorts of possibilities are open to us!</p>
 
 <p>In Part 2, we&rsquo;ll dive down a level and look at the code object.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 2: Code Objects]]></title>
+    <link href="http://akaptur.github.com/blog/2013/11/15/introduction-to-python-internals/"/>
+    <updated>2013-11-15T16:04:00-05:00</updated>
+    <id>http://akaptur.github.com/blog/2013/11/15/introduction-to-python-internals</id>
+    <content type="html"><![CDATA[<h3>Bytecode</h3>
+
+<p>Those instructions &ndash; called bytecode &ndash; are found in the <code>co_code</code> attribute.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span>
+</span><span class='line'><span class="s">&#39;d</span><span class="se">\x01\x00</span><span class="s">}</span><span class="se">\x01\x00</span><span class="s">|</span><span class="se">\x01\x00</span><span class="s">|</span><span class="se">\x00\x00\x17</span><span class="s">S&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This looks utterly mystifying at first.  Let&rsquo;s dig in.</p>
+
+<p>To start, notice that &ldquo;python bytecode&rdquo; and &ldquo;a python code object&rdquo; are not the same thing: the bytecode is an attribute of the code object, among many other attributes.  This will be important momentarily.</p>
+
+<p>So what&rsquo;s bytecode?  Well, it&rsquo;s just a series of bytes.  They look wacky when we print them because some of them are printable and others aren&rsquo;t, so let&rsquo;s take the <code>ord</code> of each byte to see that they&rsquo;re just numbers.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span><span class="p">]</span>
+</span><span class='line'><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">83</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here are the bytes that make up python bytecode.  Each byte means something to the interpreter.  The interpreter will loop through each byte, look up what it should do for each one, and then do that thing.</p>
+
+<p>One way to understand python bytecode would be to find the CPython interpreter file (it&rsquo;s <code>ceval.c</code>), and flip through it looking up what <code>100</code> means, then <code>1</code>, then <code>0</code>, and so on.  Luckily, there&rsquo;s a better way: the <code>dis</code> module.</p>
+
+<p>Before we get there, though, notice what we don&rsquo;t see: any kind of python object.  It&rsquo;s just bytes.</p>
+
+<h3>Disassembling bytecode</h3>
+
+<p>Disassembling bytecode just means taking this series of bytes and printing out something we humans can understand.</p>
+
+<p>The function <code>dis.dis</code> analyzes a code object to do exactly that.  Let&rsquo;s take a look.  (As a reminder, here&rsquo;s <code>foo</code> again.)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">a</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">3</span>           <span class="mi">6</span> <span class="n">LOAD_FAST</span>                <span class="mi">1</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">BINARY_ADD</span>
+</span><span class='line'>             <span class="mi">13</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You usually see this called as <code>dis.dis(foo)</code> &ndash; that is, directly on the function object.  That&rsquo;s just a convenience: <code>dis</code> is really analyzing the code object.  If it&rsquo;s passed a function, it just gets its code object.</p>
+
+<p>The numbers in the left-hand column are line numbers.  The second column is the offset into the bytecode: that is, <code>LOAD_CONST</code> appears at position 0, <code>STORE_FAST</code> at position 3, and so on.  The middle column shows the names of bytes. These names are just for our (human) benefit &ndash; the interpreter doesn&rsquo;t need the names.  The fourth column is an offset into other attributes of the code object: <code>co_consts</code> on the first line, and <code>co_varnames</code> on the second line.  Finally, in the fifth column, <code>dis</code> has looked up the constants or names in the place the fourth column specified, and tells us what it found there.</p>
+
+<p>People &ndash; among them <code>dis</code> module&rsquo;s docs &ndash; often talk about <code>dis</code> as a disassembler of python bytecode.  <code>dis</code> does this, but it knows about more than just the bytecode, too: it uses the whole code object to give us an understandable printout.  The middle three columns show information actually encoded in the bytecode, while the first and the last columns show other information.</p>
+
+<p>Why is the second instruction, <code>STORE_FAST</code>, at bytecode position 3?  The offsets seem to count up by three, but just when we think we have the pattern, the last byte, <code>RETURN_VALUE</code>, is only one step later than the one before it. The reason is that some bytecodes have arguments, and others don&rsquo;t.  When we&rsquo;re trying to load a variable name, we need to know what name to load.  (You may be wondering why BINARY_ADD doesn&rsquo;t need arguments, too.  We&rsquo;ll come back to that soon.)  If a bytecode has an argument, the next two bytes represent an index (into a list on the code object) where that .</p>
+
+<p>How does the <code>dis</code> module get from bytes like <code>100</code> to names like <code>LOAD_CONST</code> and back?  Try to think of a way you&rsquo;d do it.  If you thought &ldquo;Well, you could have a list that has the byte names in the right order,&rdquo; or you thought, &ldquo;I guess you could have a dictionary where the names are the keys and the byte values are the values,&rdquo; then congratulations!  That&rsquo;s exactly what&rsquo;s going on.  The file <code>opcode.py</code> defines the list and the dictionary.  It&rsquo;s full of lines like this one (<code>def_op</code> inserts the mapping in both the list and the dictionary):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">def_op</span><span class="p">(</span><span class="s">&#39;LOAD_CONST&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>       <span class="c"># Index in const list</span>
+</span><span class='line'><span class="n">def_op</span><span class="p">(</span><span class="s">&#39;BUILD_TUPLE&#39;</span><span class="p">,</span> <span class="mi">102</span><span class="p">)</span>      <span class="c"># Number of tuple items</span>
+</span><span class='line'><span class="n">def_op</span><span class="p">(</span><span class="s">&#39;BUILD_LIST&#39;</span><span class="p">,</span> <span class="mi">103</span><span class="p">)</span>       <span class="c"># Number of list items</span>
+</span><span class='line'><span class="n">def_op</span><span class="p">(</span><span class="s">&#39;BUILD_SET&#39;</span><span class="p">,</span> <span class="mi">104</span><span class="p">)</span>        <span class="c"># Number of set items</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There&rsquo;s even a friendly comment telling us what this byte&rsquo;s argument means: it&rsquo;s an index into the code object&rsquo;s tuple of constants, which for us is <code>foo.func_code.co_consts</code>. In the first line of our disassembled output, <code>dis</code> has looked up index <code>1</code> in <code>foo.func_code.co_consts</code> and found <code>3</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_consts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'><span class="mi">3</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Interpreting bytecode</h3>
+
+<p>Looking at the output of <code>dis</code> and examining the code object has taught us an important thing: <em>bytecode by itself isn&rsquo;t enough information to execute python code.</em> To drive this home, let&rsquo;s write another simple function.  Then we&rsquo;ll look at the function&rsquo;s code object&rsquo;s bytecode, with and without the help of <code>dis</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">modulus</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">return</span> <span class="n">x</span> <span class="o">%</span> <span class="n">y</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">modulus</span><span class="o">.</span><span class="n">func_code</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">LOAD_FAST</span>                <span class="mi">1</span> <span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">6</span> <span class="n">BINARY_MODULO</span>
+</span><span class='line'>              <span class="mi">7</span> <span class="n">RETURN_VALUE</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">modulus</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span><span class="p">]</span>
+</span><span class='line'><span class="p">[</span><span class="mi">124</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">83</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It seems really clear what this function does: it takes two arguments, which are probably numbers, and returns the remainder from dividing the first by the second &ndash; the modulus.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+</span><span class='line'><span class="mi">3</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So far, so good.  But what if we don&rsquo;t pass it numbers?</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="s">&quot;hello </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;world&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="s">&#39;hello world&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Uh-oh, what happened there?  You&rsquo;ve probably seen this before, but it usually looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="s">&quot;hello </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;world&quot;</span>
+</span><span class='line'><span class="n">hello</span> <span class="n">world</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you want to use the <code>%</code> symbol to do something with strings, all you need to do is define what it means to call <code>str.__mod__</code>!  In Python, mod-ing a string against another string (or a tuple) does string interpolation.  Our function <code>mod</code> can calculate remainders, or it can do string formatting &hellip; or it can do anything else!  If we&rsquo;ve defined a custom object that responds to <code>__mod__</code>, then we can do <em>anything</em>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">Surprise</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>         <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">num</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__mod__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">num</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">seven</span> <span class="o">=</span> <span class="n">Surprise</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">four</span> <span class="o">=</span> <span class="n">Surprise</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="n">seven</span><span class="p">,</span> <span class="n">four</span><span class="p">)</span>
+</span><span class='line'><span class="mi">11</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When the compiler built our code object for <code>mod</code>, it had no idea what would end up happening.  It just emitted some instructions: load one name, load another, <code>BINARY_MODULO</code> the two of them, and return the result.</p>
+
+<p>If we knew what <code>x</code> and <code>y</code> were going to be</p>
+
+<p>This is one of the reasons that it&rsquo;s hard to optimize Python: you don&rsquo;t know when you&rsquo;re compiling the code object what it&rsquo;s going to end up doing.</p>
 ]]></content>
   </entry>
   

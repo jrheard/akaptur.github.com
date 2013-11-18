@@ -45,6 +45,10 @@
         <lastmod>2013-11-16T12:18:09-05:00</lastmod>
     </url>
     <url>
+        <loc>http://akaptur.github.com/blog/2013/11/15/introduction-to-python-internals/</loc>
+        <lastmod>2013-11-17T09:55:08-05:00</lastmod>
+    </url>
+    <url>
         <loc>
             http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/
         </loc>
@@ -57,12 +61,18 @@
         <lastmod>2013-11-16T12:18:09-05:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3/
+        </loc>
+        <lastmod>2013-11-17T18:57:19-05:00</lastmod>
+    </url>
+    <url>
         <loc>http://akaptur.github.com/blog/archives/</loc>
-        <lastmod>2013-11-16T12:18:09-05:00</lastmod>
+        <lastmod>2013-11-17T18:57:19-05:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/</loc>
-        <lastmod>2013-11-16T12:18:09-05:00</lastmod>
+        <lastmod>2013-11-17T18:57:19-05:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/robots.txt</loc>
