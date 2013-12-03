@@ -6,7 +6,7 @@ comments: false
 categories: python python-internals
 ---
 
-_This is Part 4 in a [series](/blog/categories/python-internals) on the Python interpreter. Read [Part 1](/blog/2013/11/15/introduction-to-the-python-interpreter/), [Part 2](/blog/2013/11/15/introduction-to-the-python-interpreter-2/), and [Part 3](/blog/2013/11/15/introduction-to-the-python-interpreter-3/). If you're enjoying this series, consider applying to [Hacker School](https://www.hackerschool.com/), where I work as a facilitator._
+_This is Part 4 in a [series](/blog/categories/python-internals) on the Python interpreter. Read [Part 1](/blog/2013/11/15/introduction-to-the-python-interpreter/), [Part 2](/blog/2013/11/15/introduction-to-the-python-interpreter-2/), and [Part 3](/blog/2013/11/17/introduction-to-the-python-interpreter-3/). If you're enjoying this series, consider applying to [Hacker School](https://www.hackerschool.com/), where I work as a facilitator._
 
 One of the things I was confused about when I started digging into python internals was how python could be "dynamic" if it was also "compiled." Often, in casual coversation, those two words are used as antonyms - there are "dynamic languages,"[^1] like Python, Ruby, and Javascript, and "compiled languages," like C, Java, and Haskell.
 
