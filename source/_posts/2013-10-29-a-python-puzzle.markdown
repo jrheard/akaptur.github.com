@@ -3,7 +3,7 @@ layout: post
 title: "A Python puzzle"
 date: 2013-10-29 19:40
 comments: false
-categories: 
+categories: python
 ---
 
 A couple of Hacker Schoolers were discussing an interesting corner of python today.  We discovered a nice bit of trivia: there exist three lines of python code that display the following behavior:

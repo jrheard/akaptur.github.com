@@ -3,7 +3,7 @@ layout: post
 title: "Python Puzzle Solutions"
 date: 2013-10-31 10:47
 comments: true
-categories: 
+categories: python
 ---
 
 I really enjoyed seeing all the clever solutions to the [python puzzle I posted](http://akaptur.github.io/blog/2013/10/29/a-python-puzzle/).  You're all very creative!  Here's a discussion of the solutions I've seen, plus some clarifications.  All spoilers are below the fold.

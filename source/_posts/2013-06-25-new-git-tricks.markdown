@@ -3,7 +3,7 @@ layout: post
 title: "New git tricks"
 date: 2013-06-25 14:14
 comments: false
-categories: 
+categories: git
 ---
 
 I picked up a couple of new tricks at Hacker School's intermediate/advanced Git seminar, led by Peter Bell. 
