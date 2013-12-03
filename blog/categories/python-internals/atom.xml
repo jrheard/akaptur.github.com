@@ -4,7 +4,7 @@
   <title><![CDATA[Category: python-internals | Of Interest]]></title>
   <link href="http://akaptur.github.com/blog/categories/python-internals/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2013-12-03T11:33:37-05:00</updated>
+  <updated>2013-12-03T11:53:11-05:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -18,7 +18,7 @@
     <link href="http://akaptur.github.com/blog/2013/12/03/introduction-to-the-python-interpreter-4/"/>
     <updated>2013-12-03T11:25:00-05:00</updated>
     <id>http://akaptur.github.com/blog/2013/12/03/introduction-to-the-python-interpreter-4</id>
-    <content type="html"><![CDATA[<p><em>This is Part 4 in a <a href="/blog/categories/python-internals">series</a> on the Python interpreter. Read <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Part 1</a>, <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">Part 2</a>, and <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-3/">Part 3</a>. If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
+    <content type="html"><![CDATA[<p><em>This is Part 4 in a <a href="/blog/categories/python-internals">series</a> on the Python interpreter. Read <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Part 1</a>, <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">Part 2</a>, and <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Part 3</a>. If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
 
 <p>One of the things I was confused about when I started digging into python internals was how python could be &ldquo;dynamic&rdquo; if it was also &ldquo;compiled.&rdquo; Often, in casual coversation, those two words are used as antonyms &ndash; there are &ldquo;dynamic languages,&rdquo;<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> like Python, Ruby, and Javascript, and &ldquo;compiled languages,&rdquo; like C, Java, and Haskell.</p>
 
