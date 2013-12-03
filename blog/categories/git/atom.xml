@@ -4,7 +4,7 @@
   <title><![CDATA[Category: git | Of Interest]]></title>
   <link href="http://akaptur.github.com/blog/categories/git/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2013-11-17T19:06:37-05:00</updated>
+  <updated>2013-12-03T11:33:37-05:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,6 +12,73 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[New git tricks]]></title>
+    <link href="http://akaptur.github.com/blog/2013/06/25/new-git-tricks/"/>
+    <updated>2013-06-25T14:14:00-04:00</updated>
+    <id>http://akaptur.github.com/blog/2013/06/25/new-git-tricks</id>
+    <content type="html"><![CDATA[<p>I picked up a couple of new tricks at Hacker School&rsquo;s intermediate/advanced Git seminar, led by Peter Bell.
+<code>
+$ git checkout -
+</code>
+This checks out whatever you had checked out last.  Thanks, <a href="https://github.com/nnja">Nina</a>!</p>
+
+<p>Draw a graph of the commit history:</p>
+
+<p><code>
+git-advanced [master]\ $ git log --graph --oneline --all
+*   b2da179 Merge branch 'test-graph'
+|\  
+| * d71e4fc testing graph thing
+* | 8535311 still testing graph
+|/  
+* b90b105 Added contact form
+* b36ba51 added gitignore to ignore generated log files
+* 70461dc added about
+* c57f995 added homepage
+</code></p>
+
+<p>You can alias this with <code>git config --global alias.plog "log --graph --oneline --all"</code>.  (Looking at this graph may motivate you to start using <code>git merge --no-ff</code>.)  You can substitute whatever you want for <code>plog</code> above.</p>
+
+<p>If you get really screwed up, it&rsquo;s reflog time!  (This is pronounced ref-log, not re-flog as I&rsquo;d been reading it.  On the other hand, as my colleague <a href="https://github.com/happy4crazy">Alan</a> notes, &ldquo;You damn well ought to feel penitent if you&rsquo;re wedged enough to need the reflog.&rdquo;)  Here, we&rsquo;re using <code>git reset</code> to undo the last commit.  Even though the commit doesn&rsquo;t appear in <code>git log</code> anymore, there&rsquo;s still a references to it in the reflog.</p>
+
+<p>```
+git-advanced [master %]\ $ git add tester.css
+git-advanced [master +]\ $ git commit -m &ldquo;add some file&rdquo;
+git-advanced [master]\ $ git reset HEAD~1
+git-advanced [master %]\ $ git add tester.css
+git-advanced [master +]\ $ git commit -m &ldquo;redoing some file&rdquo;</p>
+
+<p>git-advanced [master]\ $ git log &mdash;oneline
+8039ec5 redoing some file
+b2da179 Merge branch &lsquo;test-graph&rsquo;
+8535311 still testing graph
+d71e4fc testing graph thing</p>
+
+<p>git-advanced [master]\ $ git reflog
+8039ec5 HEAD@{0}: commit: redoing some file
+b2da179 HEAD@{1}: reset: moving to HEAD~1
+848874d HEAD@{2}: commit: add some file
+```</p>
+
+<p>It turns out that there is a better way to get a commit sha than running <code>git log</code> and copying and pasting the relevant shas.  You can use <code>rev-parse</code> instead.</p>
+
+<p><code>
+git-advanced [master]\ $ git rev-parse HEAD~2
+0fafe464f4b7d524c8ba707ea2115950d6dd4bdf
+git-advanced [master]\ $ git rev-parse master
+8039ec584485540f07aac1209389022f627bc8c5
+</code></p>
+
+<p>Then you can inline with backticks!
+<code>
+git-advanced [master]\ $ git diff `git rev-parse HEAD~2` `git rev-parse HEAD`
+</code></p>
+
+<p>Now go forth and git in peace.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Git add -p: The Wave of the Future]]></title>

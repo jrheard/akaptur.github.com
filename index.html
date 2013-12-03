@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="This is Part 3 in a series on the Python interpreter. Part 1 here, Part 2 here. If you&rsquo;re enjoying this series, consider applying to Hacker &hellip;">
+  <meta name="description" content="This is Part 4 in a series on the Python interpreter. Read Part 1, Part 2, and Part 3. If you&rsquo;re enjoying this series, consider applying to &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +76,159 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/03/introduction-to-the-python-interpreter-4/">Introduction to the Python Interpreter, Part 4: It&#8217;s Dynamic!</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-03T11:25:00-05:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><em>This is Part 4 in a <a href="/blog/categories/python-internals">series</a> on the Python interpreter. Read <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Part 1</a>, <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">Part 2</a>, and <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-3/">Part 3</a>. If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
+
+<p>One of the things I was confused about when I started digging into python internals was how python could be &ldquo;dynamic&rdquo; if it was also &ldquo;compiled.&rdquo; Often, in casual coversation, those two words are used as antonyms &ndash; there are &ldquo;dynamic languages,&rdquo;<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> like Python, Ruby, and Javascript, and &ldquo;compiled languages,&rdquo; like C, Java, and Haskell.</p>
+
+<p>Most of the time, when people talk about a &ldquo;compiled&rdquo; language, they mean one that compiles down to native x86/ARM/etc instructions<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup> &ndash; instructions for an actual machine made of metal. An &ldquo;interpreted&rdquo; language either doesn&rsquo;t have any compilation at all<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup>, or compiles to an intermediate representation, like bytecode.  Bytecode is instructions for a virtual machine, not a piece of hardware. Python falls into this latter category: the Python compiler&rsquo;s job is to generate bytecode for the Python interpreter.<sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></p>
+
+<p>The Python interpreter&rsquo;s job is to make sense of the bytecode via the virtual machine, which turns out to be a lot of work. We&rsquo;ll dig in to the virtual machine in Part 5.</p>
+
+<p>So far our discussion of compiling versus interpretation has been abstract. These ideas become more clear with an example.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">modulus</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">return</span> <span class="n">x</span> <span class="o">%</span> <span class="n">y</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">modulus</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span><span class="p">]</span>
+</span><span class='line'><span class="p">[</span><span class="mi">124</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">83</span><span class="p">]</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">modulus</span><span class="o">.</span><span class="n">func_code</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">LOAD_FAST</span>                <span class="mi">1</span> <span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">6</span> <span class="n">BINARY_MODULO</span>
+</span><span class='line'>              <span class="mi">7</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s a function, its bytecode, and its bytecode run through the disassembler. By the time we get the prompt back after the function definition, the <code>modulus</code> function has been compiled and a code object generated. That code object will never be modified.</p>
+
+<p>This seems pretty easy to reason about. Unsurprisingly, typing a modulus (<code>%</code>) causes the compiler to emit the instruction <code>BINARY_MODULO</code>. It looks like this function will be useful if we need to calculate a remainder.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+</span><span class='line'><span class="mi">3</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So far, so good. But what if we don&rsquo;t pass it numbers?</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="s">&quot;hello </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;world&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="s">&#39;hello world&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Uh-oh, what happened there? You&rsquo;ve probably seen this before, but it usually looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="s">&quot;hello </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;world&quot;</span>
+</span><span class='line'><span class="n">hello</span> <span class="n">world</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Somehow, when <code>BINARY_MODULO</code> is faced with two strings, it does string interpolation instead of taking a remainder. This situation is a great example of dynamic typing. When the compiler built our code object for <code>modulus</code>, it had no idea whether <code>x</code> and <code>y</code> would be strings, numbers, or something else entirely. It just emitted some instructions: load one name, load another, <code>BINARY_MODULO</code> the two objects, and return the result. It&rsquo;s the interpreter&rsquo;s job to figure out what <code>BINARY_MODULO</code> actually means.</p>
+
+<p>I&rsquo;d like to reflect on the depth of our ignorance for a moment. Our function <code>modulus</code> can calculate remainders, or it can do string formatting &hellip; what else?  If we define a custom object that responds to <code>__mod__</code>, then we can do <em>anything</em>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">Surprise</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>         <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">num</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__mod__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">num</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">seven</span> <span class="o">=</span> <span class="n">Surprise</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">four</span> <span class="o">=</span> <span class="n">Surprise</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="n">seven</span><span class="p">,</span> <span class="n">four</span><span class="p">)</span>
+</span><span class='line'><span class="mi">11</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+</span><span class='line'><span class="mi">3</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="s">&quot;hello </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;world&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="s">&#39;hello world&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The same function <code>modulus</code>, with the same bytecode, has wildly different effects when passed different kinds of objects.  It&rsquo;s also possible for <code>modulus</code> to raise an error &ndash; for example, a <code>TypeError</code> if we called it on objects that didn&rsquo;t implement <code>__mod__</code>. Heck, we could even write a custom object that raises a <code>SystemExit</code> when <code>__mod__</code> is invoked.  Our <code>__mod__</code> function could have written to a file, or changed a global variable, or deleted another attribute of the object. We have near-total freedom.</p>
+
+<p>This ignorance is one of the reasons that it&rsquo;s hard to optimize Python: you don&rsquo;t know when you&rsquo;re compiling the code object and generating the bytecode what it&rsquo;s going to end up doing. The compiler has no idea what&rsquo;s going to happen. As Russell Power and Alex Rubinsteyn wrote in <a href="http://arxiv.org/pdf/1306.6047v2.pdf">&ldquo;How fast can we make interpreted Python?&rdquo;</a>, &ldquo;In the general absence of type information, almost every instruction must be treated as INVOKE_ARBITRARY_METHOD.&rdquo;</p>
+
+<p>While a general definition of &ldquo;compiling&rdquo; and &ldquo;interpreting&rdquo; can be difficult to nail down, in the context of Python it&rsquo;s fairly straightforward. Compiling is generating the code objects, including the bytecode. Interpreting is making sense of the bytecode in order to actually make things happen. One of the ways in which Python is &ldquo;dynamic&rdquo; is that the same bytecode doesn&rsquo;t always have the same effect. More generally, in Python the compiler does relatively little work, and the intrepreter relatively more.</p>
+
+<p>In Part 5, we&rsquo;ll look at the actual virtual machine and interpreter.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>You sometimes hear &ldquo;interpreted language&rdquo; instead of &ldquo;dynamic language,&rdquo; which is usually, mostly, synonymous.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>Thanks to David Nolen for this definition. The lines between &ldquo;parsing,&rdquo; &ldquo;compiling,&rdquo; and &ldquo;interpreting&rdquo; are not always clear. <a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p>Some languages that are usually not compiled at all include R, Scheme, and binary, depending on the implementation and your definition of &ldquo;compile.&rdquo;<a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+<li id="fn:4">
+<p>As always in this series, I&rsquo;m talking about CPython and Python 2.7, although most of this content is true across implementations.<a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1803,372 +1956,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/06/28/side-effecting-assignment/">Side-effecting Assignment</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-06-28T14:35:00-04:00" pubdate data-updated="true">Jun 28<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>Surprises</h2>
-
-<p>My colleague <a href="https://github.com/davidbalbert">Dave</a> told me about an interesting bit of Ruby the other day.  If you make a new <code>Class</code> object, it initially has no name. If you then assign a name to it, with your new class on the right-hand side of the assignment, the name is attached to the Class object.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">c</span> <span class="o">=</span> <span class="no">Class</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Class:0x007ff19bc46988&gt;</span>
-</span><span class='line'><span class="o">[</span><span class="mi">3</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="kp">nil</span>
-</span><span class='line'><span class="o">[</span><span class="mi">4</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Foo</span> <span class="o">=</span> <span class="n">c</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
-</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Foo</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
-</span><span class='line'><span class="o">[</span><span class="mi">6</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">c</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
-</span><span class='line'><span class="o">[</span><span class="mi">7</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;Foo&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I found this shockingly non-intuitive. Really, an assignment statement permanently modified the object on the right-hand side?</p>
-
-<p>In a word, yes.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="mi">8</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Bar</span> <span class="o">=</span> <span class="n">c</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
-</span><span class='line'><span class="o">[</span><span class="mi">9</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">c</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
-</span><span class='line'><span class="o">[</span><span class="mi">10</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Foo</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
-</span><span class='line'><span class="o">[</span><span class="mi">11</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Bar</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">[</span><span class="mi">12</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Baz</span> <span class="o">=</span> <span class="no">Foo</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
-</span><span class='line'><span class="o">[</span><span class="mi">13</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Baz</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To recap:</p>
-
-<p>Step 1: <code>c</code> is some object</p>
-
-<p>Step 2: set <code>Foo = c</code></p>
-
-<p>Step 3: <code>c</code> is permanently altered.</p>
-
-<p>Wow.</p>
-
-<p>Luckily for our intuition, this is a pretty special case, and not a way that Ruby generally behaves.  But it got me wondering if there&rsquo;s something similar in python.</p>
-
-<h2>What about python?</h2>
-
-<p>The simplest answer is &ldquo;no&rdquo;.  In python, <a href="http://docs.python.org/2/reference/simple_stmts.html#assignment-statements">assignment is a simple statement</a>, not an operator, so you can&rsquo;t do things like operator overloading.  This also means we can&rsquo;t somehow add a hook to assignment.</p>
-
-<p>Ok, fine.  But wait &ndash; we&rsquo;re programmers!  We don&rsquo;t give up that easily.</p>
-
-<p>What about hooking on <code>__getattribute__</code>?  (Defining your own <code>__getattribute__</code> is &ldquo;the bad way&rdquo; to do it.  You almost always want to define your own <code>__getattr__</code>, unless you&rsquo;re doing something silly and/or malicious, like we are.  Note that we have to use the parent class (<code>object</code>)&rsquo;s <code>__getattribute__</code> to extract and save the attribute we want.  If we didn&rsquo;t do that, we&rsquo;d trigger an infinitely recursive lookup.)</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">some_attr</span> <span class="o">=</span> <span class="s">&quot;sup foo&quot;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
-</span><span class='line'>        <span class="n">attribute</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
-</span><span class='line'>        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="s">&quot;you&#39;re too late!&quot;</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">attribute</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This looks like it works!</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">f</span>
-</span><span class='line'><span class="o">&lt;</span><span class="n">obj</span><span class="o">.</span><span class="n">Foo</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x10253dd10</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">word</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">some_attr</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">word</span>
-</span><span class='line'><span class="n">sup</span> <span class="n">foo</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">f</span><span class="o">.</span><span class="n">some_attr</span>
-</span><span class='line'><span class="n">you</span><span class="s">&#39;re too late!</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Unfortunately, this behavior has nothing to do with assignment.  The object was mutated when <code>__getattribute__</code> was called, which happened to be in an assignment statement in this code above.  We&rsquo;d get exactly the same behavior without the assignment:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">g</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">g</span>
-</span><span class='line'><span class="o">&lt;</span><span class="n">obj</span><span class="o">.</span><span class="n">Foo</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x10253dd10</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">g</span><span class="o">.</span><span class="n">some_attr</span>
-</span><span class='line'><span class="n">sup</span> <span class="n">foo</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">g</span><span class="o">.</span><span class="n">some_attr</span>
-</span><span class='line'><span class="n">you</span><span class="s">&#39;re too late!</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Darn.</p>
-
-<p>But we&rsquo;re programmers, right?  We don&rsquo;t give up that easily.</p>
-
-<h2>Trace functions to the rescue</h2>
-
-<p>There&rsquo;s a <code>settrace</code> function in python&rsquo;s <code>sys</code> module that we can use to examine stack frames, events, and lots of other code data while our program is running.  <code>sys.settrace(fn)</code> takes a trace function as an argument, and that trace function must take <code>frame, event, args</code> as arguments.  It will then get called every time an event happens.  A line of code, a function call, a function return, and an exception are all &ldquo;events&rdquo;.  We can use this to inspect each line of code before it runs and check manually if it&rsquo;s an assignment statement.</p>
-
-<p>(I know this is silly, but isn&rsquo;t it fun?)</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">linecache</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Tracer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">):</span>
-</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">program</span> <span class="o">=</span> <span class="n">program</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">traceit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
-</span><span class='line'>        <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="s">&#39;line&#39;</span><span class="p">:</span>
-</span><span class='line'>            <span class="n">linenum</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_lineno</span>
-</span><span class='line'>            <span class="n">linetext</span> <span class="o">=</span> <span class="n">linecache</span><span class="o">.</span><span class="n">getline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="p">,</span> <span class="n">linenum</span><span class="p">)</span>
-</span><span class='line'>            <span class="n">vprint</span><span class="p">(</span> <span class="s">&#39;line&#39;</span><span class="p">,</span> <span class="n">linenum</span><span class="p">,</span> <span class="n">linetext</span> <span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="n">is_assignment</span> <span class="o">=</span> <span class="s">&quot;=&quot;</span> <span class="ow">in</span> <span class="n">linetext</span> <span class="ow">and</span> <span class="s">&quot;==&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">linetext</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="k">if</span> <span class="n">is_assignment</span><span class="p">:</span>
-</span><span class='line'>                <span class="bp">self</span><span class="o">.</span><span class="n">mess_up_on_assignment</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">linetext</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">traceit</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>(The trace function returns a reference to itself to indicate that tracing should continue.)</p>
-
-<p>Now let&rsquo;s write our code to mess up assignment.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">Tracer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-</span><span class='line'>    <span class="p">[</span><span class="o">...</span><span class="p">]</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">mess_up_on_assignment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">linetext</span><span class="p">):</span>
-</span><span class='line'>        <span class="n">rhs</span> <span class="o">=</span> <span class="n">linetext</span><span class="p">[</span><span class="n">linetext</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
-</span><span class='line'>        <span class="n">names</span> <span class="o">=</span> <span class="n">rhs</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-</span><span class='line'>        <span class="n">local_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">+</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
-</span><span class='line'>        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">local_objs</span><span class="p">:</span>
-</span><span class='line'>            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">JANKY_NAMESPACE_MANAGER</span><span class="p">:</span>
-</span><span class='line'>                <span class="n">box</span> <span class="o">=</span> <span class="n">Box</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="p">)</span>
-</span><span class='line'>                <span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">box</span>
-</span><span class='line'>            <span class="k">else</span><span class="p">:</span>
-</span><span class='line'>                <span class="n">JANKY_NAMESPACE_MANAGER</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">assignments</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">JANKY_NAMESPACE_MANAGER</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Box</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span>
-</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">assignments</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span class='line'>        <span class="n">JANKY_NAMESPACE_MANAGER</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class='line'>        <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s">&quot;this message has self-destructed.&quot;</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Here our &ldquo;box&rdquo; object is pretty silly.  It takes the original object and wraps it in a box.  (You could implement <code>__getattr__</code> and <code>__setattr__</code> so that the box behaves basically like the original object, which I haven&rsquo;t done.)  The box then explodes when you try to print it.  We&rsquo;re also tracking which names we&rsquo;ve seen with the aptly-named <code>JANKY_NAMESPACE_MANAGER</code> (which has all kinds of scope issues, but whatever).</p>
-
-<p>Meanwhile, in the <code>mess_up_on_assignment</code> code, we check to see if any of the whitespace-separated words on the right-hand side of the equation are names we recognize from <code>frame.f_locals</code> or <code>frame.f_globals</code>.  If so, and if we haven&rsquo;t seen them before, throw them in a self-destructing box!</p>
-
-<p>Add a simple helper to get things set up.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">assignment</span><span class="p">(</span><span class="n">orig_file</span><span class="p">):</span>
-</span><span class='line'>    <span class="n">trace_obj</span> <span class="o">=</span> <span class="n">Tracer</span><span class="p">(</span><span class="n">orig_file</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">sys</span><span class="o">.</span><span class="n">settrace</span><span class="p">(</span><span class="n">trace_obj</span><span class="o">.</span><span class="n">traceit</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We can now sabotage simple-looking programs!</p>
-
-<p>This one runs fine:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">sabotage</span>
-</span><span class='line'><span class="n">sabotage</span><span class="o">.</span><span class="n">assignment</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">greet</span><span class="p">():</span>
-</span><span class='line'>    <span class="n">name</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s">&quot;Enter your name: &quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;hello,&quot;</span><span class="p">,</span> <span class="n">name</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;goodbye, &quot;</span><span class="p">,</span> <span class="n">name</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-</span><span class='line'>    <span class="n">greet</span><span class="p">()</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And this one blows up:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">sabotage</span>
-</span><span class='line'><span class="n">sabotage</span><span class="o">.</span><span class="n">assignment</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">print</span> <span class="s">&quot;done sabotaging&quot;</span>
-</span><span class='line'><span class="nb">raw_input</span><span class="p">(</span><span class="s">&quot;Hit enter to continue&quot;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">greet</span><span class="p">():</span>
-</span><span class='line'>    <span class="n">name</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s">&quot;Enter your name: &quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;hello,&quot;</span><span class="p">,</span> <span class="n">name</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">name_copy</span> <span class="o">=</span> <span class="n">name</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;goodbye, &quot;</span><span class="p">,</span> <span class="n">name</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-</span><span class='line'>    <span class="n">greet</span><span class="p">()</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And there you have it &ndash; a (incredibly goofy) side-effecting assignment that mutates the object on the right-hand side of the assignment statement.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -2184,6 +1971,10 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/12/03/introduction-to-the-python-interpreter-4/">Introduction to the Python Interpreter, Part 4: It&#8217;s Dynamic!</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Introduction to the Python Interpreter, Part 3: Understanding Bytecode</a>
       </li>
     
@@ -2197,10 +1988,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
     
       <li class="post">
         <a href="/blog/2013/10/31/python-puzzle-solutions/">Python Puzzle Solutions</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/10/29/a-python-puzzle/">A Python puzzle</a>
       </li>
     
   </ul>

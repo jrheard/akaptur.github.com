@@ -14,7 +14,7 @@
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/06/25/new-git-tricks/</loc>
-        <lastmod>2013-11-16T12:18:09-05:00</lastmod>
+        <lastmod>2013-12-03T11:31:48-05:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/06/28/side-effecting-assignment/</loc>
@@ -38,11 +38,11 @@
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/10/29/a-python-puzzle/</loc>
-        <lastmod>2013-11-16T12:18:09-05:00</lastmod>
+        <lastmod>2013-12-03T11:31:32-05:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/10/31/python-puzzle-solutions/</loc>
-        <lastmod>2013-11-16T12:18:09-05:00</lastmod>
+        <lastmod>2013-12-03T11:31:39-05:00</lastmod>
     </url>
     <url>
         <loc>
@@ -63,12 +63,18 @@
         <lastmod>2013-11-17T18:57:19-05:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://akaptur.github.com/blog/2013/12/03/introduction-to-the-python-interpreter-4/
+        </loc>
+        <lastmod>2013-12-03T11:29:54-05:00</lastmod>
+    </url>
+    <url>
         <loc>http://akaptur.github.com/blog/archives/</loc>
-        <lastmod>2013-11-17T18:57:19-05:00</lastmod>
+        <lastmod>2013-12-03T11:31:48-05:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/</loc>
-        <lastmod>2013-11-17T18:57:19-05:00</lastmod>
+        <lastmod>2013-12-03T11:31:48-05:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/robots.txt</loc>
