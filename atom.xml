@@ -4,7 +4,7 @@
   <title><![CDATA[Of Interest]]></title>
   <link href="http://akaptur.github.com/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2013-12-03T11:53:03-05:00</updated>
+  <updated>2014-02-16T15:09:24-05:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,6 +12,128 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[PyCon prep: `require` in Ruby]]></title>
+    <link href="http://akaptur.github.com/blog/2014/02/16/pycon-prep-require-in-ruby/"/>
+    <updated>2014-02-16T14:18:00-05:00</updated>
+    <id>http://akaptur.github.com/blog/2014/02/16/pycon-prep-require-in-ruby</id>
+    <content type="html"><![CDATA[<p>I&rsquo;m talking about <code>import</code> at PyCon in April. In the talk, we&rsquo;ll imagine that there is no <code>import</code> and will reinvent it from scratch. I hope this will give everyone (including me!) a deeper understanding of the choices <code>import</code> makes and the ways it could have been different. Ideally, the structure will be a couple of sections of the form &ldquo;We could have made [decisions].  That would mean [effects].  Surprise &ndash; that&rsquo;s how it works in [language]!&rdquo;<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<p>This is the first of (probably) several posts with notes of things I&rsquo;m learning as I prepare my talk.  Feedback is welcome.</p>
+
+<p>Today I&rsquo;m looking into Ruby&rsquo;s <code>require</code> and <code>require_relative</code><sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup> to see if aspects of them would be interesting to Python programmers. So far, here&rsquo;s what I think is most relevant:</p>
+
+<ul>
+<li><p>Unlike Python, <code>require</code> won&rsquo;t load all objects in the required file. There&rsquo;s a concept of local versus global variables in the file scope that doesn&rsquo;t exist in Python.</p></li>
+<li><p>Unlike Python, one file does not map to one module. Modules are created by using the keyword <code>module</code>.</p></li>
+<li><p>Unlike Python, namespace collisions are completely possible. Consider the following simple files:</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span>one.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">puts</span> <span class="s2">&quot;one!&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">foo</span>
+</span><span class='line'>  <span class="ss">:hello</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>two.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">puts</span> <span class="s2">&quot;two!&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">foo</span>
+</span><span class='line'>  <span class="ss">:world</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>main.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;one&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;two&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="n">foo</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the output from running <code>main.rb</code>:</p>
+
+<figure class='code'><figcaption><span>output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">one!</span>
+</span><span class='line'><span class="n">two!</span>
+</span><span class='line'><span class="n">world</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Like Python&rsquo;s <code>import</code>, <code>require</code> will only load a file once. This can interact interestingly with namespace collisions &ndash; to take a contrived example:</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>main.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;one&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;two&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;one&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="n">foo</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Because <code>one.rb</code> isn&rsquo;t reloaded, <code>foo</code> is still <code>'world'</code>:</p>
+
+<figure class='code'><figcaption><span>output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">one!</span>
+</span><span class='line'><span class="n">two!</span>
+</span><span class='line'><span class="n">world</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Questions for further investigation / thought</h3>
+
+<p>My talk should <em>not</em> convince people that Python is Right and other languages are Wrong.  I&rsquo;m trying to overcome my bias towards the system I&rsquo;m most used to. (I think I&rsquo;ve written roughly equal amounts of Python and Ruby, but the vast majority of the Ruby I&rsquo;ve written is Rails, where all the <code>require</code>ing and namespacing happens by magic.) Here are some questions I&rsquo;d like to research more.</p>
+
+<ol>
+<li><p>Python&rsquo;s namespacing feels much better to me, although I&rsquo;m sure that&rsquo;s partly because I&rsquo;m used to it. What&rsquo;s the advantage to doing namespacing this way?</p></li>
+<li><p>Why have both <code>require</code> and <code>require_relative</code>? Why not have <code>require</code> check the relative path as well before raising a <code>LoadError</code>?</p></li>
+<li><p>What&rsquo;s the advantage of uncoupling a module from a file?</p></li>
+</ol>
+
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>I <a href="https://twitter.com/akaptur/status/433281929199095809">asked on twitter</a> for suggestions of languages that make interesting decisions about <code>import</code> equivalents. So far the suggestions are R, Go, Rust, Ruby, JavaScript, and Clojure. If you have others, let me know.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>As far as I can tell, the only difference between <code>require</code> and <code>require_relative</code> is the load path searched.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 4: It's Dynamic!]]></title>

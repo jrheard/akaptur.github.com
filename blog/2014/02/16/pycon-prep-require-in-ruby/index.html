@@ -1,0 +1,343 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>PyCon prep: `require` in Ruby - Of Interest</title>
+  <meta name="author" content="akaptur">
+
+  
+  <meta name="description" content="I&rsquo;m talking about import at PyCon in April. In the talk, we&rsquo;ll imagine that there is no import and will reinvent it from scratch. I hope &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://akaptur.github.com/blog/2014/02/16/pycon-prep-require-in-ruby/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Of Interest" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42870230-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Of Interest</a></h1>
+  
+    <h2>An occasional blog on programming</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:akaptur.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">PyCon Prep: `require` in Ruby</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-16T14:18:00-05:00" pubdate data-updated="true">Feb 16<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I&rsquo;m talking about <code>import</code> at PyCon in April. In the talk, we&rsquo;ll imagine that there is no <code>import</code> and will reinvent it from scratch. I hope this will give everyone (including me!) a deeper understanding of the choices <code>import</code> makes and the ways it could have been different. Ideally, the structure will be a couple of sections of the form &ldquo;We could have made [decisions].  That would mean [effects].  Surprise &ndash; that&rsquo;s how it works in [language]!&rdquo;<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<p>This is the first of (probably) several posts with notes of things I&rsquo;m learning as I prepare my talk.  Feedback is welcome.</p>
+
+<p>Today I&rsquo;m looking into Ruby&rsquo;s <code>require</code> and <code>require_relative</code><sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup> to see if aspects of them would be interesting to Python programmers. So far, here&rsquo;s what I think is most relevant:</p>
+
+<ul>
+<li><p>Unlike Python, <code>require</code> won&rsquo;t load all objects in the required file. There&rsquo;s a concept of local versus global variables in the file scope that doesn&rsquo;t exist in Python.</p></li>
+<li><p>Unlike Python, one file does not map to one module. Modules are created by using the keyword <code>module</code>.</p></li>
+<li><p>Unlike Python, namespace collisions are completely possible. Consider the following simple files:</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span>one.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">puts</span> <span class="s2">&quot;one!&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">foo</span>
+</span><span class='line'>  <span class="ss">:hello</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>two.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">puts</span> <span class="s2">&quot;two!&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">foo</span>
+</span><span class='line'>  <span class="ss">:world</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>main.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;one&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;two&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="n">foo</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the output from running <code>main.rb</code>:</p>
+
+<figure class='code'><figcaption><span>output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">one!</span>
+</span><span class='line'><span class="n">two!</span>
+</span><span class='line'><span class="n">world</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Like Python&rsquo;s <code>import</code>, <code>require</code> will only load a file once. This can interact interestingly with namespace collisions &ndash; to take a contrived example:</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>main.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;one&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;two&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;one&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="n">foo</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Because <code>one.rb</code> isn&rsquo;t reloaded, <code>foo</code> is still <code>'world'</code>:</p>
+
+<figure class='code'><figcaption><span>output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">one!</span>
+</span><span class='line'><span class="n">two!</span>
+</span><span class='line'><span class="n">world</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Questions for further investigation / thought</h3>
+
+<p>My talk should <em>not</em> convince people that Python is Right and other languages are Wrong.  I&rsquo;m trying to overcome my bias towards the system I&rsquo;m most used to. (I think I&rsquo;ve written roughly equal amounts of Python and Ruby, but the vast majority of the Ruby I&rsquo;ve written is Rails, where all the <code>require</code>ing and namespacing happens by magic.) Here are some questions I&rsquo;d like to research more.</p>
+
+<ol>
+<li><p>Python&rsquo;s namespacing feels much better to me, although I&rsquo;m sure that&rsquo;s partly because I&rsquo;m used to it. What&rsquo;s the advantage to doing namespacing this way?</p></li>
+<li><p>Why have both <code>require</code> and <code>require_relative</code>? Why not have <code>require</code> check the relative path as well before raising a <code>LoadError</code>?</p></li>
+<li><p>What&rsquo;s the advantage of uncoupling a module from a file?</p></li>
+</ol>
+
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>I <a href="https://twitter.com/akaptur/status/433281929199095809">asked on twitter</a> for suggestions of languages that make interesting decisions about <code>import</code> equivalents. So far the suggestions are R, Go, Rust, Ruby, JavaScript, and Clojure. If you have others, let me know.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>As far as I can tell, the only difference between <code>require</code> and <code>require_relative</code> is the load path searched.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">akaptur</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-16T14:18:00-05:00" pubdate data-updated="true">Feb 16<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/pycon/'>pycon</a>, <a class='category' href='/blog/categories/ruby/'>ruby,</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://akaptur.github.com/blog/2014/02/16/pycon-prep-require-in-ruby/" data-via="" data-counturl="http://akaptur.github.com/blog/2014/02/16/pycon-prep-require-in-ruby/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/12/03/introduction-to-the-python-interpreter-4/" title="Previous Post: Introduction to the Python Interpreter, Part 4: It's Dynamic!">&laquo; Introduction to the Python Interpreter, Part 4: It's Dynamic!</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/16/pycon-prep-require-in-ruby/">PyCon prep: `require` in Ruby</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/12/03/introduction-to-the-python-interpreter-4/">Introduction to the Python Interpreter, Part 4: It's Dynamic!</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Introduction to the Python Interpreter, Part 3: Understanding Bytecode</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">Introduction to the Python Interpreter, Part 2: Code Objects</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Introduction to the Python Interpreter, Part 1: Function Objects</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - akaptur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
+  <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

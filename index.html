@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="This is Part 4 in a series on the Python interpreter. Read Part 1, Part 2, and Part 3. If you&rsquo;re enjoying this series, consider applying to &hellip;">
+  <meta name="description" content="I&rsquo;m talking about import at PyCon in April. In the talk, we&rsquo;ll imagine that there is no import and will reinvent it from scratch. I hope &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +76,155 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/16/pycon-prep-require-in-ruby/">PyCon Prep: `require` in Ruby</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-16T14:18:00-05:00" pubdate data-updated="true">Feb 16<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&rsquo;m talking about <code>import</code> at PyCon in April. In the talk, we&rsquo;ll imagine that there is no <code>import</code> and will reinvent it from scratch. I hope this will give everyone (including me!) a deeper understanding of the choices <code>import</code> makes and the ways it could have been different. Ideally, the structure will be a couple of sections of the form &ldquo;We could have made [decisions].  That would mean [effects].  Surprise &ndash; that&rsquo;s how it works in [language]!&rdquo;<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<p>This is the first of (probably) several posts with notes of things I&rsquo;m learning as I prepare my talk.  Feedback is welcome.</p>
+
+<p>Today I&rsquo;m looking into Ruby&rsquo;s <code>require</code> and <code>require_relative</code><sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup> to see if aspects of them would be interesting to Python programmers. So far, here&rsquo;s what I think is most relevant:</p>
+
+<ul>
+<li><p>Unlike Python, <code>require</code> won&rsquo;t load all objects in the required file. There&rsquo;s a concept of local versus global variables in the file scope that doesn&rsquo;t exist in Python.</p></li>
+<li><p>Unlike Python, one file does not map to one module. Modules are created by using the keyword <code>module</code>.</p></li>
+<li><p>Unlike Python, namespace collisions are completely possible. Consider the following simple files:</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span>one.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">puts</span> <span class="s2">&quot;one!&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">foo</span>
+</span><span class='line'>  <span class="ss">:hello</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>two.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">puts</span> <span class="s2">&quot;two!&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">foo</span>
+</span><span class='line'>  <span class="ss">:world</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>main.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;one&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;two&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="n">foo</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the output from running <code>main.rb</code>:</p>
+
+<figure class='code'><figcaption><span>output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">one!</span>
+</span><span class='line'><span class="n">two!</span>
+</span><span class='line'><span class="n">world</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Like Python&rsquo;s <code>import</code>, <code>require</code> will only load a file once. This can interact interestingly with namespace collisions &ndash; to take a contrived example:</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>main.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;one&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;two&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;one&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="n">foo</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Because <code>one.rb</code> isn&rsquo;t reloaded, <code>foo</code> is still <code>'world'</code>:</p>
+
+<figure class='code'><figcaption><span>output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">one!</span>
+</span><span class='line'><span class="n">two!</span>
+</span><span class='line'><span class="n">world</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Questions for further investigation / thought</h3>
+
+<p>My talk should <em>not</em> convince people that Python is Right and other languages are Wrong.  I&rsquo;m trying to overcome my bias towards the system I&rsquo;m most used to. (I think I&rsquo;ve written roughly equal amounts of Python and Ruby, but the vast majority of the Ruby I&rsquo;ve written is Rails, where all the <code>require</code>ing and namespacing happens by magic.) Here are some questions I&rsquo;d like to research more.</p>
+
+<ol>
+<li><p>Python&rsquo;s namespacing feels much better to me, although I&rsquo;m sure that&rsquo;s partly because I&rsquo;m used to it. What&rsquo;s the advantage to doing namespacing this way?</p></li>
+<li><p>Why have both <code>require</code> and <code>require_relative</code>? Why not have <code>require</code> check the relative path as well before raising a <code>LoadError</code>?</p></li>
+<li><p>What&rsquo;s the advantage of uncoupling a module from a file?</p></li>
+</ol>
+
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>I <a href="https://twitter.com/akaptur/status/433281929199095809">asked on twitter</a> for suggestions of languages that make interesting decisions about <code>import</code> equivalents. So far the suggestions are R, Go, Rust, Ruby, JavaScript, and Clojure. If you have others, let me know.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>As far as I can tell, the only difference between <code>require</code> and <code>require_relative</code> is the load path searched.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1748,214 +1897,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/07/02/more-side-effecting/">More Side Effecting</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-07-02T15:47:00-04:00" pubdate data-updated="true">Jul 2<span>nd</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="https://twitter.com/ncoghlan_dev">Nick Coghlan</a> added another interesting note in response to my last post about creating side-effecting assignments in python.  Here&rsquo;s Nick:</p>
-
-<blockquote class="twitter-tweet" data-conversation="none" data-cards="hidden"><p><a href="https://twitter.com/brandon_rhodes">@brandon_rhodes</a> <a href="https://twitter.com/akaptur">@akaptur</a> You can do better if you&#39;re the one controlling the namespace creation (e.g. an importer): <a href="https://t.co/gA8LD121cD">https://t.co/gA8LD121cD</a></p>&mdash; Nick Coghlan (@ncoghlan_dev) <a href="https://twitter.com/ncoghlan_dev/statuses/350971160659378176">June 29, 2013</a></blockquote>
-
-
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-
-<p>Let&rsquo;s look at <a href="https://gist.github.com/ncoghlan/5891123#file-crazy-namespace-python-2">that gist</a>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">Madness</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>             <span class="n">value</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">attr</span>
-</span><span class='line'><span class="o">...</span>         <span class="nb">dict</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-</span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">code</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
-</span><span class='line'><span class="s">... class Example(object): pass</span>
-</span><span class='line'><span class="s">... NewName = Example</span>
-</span><span class='line'><span class="s">... print(Example.__name__)</span>
-</span><span class='line'><span class="s">... &quot;&quot;&quot;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">Madness</span><span class="p">()</span>
-</span><span class='line'><span class="n">NewName</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is really fun stuff, and nicely illustrates a core feature of python &ndash; that namespaces are basically just dictionaries.</p>
-
-<p>So what&rsquo;s going on here?  In this case, I think it&rsquo;s easiest to work backwards from the end.</p>
-
-<p>Last we have <code>exec code in Madness()</code>. The <code>exec</code> keyword in python 2<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> executes a string as code.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="s">&quot;hello&quot;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;print a&quot;</span>
-</span><span class='line'><span class="n">hello</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>exec</code> optionally takes a context in which to execute the code.  A dictionary is a perfectly legal context to use:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;print b&quot;</span> <span class="ow">in</span> <span class="p">{</span><span class="s">&#39;b&#39;</span> <span class="p">:</span> <span class="s">&quot;hi there&quot;</span><span class="p">}</span>
-</span><span class='line'><span class="n">hi</span> <span class="n">there</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>All the code is shown here &ndash; <code>b</code> is not defined elsewhere in the REPL session.</p>
-
-<p>If a dictionary is provided, it&rsquo;s presumed to contain both the global and the local variables.  This dictionary is the <strong>only</strong> context in which the code will be executed (it won&rsquo;t check the scope from which the <code>exec</code> statement was made).</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="s">&quot;hello&quot;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;print a&quot;</span> <span class="ow">in</span> <span class="p">{</span><span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&quot;hi there&quot;</span><span class="p">}</span>
-</span><span class='line'><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
-</span><span class='line'>  <span class="n">File</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
-</span><span class='line'>  <span class="n">File</span> <span class="s">&quot;&lt;string&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
-</span><span class='line'><span class="ne">NameError</span><span class="p">:</span> <span class="n">name</span> <span class="s">&#39;a&#39;</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">defined</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So without knowing anything about the <code>Madness()</code> object, we&rsquo;d expect it to be a dictionary-like thing.</p>
-
-<p>And sure enough, it is:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">Madness</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>__setitem__</code> is the standard way to override setting a key:value pair in a dictionary.  It works just like you&rsquo;d expect:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">d</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="s">&#39;hello&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">d</span>
-</span><span class='line'><span class="p">{</span><span class="s">&#39;hello&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We&rsquo;re intercepting any attempt to write to the Madness dictionary-like object.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>             <span class="n">value</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">attr</span>
-</span><span class='line'><span class="o">...</span>         <span class="nb">dict</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If the value of the key:value pair that we&rsquo;re setting is an instance of the <code>type</code> type &ndash; that is, if the object in question is a class &ndash; then grab that class&rsquo;s <strong>name</strong> and set it to the key.  (This step will blow up if the key in question isn&rsquo;t a legal name in the first place.)  Then use the parent class (<code>dict</code>)&rsquo;s <code>__setitem__</code> to actually write to the Madness object.</p>
-
-<p>We can execute the code string one line at a time to better see what&rsquo;s happening.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span> <span class="o">=</span> <span class="n">Madness</span><span class="p">()</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-</span><span class='line'><span class="p">[]</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;class Example(object): pass&quot;</span> <span class="ow">in</span> <span class="n">m</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-</span><span class='line'><span class="p">[</span><span class="s">&#39;__builtins__&#39;</span><span class="p">,</span> <span class="s">&#39;Example&#39;</span><span class="p">]</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="p">[</span><span class="s">&#39;Example&#39;</span><span class="p">]</span>
-</span><span class='line'><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">Example</span><span class="s">&#39;&gt;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;NewName = Example&quot;</span> <span class="ow">in</span> <span class="n">m</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-</span><span class='line'><span class="p">[</span><span class="s">&#39;__builtins__&#39;</span><span class="p">,</span> <span class="s">&#39;NewName&#39;</span><span class="p">,</span> <span class="s">&#39;Example&#39;</span><span class="p">]</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="p">[</span><span class="s">&#39;Example&#39;</span><span class="p">]</span>
-</span><span class='line'><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">NewName</span><span class="s">&#39;&gt;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="p">[</span><span class="s">&#39;NewName&#39;</span><span class="p">]</span>
-</span><span class='line'><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">NewName</span><span class="s">&#39;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;OtherName = Example&quot;</span> <span class="ow">in</span> <span class="n">m</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="p">[</span><span class="s">&#39;Example&#39;</span><span class="p">]</span>
-</span><span class='line'><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">OtherName</span><span class="s">&#39;&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>(I&rsquo;m using <code>m.keys()</code> to examine the state of the namespace instead of just printing <code>m</code> because the reference to <code>__builtins__</code> pukes a bunch of tiresome definitions and copyright statements into the REPL.  <code>exec</code> adds a reference to <code>__builtins__</code> on the execution of any statement.)</p>
-
-<p>We&rsquo;re now quite close to the original Ruby behavior &ndash; with a deeper understanding of python namespaces!</p>
-<div class="footnotes">
-<hr/>
-<ol>
-<li id="fn:1">
-<p>All of this works in python 3, too, with slightly different syntax because <code>exec</code> is a function, not a keyword.  Nick&rsquo;s gist includes the python 3 version too.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
-</ol>
-</div>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1969,6 +1910,10 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/16/pycon-prep-require-in-ruby/">PyCon prep: `require` in Ruby</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/12/03/introduction-to-the-python-interpreter-4/">Introduction to the Python Interpreter, Part 4: It&#8217;s Dynamic!</a>
@@ -1986,10 +1931,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
         <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Introduction to the Python Interpreter, Part 1: Function Objects</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2013/10/31/python-puzzle-solutions/">Python Puzzle Solutions</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -2003,7 +1944,7 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - akaptur -
+  Copyright &copy; 2014 - akaptur -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
   - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
   <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
