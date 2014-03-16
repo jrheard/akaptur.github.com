@@ -1,0 +1,281 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>PyCon prep: import is a keyword - Of Interest</title>
+  <meta name="author" content="akaptur">
+
+  
+  <meta name="description" content="Last week I had a ton of fun working with Amy Hanlon on her Harry Potter themed fork of Python, called Nagini. Nagini is full of magic and surprises &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://akaptur.github.com/blog/2014/03/16/pycon-prep-import-is-a-keyword/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Of Interest" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42870230-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Of Interest</a></h1>
+  
+    <h2>An occasional blog on programming</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:akaptur.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">PyCon Prep: Import Is a Keyword</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-16T16:08:00-04:00" pubdate data-updated="true">Mar 16<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Last week I had a ton of fun working with <a href="https://twitter.com/amygdalama">Amy Hanlon</a> on her Harry Potter themed fork of Python, called Nagini.  Nagini is full of magic and surprises. It implements the things you&rsquo;d hope for out of a Harry Potter Python, like making <code>quit</code> into <code>avada_kedavra</code>, and many analogous jokes.</p>
+
+<p>Amy also had the idea to replace <code>import</code> with <code>accio</code>! Replacing <code>import</code> is a much harder problem than renaming a builtin.  Python doesn&rsquo;t prevent you from overwriting builtins, whereas to change keywords you have to edit the grammar and recompile Python. You should <a href="http://mathamy.com/import-accio-bootstrapping-python-grammar.html">go read Amy&rsquo;s post</a> on making this work.</p>
+
+<p>This brings us to an interesting question: why <em>is</em> <code>import</code> a keyword, anyway? There&rsquo;s a function, <code>__import__</code>, that does (mostly) the same thing:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;random&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">module</span> <span class="s">&#39;random&#39;</span> <span class="kn">from</span> <span class="s">&#39;/path/to/random.pyc&#39;</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The function form requires the programmer to assign the return value &ndash; the module &ndash; to a name, but once we&rsquo;ve done that it works just like a normal module:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">random</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;random&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+</span><span class='line'><span class="mf">0.32574174955668145</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>__import__</code> function can handle all the forms of import, including <code>from foo import bar</code> and <code>from baz import *</code> (although it never modifies the calling namespace).  There&rsquo;s no technical reason why <code>__import__</code> couldn&rsquo;t be the regular way to do imports.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<p>As far as I can tell, the main argument against an <code>import</code> function is aesthetic. Compare:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">foo</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">foo</span> <span class="kn">import</span> <span class="n">bar</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">longmodulename</span> <span class="kn">as</span> <span class="nn">short</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">foo</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">bar</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;random&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">bar</span>
+</span><span class='line'><span class="n">short</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;longmodulename&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The first way certainly feels much cleaner and more readable.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></p>
+
+<p>Part of my goal in my <a href="https://us.pycon.org/2014/schedule/presentation/229/">upcoming PyCon talk</a> is to invite Pythonistas to consider decisions they might not have thought about before. <code>import</code> is a great vehicle for this, because everyone learns it very early on in their programming development, but most people don&rsquo;t ever think about it again. Here&rsquo;s another variation on that theme: <code>import</code> doesn&rsquo;t have to be a keyword!</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>I think all keywords <em>could</em> be expressed as functions, except those used for flow control (which I loosely define as keywords that generate any <code>JUMP</code> instructions when compiled). For example, between Python 2 and 3, two keywords did become functions &ndash; <code>print</code> and <code>exec</code>.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>I realize this is a slightly circular argument &ndash; if the function strategy were the regular way to import, it probably wouldn&rsquo;t be so ugly.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">akaptur</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-16T16:08:00-04:00" pubdate data-updated="true">Mar 16<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://akaptur.github.com/blog/2014/03/16/pycon-prep-import-is-a-keyword/" data-via="" data-counturl="http://akaptur.github.com/blog/2014/03/16/pycon-prep-import-is-a-keyword/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/03/16/reading-ebnf/" title="Previous Post: Reading EBNF">&laquo; Reading EBNF</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/03/16/pycon-prep-import-is-a-keyword/">PyCon prep: import is a keyword</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/03/16/reading-ebnf/">Reading EBNF</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/16/pycon-prep-require-in-ruby/">PyCon prep: `require` in Ruby</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/12/03/introduction-to-the-python-interpreter-4/">Introduction to the Python Interpreter, Part 4: It's Dynamic!</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Introduction to the Python Interpreter, Part 3: Understanding Bytecode</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - akaptur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
+  <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

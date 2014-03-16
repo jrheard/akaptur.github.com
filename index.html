@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="I&rsquo;m talking about import at PyCon in April. In the talk, we&rsquo;ll imagine that there is no import and will reinvent it from scratch. I hope &hellip;">
+  <meta name="description" content="Last week I had a ton of fun working with Amy Hanlon on her Harry Potter themed fork of Python, called Nagini. Nagini is full of magic and surprises &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +76,213 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/16/pycon-prep-import-is-a-keyword/">PyCon Prep: Import Is a Keyword</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-16T16:08:00-04:00" pubdate data-updated="true">Mar 16<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Last week I had a ton of fun working with <a href="https://twitter.com/amygdalama">Amy Hanlon</a> on her Harry Potter themed fork of Python, called Nagini.  Nagini is full of magic and surprises. It implements the things you&rsquo;d hope for out of a Harry Potter Python, like making <code>quit</code> into <code>avada_kedavra</code>, and many analogous jokes.</p>
+
+<p>Amy also had the idea to replace <code>import</code> with <code>accio</code>! Replacing <code>import</code> is a much harder problem than renaming a builtin.  Python doesn&rsquo;t prevent you from overwriting builtins, whereas to change keywords you have to edit the grammar and recompile Python. You should <a href="http://mathamy.com/import-accio-bootstrapping-python-grammar.html">go read Amy&rsquo;s post</a> on making this work.</p>
+
+<p>This brings us to an interesting question: why <em>is</em> <code>import</code> a keyword, anyway? There&rsquo;s a function, <code>__import__</code>, that does (mostly) the same thing:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;random&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">module</span> <span class="s">&#39;random&#39;</span> <span class="kn">from</span> <span class="s">&#39;/path/to/random.pyc&#39;</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The function form requires the programmer to assign the return value &ndash; the module &ndash; to a name, but once we&rsquo;ve done that it works just like a normal module:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">random</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;random&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+</span><span class='line'><span class="mf">0.32574174955668145</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>__import__</code> function can handle all the forms of import, including <code>from foo import bar</code> and <code>from baz import *</code> (although it never modifies the calling namespace).  There&rsquo;s no technical reason why <code>__import__</code> couldn&rsquo;t be the regular way to do imports.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<p>As far as I can tell, the main argument against an <code>import</code> function is aesthetic. Compare:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">foo</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">foo</span> <span class="kn">import</span> <span class="n">bar</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">longmodulename</span> <span class="kn">as</span> <span class="nn">short</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">foo</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">bar</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;random&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">bar</span>
+</span><span class='line'><span class="n">short</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;longmodulename&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The first way certainly feels much cleaner and more readable.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></p>
+
+<p>Part of my goal in my <a href="https://us.pycon.org/2014/schedule/presentation/229/">upcoming PyCon talk</a> is to invite Pythonistas to consider decisions they might not have thought about before. <code>import</code> is a great vehicle for this, because everyone learns it very early on in their programming development, but most people don&rsquo;t ever think about it again. Here&rsquo;s another variation on that theme: <code>import</code> doesn&rsquo;t have to be a keyword!</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>I think all keywords <em>could</em> be expressed as functions, except those used for flow control (which I loosely define as keywords that generate any <code>JUMP</code> instructions when compiled). For example, between Python 2 and 3, two keywords did become functions &ndash; <code>print</code> and <code>exec</code>.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>I realize this is a slightly circular argument &ndash; if the function strategy were the regular way to import, it probably wouldn&rsquo;t be so ugly.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/16/reading-ebnf/">Reading EBNF</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-16T15:39:00-04:00" pubdate data-updated="true">Mar 16<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>One of the fun parts of <a href="http://mathamy.com/import-accio-bootstrapping-python-grammar.html">pairing with Amy on Nagini</a> was modifying the grammar of Python. You should try this &ndash; it&rsquo;s easier than you think! Eli Bendersky has a <a href="eli.thegreenplace.net/2010/06/30/python-internals-adding-a-new-statement-to-python/">great post</a> with step-by-step instructions.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<p>Modifying Python&rsquo;s grammar starts in the Grammar/Grammar file. I&rsquo;ve recently learned how to read this (which, for me, mostly means learning how to pronounce the punctuation), so I want to walk through the <code>import</code> example in some detail. The syntax here is <a href="http://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form">Extended Backus-Naur Form</a>, or EBNF. You read it like a tree, and your primary verb is &ldquo;consists of&rdquo;:</p>
+
+<ul>
+<li><code>import_stmt</code> consists of one of two forms, <code>import_name</code> or <code>import_from</code>.</li>
+<li><code>import_name</code> consists of the literal word <code>import</code> followed by <code>dotted_as_names</code>.</li>
+<li><code>dotted_as_names</code> consists of a <code>dotted_as_name</code> (note the singular), optionally followed by one or more pairs of a comma and another <code>dotted_as_name</code>.</li>
+<li><code>dotted_as_name</code> consists of a <code>dotted_name</code>, optionally followed by the literal word &lsquo;as&rsquo; and a NAME.</li>
+<li>Finally, <code>dotted_name</code> consists of a <code>NAME</code>, maybe followed by pairs of a dot and another <code>NAME</code>.</li>
+</ul>
+
+
+<p>You can walk the other branches in a similar way.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import_stmt: import_name | import_from
+</span><span class='line'>import_name: 'import' dotted_as_names
+</span><span class='line'># note below: the ('.' | '...') is necessary because '...' is tokenized as ELLIPSIS
+</span><span class='line'>import_from: ('from' (('.' | '...')* dotted_name | ('.' | '...')+)
+</span><span class='line'>              'import' ('*' | '(' import_as_names ')' | import_as_names))
+</span><span class='line'>import_as_name: NAME ['as' NAME]
+</span><span class='line'>dotted_as_name: dotted_name ['as' NAME]
+</span><span class='line'>import_as_names: import_as_name (',' import_as_name)* [',']
+</span><span class='line'>dotted_as_names: dotted_as_name (',' dotted_as_name)*
+</span><span class='line'>dotted_name: NAME ('.' NAME)*</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To <code>accio</code>-ify Python, we had to replace the occurences of <code>'import'</code> with <code>'accio'</code>. There are only two &ndash; we were only interested in the literal string <code>import</code>, not all the other names. <code>import_as_name</code> and so on are just nodes in the tree, and only matter to the parser and compiler.</p>
+
+<p>Every other keyword and symbol that has special meaning to the Python parser also appears in Grammar as a string.</p>
+
+<p>Perusing the grammar is (goofy) way to learn about corner cases of Python syntax, too!  For example, did you know that <code>with</code> can take more than one context manager? It&rsquo;s right there in the grammar:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>with_stmt: 'with' with_item (',' with_item)*  ':' suite
+</span><span class='line'>with_item: test ['as' expr]</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;foo.txt&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;bar.txt&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">g</span><span class="p">:</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">g</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">f</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">closed</span> <span class="nb">file</span> <span class="s">&#39;foo.txt&#39;</span><span class="p">,</span> <span class="n">mode</span> <span class="s">&#39;w&#39;</span> <span class="n">at</span> <span class="mh">0x10bf71270</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">g</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">closed</span> <span class="nb">file</span> <span class="s">&#39;bar.txt&#39;</span><span class="p">,</span> <span class="n">mode</span> <span class="s">&#39;w&#39;</span> <span class="n">at</span> <span class="mh">0x10bf71810</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now go ahead and add your favorite keyword into Python!</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>Like Eli, I&rsquo;m not advocating for Python&rsquo;s actual grammar to change &ndash; it&rsquo;s just a fun exercise.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -915,988 +1122,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/08/14/python-bytecode-fun-with-dis/">Python Bytecode: Fun With Dis</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-08-14T16:04:00-04:00" pubdate data-updated="true">Aug 14<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Last week at <a href="https://www.hackerschool.com/">Hacker School</a> I did a quick presentation on python bytecode and the <code>dis</code> module.  The disassembler is a very powerful tool with a gentle learning curve &ndash; that is, you can get a fair amount out of it without really knowing much about what&rsquo;s going on.  This post is a quick introduction to how and why you should use it.</p>
-
-<h3>What&rsquo;s bytecode?</h3>
-
-<p>Bytecode is the internal representation of a python program in the compiler.  Here, we&rsquo;ll be looking at bytecode from cpython, the default compiler.  If you don&rsquo;t know what compiler you&rsquo;re using, it&rsquo;s probably cpython.</p>
-
-<h3>How do I get bytecode?</h3>
-
-<p>You already have it!  Bytecode is what&rsquo;s contained in those .pyc files you see when you import a module.  It&rsquo;s also created on the fly by running any python code.</p>
-
-<h3>Disassembling</h3>
-
-<p>Ok, so you have some bytecode, and you want to understand it.  Let&rsquo;s look at it without using the <code>dis</code> module first.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
-</span><span class='line'><span class="o">...</span>     <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span>
-</span><span class='line'><span class="o">...</span>     <span class="n">b</span> <span class="o">=</span> <span class="mi">3</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
-</span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span>
-</span><span class='line'><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">foo</span> <span class="n">at</span> <span class="mh">0x106353530</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span>
-</span><span class='line'><span class="s">&#39;d</span><span class="se">\x01\x00</span><span class="s">}</span><span class="se">\x00\x00</span><span class="s">d</span><span class="se">\x02\x00</span><span class="s">}</span><span class="se">\x01\x00</span><span class="s">|</span><span class="se">\x00\x00</span><span class="s">|</span><span class="se">\x01\x00\x17</span><span class="s">S&#39;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span><span class="p">]</span>
-</span><span class='line'><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">83</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Hmm, that was &hellip; not very enlightening.  We can see that we have a bunch of bytes (some printable, others not), but we have no idea what they mean.</p>
-
-<p>Let&rsquo;s run it through <code>dis.dis</code> instead.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">dis</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
-</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">3</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">a</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">3</span>           <span class="mi">6</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">9</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">b</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">4</span>          <span class="mi">12</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">a</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">15</span> <span class="n">LOAD_FAST</span>                <span class="mi">1</span> <span class="p">(</span><span class="n">b</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">18</span> <span class="n">BINARY_ADD</span>
-</span><span class='line'>             <span class="mi">19</span> <span class="n">RETURN_VALUE</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now this starts to make some sense.  <code>dis</code> takes each byte, finds the opcode that corresponds to it in <code>opcodes.py</code>, and prints it as a nice, readable constant.  If we look at <code>opcodes.py</code> we see that <code>LOAD_CONST</code> is 100, <code>STORE_FAST</code> is 125, etc. <code>dis</code> also shows the line numbers on the left and the values or names on the right.  So without ever seeing something like before, we have an idea what&rsquo;s going on: we first load a constant, 2, then somehow store it as <code>a</code>.  Then we repeat this with 3 and <code>b</code>.  We load <code>a</code> and <code>b</code> back up, do <code>BINARY_ADD</code>, which presumably adds the numbers, and then do <code>RETURN_VALUE</code>.</p>
-
-<p>Examining the bytecode can sometimes increase your understanding of python code.  Here is one example.</p>
-
-<h3>elif</h3>
-
-<p><code>elif</code> is identical in bytecode to <code>else ... if</code>.  Take a look:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">flat</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="s">&quot;Fizz&quot;</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">elif</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="s">&quot;Buzz&quot;</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">else</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="n">num</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">nested</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="s">&quot;Fizz&quot;</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">else</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>             <span class="k">print</span> <span class="s">&quot;Buzz&quot;</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">else</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>             <span class="k">print</span> <span class="n">num</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We&rsquo;ve read <a href="http://www.python.org/dev/peps/pep-0008/">PEP 8</a> so we know that <em>flat is better than nested</em> for style and readability.  But is there a performance difference?  Not at all &ndash; in fact, these two functions have identical bytecode.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">3</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">6</span> <span class="n">BINARY_MODULO</span>
-</span><span class='line'>              <span class="mi">7</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">10</span> <span class="n">COMPARE_OP</span>               <span class="mi">2</span> <span class="p">(</span><span class="o">==</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">13</span> <span class="n">POP_JUMP_IF_FALSE</span>       <span class="mi">24</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">3</span>          <span class="mi">16</span> <span class="n">LOAD_CONST</span>               <span class="mi">3</span> <span class="p">(</span><span class="s">&#39;Fizz&#39;</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">19</span> <span class="n">PRINT_ITEM</span>
-</span><span class='line'>             <span class="mi">20</span> <span class="n">PRINT_NEWLINE</span>
-</span><span class='line'>             <span class="mi">21</span> <span class="n">JUMP_FORWARD</span>            <span class="mi">29</span> <span class="p">(</span><span class="n">to</span> <span class="mi">53</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">4</span>     <span class="o">&gt;&gt;</span>   <span class="mi">24</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">27</span> <span class="n">LOAD_CONST</span>               <span class="mi">4</span> <span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">30</span> <span class="n">BINARY_MODULO</span>
-</span><span class='line'>             <span class="mi">31</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">34</span> <span class="n">COMPARE_OP</span>               <span class="mi">2</span> <span class="p">(</span><span class="o">==</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">37</span> <span class="n">POP_JUMP_IF_FALSE</span>       <span class="mi">48</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">5</span>          <span class="mi">40</span> <span class="n">LOAD_CONST</span>               <span class="mi">5</span> <span class="p">(</span><span class="s">&#39;Buzz&#39;</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">43</span> <span class="n">PRINT_ITEM</span>
-</span><span class='line'>             <span class="mi">44</span> <span class="n">PRINT_NEWLINE</span>
-</span><span class='line'>             <span class="mi">45</span> <span class="n">JUMP_FORWARD</span>             <span class="mi">5</span> <span class="p">(</span><span class="n">to</span> <span class="mi">53</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">7</span>     <span class="o">&gt;&gt;</span>   <span class="mi">48</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">51</span> <span class="n">PRINT_ITEM</span>
-</span><span class='line'>             <span class="mi">52</span> <span class="n">PRINT_NEWLINE</span>
-</span><span class='line'>        <span class="o">&gt;&gt;</span>   <span class="mi">53</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">56</span> <span class="n">RETURN_VALUE</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That makes sense &ndash; <code>else</code> just means &ldquo;start executing here if the <code>if</code> was false&rdquo; &ndash; there&rsquo;s no more computation to do.  <code>elif</code> is just <a href="https://en.wikipedia.org/wiki/Syntactic_sugar">syntactic sugar</a>.</p>
-
-<h3>Further reading:</h3>
-
-<p>This just scratches the surface of what&rsquo;s interesting about python bytecode.</p>
-
-<p>If you enjoyed this, you might enjoy diving into Yaniv Aknin&rsquo;s <a href="http://tech.blog.aknin.name/category/my-projects/pythons-innards/">series</a> on python internals.  If you&rsquo;re excited about bytecode, you should contribute to Ned Batchelder&rsquo;s <a href="https://github.com/nedbat/byterun">byterun</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/07/24/systematic-debugging/">Systematic Debugging</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-07-24T13:54:00-04:00" pubdate data-updated="true">Jul 24<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>We&rsquo;ve asked many of our residents at Hacker School what qualities all great programmers share.  There&rsquo;s very little agreement &ndash; clearly, there are a multitude of ways to be a great programmer, and you can think of a counter-example for almost every quality you can name.  One of the rare non-controversial statements came first from Jessica McKellar, who identified systematic debugging as a key skill.</p>
-
-<p>What does systematic debugging look like?  At this point, I&rsquo;m focused on two aspects: asking a clear question, and keeping track of my mental &ldquo;stack&rdquo;.  I had a particularly fun and interesting bug yesterday that I think illustrates this nicely.</p>
-
-<p>The problem at hand was a brainteaser from Jessica:</p>
-
-<blockquote><p>Using the official SOWPODS Scrabble dictionary, what letters, if any, never appear doubled? (By that I mean &mdash; &ldquo;AA&rdquo; does appear doubled because it is in &ldquo;AARDVARK&rdquo;, &ldquo;BB&rdquo; does appear doubled because it is in &ldquo;BUBBLE&rdquo; &mdash; are there any letters that never appear doubled in a word?)</p></blockquote>
-
-<p>I came up with a solution, but it was kind of slow, so I was trying to find a faster one.  Also, my original solution used a regular expression to match a doubled letter in a word, but it would only find the first pair (e.g. in BOOKKEEPER only the &lsquo;OO&rsquo; would be caught).</p>
-
-<p>I decided to try taking the dictionary as a single string, rather than a list of words, and consuming it one letter-pair at a time, as follows.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">find_all_doubles_as_word_mash</span><span class="p">():</span>
-</span><span class='line'>    <span class="n">words</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;sowpods.txt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-</span><span class='line'>    <span class="n">letters</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">uppercase</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">dub_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;([A-Z])(\1)&quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">end</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class='line'>    <span class="n">dubbed</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">dub_re</span><span class="p">,</span> <span class="n">words</span><span class="p">[</span><span class="n">end</span><span class="p">:])</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">while</span> <span class="n">dubbed</span> <span class="ow">and</span> <span class="n">letters</span><span class="p">:</span>
-</span><span class='line'>        <span class="n">letters</span> <span class="o">-=</span> <span class="nb">set</span><span class="p">(</span><span class="n">dubbed</span><span class="o">.</span><span class="n">group</span><span class="p">())</span>
-</span><span class='line'>        <span class="n">end</span> <span class="o">+=</span> <span class="n">dubbed</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
-</span><span class='line'>        <span class="n">dubbed</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">dub_re</span><span class="p">,</span> <span class="n">words</span><span class="p">[</span><span class="n">end</span><span class="p">:])</span>
-</span><span class='line'>        <span class="k">print</span> <span class="n">end</span><span class="p">,</span> <span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="n">letters</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you&rsquo;re thinking, &ldquo;Hmm, that looks like it might be slow,&rdquo; congratulations!  It is indeed quite slow.  I had two guesses for why it was slow. (It wasn&rsquo;t the print statement.)  First, maybe I was copying the string over and over, and that was slowing down the function.  Second, maybe I misunderstodd the regular expression &ndash; for example, maybe it was taking a longer time to operate on a longer string. I decided to investigate the second possibility first, since regular expressions were more of a mystery to me.</p>
-
-<p>At this point in the problem solving, my mental stack looks something like this:</p>
-
-<pre>
- ---------------------------
-| regex taking longer on a  | (newest)
-| longer-length string?     |
- ---------------------------
-| reg exp? or string copy?  |
- ---------------------------
-| function is so slow, why? |
- ---------------------------
-|   find a faster solution  |
- ---------------------------
-|  solve wordplay problem   | (oldest)
- ---------------------------
-</pre>
-
-
-<p>The next step was to test my theory that my regular expression should not take longer on a longer string.  Importantly, the regex had no &ldquo;greedy&rdquo; elements &ndash; it should match and return the first time it encounters two identical characters, regardless of how long the string is after those matching characters.  Here was the experiment I wrote:</p>
-
-<figure class='code'><figcaption><span>test_with_timeit.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">timeit</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">SETUP</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;import re;</span>
-</span><span class='line'><span class="s">import string;</span>
-</span><span class='line'><span class="s">double = re.compile(r&quot;([a-z])(</span><span class="se">\1</span><span class="s">)&quot;);</span>
-</span><span class='line'><span class="s">short_test = &quot;hee&quot; + string.lowercase;</span>
-</span><span class='line'><span class="s">long_test = &quot;hee&quot; + string.lowercase*100</span>
-</span><span class='line'><span class="s">&quot;&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">N_TIMES</span> <span class="o">=</span> <span class="mi">10000</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
-</span><span class='line'>    <span class="n">short_time</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">stmt</span><span class="o">=</span><span class="s">&quot;double.search(short_test)&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="o">=</span><span class="n">SETUP</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">N_TIMES</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">long_time</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">stmt</span><span class="o">=</span><span class="s">&quot;double.search(long_test)&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="o">=</span><span class="n">SETUP</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">N_TIMES</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;short:&quot;</span><span class="p">,</span> <span class="n">short_time</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;long:&quot;</span><span class="p">,</span> <span class="n">long_time</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;time ratios:&quot;</span><span class="p">,</span> <span class="n">long_time</span> <span class="o">/</span> <span class="n">short_time</span><span class="p">,</span> <span class="s">&quot;x&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-</span><span class='line'>    <span class="n">test</span><span class="p">()</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In both cases, I thought, the regex should check &ldquo;he&rdquo;, fail, check &ldquo;ee&rdquo;, succeed, and return.  To my great surprise, the long string test took 70-80x as long to run as the short string test!</p>
-
-<figure class='code'><figcaption><span>test_with_timeit output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='text'><span class='line'>short: 0.0243809223175
-</span><span class='line'>long: 1.77788496017
-</span><span class='line'>time ratios: 72.9211527366 x
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Clearly, I was missing something about regular expressions.  I googled around and learned some details about backreferences, the <code>(\1)</code> in my code (which makes my regular expression not actually <a href="http://en.wikipedia.org/wiki/Regular_expression#Formal_language_theory">&ldquo;regular&rdquo;</a>), but that wasn&rsquo;t very illuminating.  (You can picture &ldquo;something about Finite State Automata&rdquo; being pushed onto and quickly popped back off the stack.)</p>
-
-<p>My next step was to run timing experiments with a variety of regular expressions to see if I could find an element that made the difference.  At this point yesterday, I was still trying to pass strings to <code>timeit</code>, which was getting unwieldy.  (Stay tuned to learn two better ways to do timing.)  I switched to a simpler timing script, just taking <code>time.time()</code> at the start and end of the algorithm.</p>
-
-<figure class='code'><figcaption><span>test_without_timeit.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">re</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">string</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">time</span>
-</span><span class='line'><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">everybody_stand_back</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>    <span class="s">&quot;double&quot;</span> <span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;([a-z])(\1)&quot;</span><span class="p">),</span>
-</span><span class='line'>    <span class="s">&quot;double_var&quot;</span> <span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;([a-z])\1&quot;</span><span class="p">),</span>
-</span><span class='line'>    <span class="s">&quot;single&quot;</span> <span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;([a-z])&quot;</span><span class="p">),</span>
-</span><span class='line'>    <span class="s">&quot;verbose&quot;</span> <span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">let</span><span class="o">*</span><span class="mi">2</span> <span class="k">for</span> <span class="n">let</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">lowercase</span><span class="p">)),</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">test_strings</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>    <span class="s">&quot;short&quot;</span> <span class="p">:</span> <span class="s">&quot;hee&quot;</span><span class="p">,</span>
-</span><span class='line'>    <span class="s">&quot;long&quot;</span> <span class="p">:</span> <span class="s">&quot;hee&quot;</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">lowercase</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">outcomes</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">N_TIMES</span> <span class="o">=</span> <span class="mi">100000</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
-</span><span class='line'>    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">regex</span> <span class="ow">in</span> <span class="n">everybody_stand_back</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-</span><span class='line'>        <span class="k">for</span> <span class="n">string_name</span><span class="p">,</span> <span class="n">test_string</span> <span class="ow">in</span> <span class="n">test_strings</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-</span><span class='line'>            <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-</span><span class='line'>            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_TIMES</span><span class="p">):</span>
-</span><span class='line'>                <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">test_string</span><span class="p">)</span>
-</span><span class='line'>            <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-</span><span class='line'>            <span class="n">delta</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
-</span><span class='line'>            <span class="n">outcomes</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">string_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">delta</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="n">outcomes</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-</span><span class='line'>    <span class="n">outcomes</span> <span class="o">=</span> <span class="n">test</span><span class="p">()</span>
-</span><span class='line'>    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">regex</span> <span class="ow">in</span> <span class="n">outcomes</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-</span><span class='line'>        <span class="k">print</span> <span class="n">name</span><span class="p">,</span> <span class="n">regex</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">regex</span><span class="p">[</span><span class="s">&quot;short&quot;</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<p>Hopefully the differences would start to become clear, and I could easily extend this to add more variations on the regular expression.</p>
-
-<p>It printed:</p>
-
-<figure class='code'><figcaption><span>test_without_timeit.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">double</span> <span class="mf">0.953508019384</span>
-</span><span class='line'><span class="n">single</span> <span class="mf">1.15989795352</span>
-</span><span class='line'><span class="n">double_var</span> <span class="mf">1.04188410251</span>
-</span><span class='line'><span class="n">verbose</span> <span class="mf">0.861312402506</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Uh-oh, wait a minute, I thought this was identical code.  Where did the 70x time difference go?</p>
-
-<p>I couldn&rsquo;t see any obvious errors, so I went back to the <code>timeit</code> code.  Could I reproduce these results while still using the <code>timeit</code> module?</p>
-
-<p>Let&rsquo;s look back at the problem stack.</p>
-
-<pre>
- ---------------------------
-| what's up with timeit?    |    
- ---------------------------
-| is this code different?   |    
- ---------------------------
-| timing programs give      |
-| different results, uh-oh  |
- ---------------------------
-| regex taking longer on a  |
-| longer-length string      |
- ---------------------------
-| reg exp? or string copy?  |
- ---------------------------
-| function is so slow, why? |
- ---------------------------
-|   find a faster solution  |
- ---------------------------
-|  solve wordplay problem   | (oldest)
- ---------------------------
-</pre>
-
-
-<p>At this point <a href="https://twitter.com/brandon_rhodes">Brandon Rhodes</a> joined me in pair-debugging, and we made a couple of discoveries.  The most interesting of these was that two different ways of calling timeit generated wildly different results.</p>
-
-<figure class='code'><figcaption><span>test_with_timeit.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">re</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">timeit</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">string</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="n">double</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;([a-z])(\1)&quot;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="n">SETUP</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;import re;</span>
-</span><span class='line'><span class="s">import string;</span>
-</span><span class='line'><span class="s">double = re.compile(r&quot;([a-z])(</span><span class="se">\1</span><span class="s">)&quot;);</span>
-</span><span class='line'><span class="s">short_test = &quot;hee&quot; + string.lowercase;</span>
-</span><span class='line'><span class="s">long_test = &quot;hee&quot; + string.lowercase*200</span>
-</span><span class='line'><span class="s">&quot;&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">N_TIMES</span> <span class="o">=</span> <span class="mi">10000</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">short_test</span> <span class="o">=</span> <span class="s">&quot;hee&quot;</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">lowercase</span>
-</span><span class='line'><span class="n">long_test</span> <span class="o">=</span> <span class="s">&quot;hee&quot;</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">lowercase</span><span class="o">*</span><span class="mi">200</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
-</span><span class='line'>    <span class="n">short_time</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">stmt</span><span class="o">=</span><span class="s">&quot;double.search(short_test)&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="o">=</span><span class="n">SETUP</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">N_TIMES</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">long_time</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">stmt</span><span class="o">=</span><span class="s">&quot;double.search(long_test)&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="o">=</span><span class="n">SETUP</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">N_TIMES</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;short:&quot;</span><span class="p">,</span> <span class="n">short_time</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;long:&quot;</span><span class="p">,</span> <span class="n">long_time</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">short_string_test</span><span class="p">():</span>
-</span><span class='line'>    <span class="n">double</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">short_test</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">long_string_test</span><span class="p">():</span>
-</span><span class='line'>    <span class="n">double</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">long_test</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;method 1: strings&quot;</span>
-</span><span class='line'>    <span class="n">test</span><span class="p">()</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;method 2: functions&quot;</span>
-</span><span class='line'>    <span class="k">print</span> <span class="n">timeit</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">short_string_test</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">N_TIMES</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">print</span> <span class="n">timeit</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">long_string_test</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">N_TIMES</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;method 3: build timer explicitly&quot;</span>
-</span><span class='line'>    <span class="n">s</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">Timer</span><span class="p">(</span><span class="n">stmt</span><span class="o">=</span><span class="s">&quot;double.search(long_test)&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="o">=</span><span class="n">SETUP</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;short:&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">number</span><span class="o">=</span><span class="n">N_TIMES</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">t</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">Timer</span><span class="p">(</span><span class="n">stmt</span><span class="o">=</span><span class="s">&quot;double.search(long_test)&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="o">=</span><span class="n">SETUP</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;long:&quot;</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">number</span><span class="o">=</span><span class="n">N_TIMES</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>test_with_timeit output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">method</span> <span class="mi">1</span><span class="p">:</span> <span class="n">strings</span>
-</span><span class='line'><span class="n">short</span><span class="p">:</span> <span class="mf">0.0235750675201</span>
-</span><span class='line'><span class="nb">long</span><span class="p">:</span> <span class="mf">3.41090488434</span>
-</span><span class='line'><span class="n">method</span> <span class="mi">2</span><span class="p">:</span> <span class="n">functions</span>
-</span><span class='line'><span class="mf">0.0102179050446</span>
-</span><span class='line'><span class="mf">0.00959801673889</span>
-</span><span class='line'><span class="n">method</span> <span class="mi">3</span><span class="p">:</span> <span class="n">build</span> <span class="n">timer</span> <span class="n">explicitly</span>
-</span><span class='line'><span class="n">short</span><span class="p">:</span> <span class="mf">0.0263011455536</span>
-</span><span class='line'><span class="nb">long</span><span class="p">:</span> <span class="mf">3.42960190773</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So now we know something is up with passing strings to timeit.</p>
-
-<pre>
- ---------------------------
-| timeit string version - ? |        
- ---------------------------
-| what's up with timeit?    |    
- ---------------------------
-| is this code different?   |    
- ---------------------------
-          ....
-</pre>
-
-
-<p>Ok, we&rsquo;ve narrowed it down this far &ndash; it&rsquo;s time to take a look at the source.  <code>timeit</code> is a module written in python (yay!), and the relevant parts look pretty straightforward:</p>
-
-<figure class='code'><figcaption><span>timeit.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">template</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-</span><span class='line'><span class="s">def inner(_it, _timer):</span>
-</span><span class='line'><span class="s">    </span><span class="si">%(setup)s</span><span class="s"></span>
-</span><span class='line'><span class="s">    _t0 = _timer()</span>
-</span><span class='line'><span class="s">    for _i in _it:</span>
-</span><span class='line'><span class="s">        </span><span class="si">%(stmt)s</span><span class="s"></span>
-</span><span class='line'><span class="s">    _t1 = _timer()</span>
-</span><span class='line'><span class="s">    return _t1 - _t0</span>
-</span><span class='line'><span class="s">&quot;&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Timer</span><span class="p">:</span>
-</span><span class='line'>    <span class="sd">&quot;&quot;&quot;Class for timing execution speed of small code snippets.</span>
-</span><span class='line'>
-</span><span class='line'><span class="sd">    The constructor takes a statement to be timed, an additional</span>
-</span><span class='line'><span class="sd">    statement used for setup, and a timer function.  Both statements</span>
-</span><span class='line'><span class="sd">    default to &#39;pass&#39;; the timer function is platform-dependent (see</span>
-</span><span class='line'><span class="sd">    module doc string).</span>
-</span><span class='line'>
-</span><span class='line'><span class="sd">    To measure the execution time of the first statement, use the</span>
-</span><span class='line'><span class="sd">    timeit() method.  The repeat() method is a convenience to call</span>
-</span><span class='line'><span class="sd">    timeit() multiple times and return a list of results.</span>
-</span><span class='line'>
-</span><span class='line'><span class="sd">    The statements may contain newlines, as long as they don&#39;t contain</span>
-</span><span class='line'><span class="sd">    multi-line string literals.</span>
-</span><span class='line'><span class="sd">    &quot;&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stmt</span><span class="o">=</span><span class="s">&quot;pass&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="o">=</span><span class="s">&quot;pass&quot;</span><span class="p">,</span> <span class="n">timer</span><span class="o">=</span><span class="n">default_timer</span><span class="p">):</span>
-</span><span class='line'>        <span class="sd">&quot;&quot;&quot;Constructor.  See class doc string.&quot;&quot;&quot;</span>
-</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">timer</span>
-</span><span class='line'>        <span class="n">ns</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class='line'>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
-</span><span class='line'>            <span class="n">stmt</span> <span class="o">=</span> <span class="n">reindent</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-</span><span class='line'>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">setup</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
-</span><span class='line'>                <span class="n">setup</span> <span class="o">=</span> <span class="n">reindent</span><span class="p">(</span><span class="n">setup</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-</span><span class='line'>                <span class="n">src</span> <span class="o">=</span> <span class="n">template</span> <span class="o">%</span> <span class="p">{</span><span class="s">&#39;stmt&#39;</span><span class="p">:</span> <span class="n">stmt</span><span class="p">,</span> <span class="s">&#39;setup&#39;</span><span class="p">:</span> <span class="n">setup</span><span class="p">}</span>
-</span><span class='line'>            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">setup</span><span class="p">,</span> <span class="s">&#39;__call__&#39;</span><span class="p">):</span>
-</span><span class='line'>                <span class="n">src</span> <span class="o">=</span> <span class="n">template</span> <span class="o">%</span> <span class="p">{</span><span class="s">&#39;stmt&#39;</span><span class="p">:</span> <span class="n">stmt</span><span class="p">,</span> <span class="s">&#39;setup&#39;</span><span class="p">:</span> <span class="s">&#39;_setup()&#39;</span><span class="p">}</span>
-</span><span class='line'>                <span class="n">ns</span><span class="p">[</span><span class="s">&#39;_setup&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">setup</span>
-</span><span class='line'>            <span class="k">else</span><span class="p">:</span>
-</span><span class='line'>                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;setup is neither a string nor callable&quot;</span><span class="p">)</span>
-</span><span class='line'>            <span class="bp">self</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <span class="n">src</span> <span class="c"># Save for traceback display</span>
-</span><span class='line'>            <span class="n">code</span> <span class="o">=</span> <span class="nb">compile</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dummy_src_name</span><span class="p">,</span> <span class="s">&quot;exec&quot;</span><span class="p">)</span>
-</span><span class='line'>            <span class="k">exec</span> <span class="n">code</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">(),</span> <span class="n">ns</span>
-</span><span class='line'>            <span class="bp">self</span><span class="o">.</span><span class="n">inner</span> <span class="o">=</span> <span class="n">ns</span><span class="p">[</span><span class="s">&quot;inner&quot;</span><span class="p">]</span>
-</span><span class='line'>        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="s">&#39;__call__&#39;</span><span class="p">):</span>
-</span><span class='line'>            <span class="bp">self</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <span class="bp">None</span>
-</span><span class='line'>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">setup</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
-</span><span class='line'>                <span class="n">_setup</span> <span class="o">=</span> <span class="n">setup</span>
-</span><span class='line'>                <span class="k">def</span> <span class="nf">setup</span><span class="p">():</span>
-</span><span class='line'>                    <span class="k">exec</span> <span class="n">_setup</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">(),</span> <span class="n">ns</span>
-</span><span class='line'>            <span class="k">elif</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">setup</span><span class="p">,</span> <span class="s">&#39;__call__&#39;</span><span class="p">):</span>
-</span><span class='line'>                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;setup is neither a string nor callable&quot;</span><span class="p">)</span>
-</span><span class='line'>            <span class="bp">self</span><span class="o">.</span><span class="n">inner</span> <span class="o">=</span> <span class="n">_template_func</span><span class="p">(</span><span class="n">setup</span><span class="p">,</span> <span class="n">stmt</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">else</span><span class="p">:</span>
-</span><span class='line'>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;stmt is neither a string nor callable&quot;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">default_number</span><span class="p">):</span>
-</span><span class='line'>        <span class="sd">&quot;&quot;&quot;Time &#39;number&#39; executions of the main statement.</span>
-</span><span class='line'>
-</span><span class='line'><span class="sd">        To be precise, this executes the setup statement once, and</span>
-</span><span class='line'><span class="sd">        then returns the time it takes to execute the main statement</span>
-</span><span class='line'><span class="sd">        a number of times, as a float measured in seconds.  The</span>
-</span><span class='line'><span class="sd">        argument is the number of times through the loop, defaulting</span>
-</span><span class='line'><span class="sd">        to one million.  The main statement, the setup statement and</span>
-</span><span class='line'><span class="sd">        the timer function to be used are passed to the constructor.</span>
-</span><span class='line'><span class="sd">        &quot;&quot;&quot;</span>
-</span><span class='line'>        <span class="k">if</span> <span class="n">itertools</span><span class="p">:</span>
-</span><span class='line'>            <span class="n">it</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">else</span><span class="p">:</span>
-</span><span class='line'>            <span class="n">it</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">number</span>
-</span><span class='line'>        <span class="n">gcold</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">isenabled</span><span class="p">()</span>
-</span><span class='line'>        <span class="n">gc</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>
-</span><span class='line'>        <span class="n">timing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">if</span> <span class="n">gcold</span><span class="p">:</span>
-</span><span class='line'>            <span class="n">gc</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">timing</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">stmt</span><span class="o">=</span><span class="s">&quot;pass&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="o">=</span><span class="s">&quot;pass&quot;</span><span class="p">,</span> <span class="n">timer</span><span class="o">=</span><span class="n">default_timer</span><span class="p">,</span>
-</span><span class='line'>           <span class="n">number</span><span class="o">=</span><span class="n">default_number</span><span class="p">):</span>
-</span><span class='line'>    <span class="sd">&quot;&quot;&quot;Convenience function to create Timer object and call timeit method.&quot;&quot;&quot;</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">Timer</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="n">setup</span><span class="p">,</span> <span class="n">timer</span><span class="p">)</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Let&rsquo;s trace the part that&rsquo;s giving us the long execution string.  We call the module-level function <code>timeit.timeit</code>, which creates a Timer object and returns the result of calling its <code>timeit</code> method.  No surprise that we got identical results between our method #1 and method #3 above.</p>
-
-<p>The <code>Timer</code> object checks to see if you&rsquo;ve passed it strings or callables as its <code>stmt</code> and <code>setup</code> parameters.  In our case both are strings.  The <code>init</code> method splices the strings into the source code here:</p>
-
-<figure class='code'><figcaption><span>timeit.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">src</span> <span class="o">=</span> <span class="n">template</span> <span class="o">%</span> <span class="p">{</span><span class="s">&#39;stmt&#39;</span><span class="p">:</span> <span class="n">stmt</span><span class="p">,</span> <span class="s">&#39;setup&#39;</span><span class="p">:</span> <span class="n">setup</span><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We can isolate this in the REPL if we want to be extra-sure of how it works:</p>
-
-<figure class='code'><figcaption><span>timeit.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">template</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-</span><span class='line'><span class="s">... def inner(_it, _timer):</span>
-</span><span class='line'><span class="s">...     </span><span class="si">%(setup)s</span><span class="s"></span>
-</span><span class='line'><span class="s">...     _t0 = _timer()</span>
-</span><span class='line'><span class="s">...     for _i in _it:</span>
-</span><span class='line'><span class="s">...         </span><span class="si">%(stmt)s</span><span class="s"></span>
-</span><span class='line'><span class="s">...     _t1 = _timer()</span>
-</span><span class='line'><span class="s">...     return _t1 - _t0</span>
-</span><span class='line'><span class="s">... &quot;&quot;&quot;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">stmt</span> <span class="o">=</span> <span class="s">&quot;pass&quot;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">setup</span> <span class="o">=</span> <span class="s">&quot;print &#39;here we go&#39;&quot;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">template</span> <span class="o">%</span> <span class="p">{</span><span class="s">&#39;stmt&#39;</span><span class="p">:</span> <span class="n">stmt</span><span class="p">,</span> <span class="s">&#39;setup&#39;</span><span class="p">:</span> <span class="n">setup</span><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">inner</span><span class="p">(</span><span class="n">_it</span><span class="p">,</span> <span class="n">_timer</span><span class="p">):</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&#39;here we go&#39;</span>
-</span><span class='line'>    <span class="n">_t0</span> <span class="o">=</span> <span class="n">_timer</span><span class="p">()</span>
-</span><span class='line'>    <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">_it</span><span class="p">:</span>
-</span><span class='line'>        <span class="k">pass</span>
-</span><span class='line'>    <span class="n">_t1</span> <span class="o">=</span> <span class="n">_timer</span><span class="p">()</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">_t1</span> <span class="o">-</span> <span class="n">_t0</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Got it &ndash; simple, legal python code is generated. So where is our regular expression getting screwed up?  Let&rsquo;s take a look at the code generated in our actual test by inserting a print statement into the <code>timeit</code> module.  (First we&rsquo;ll copy the module over to our current working directory, to avoid modifying our actual standard library.)</p>
-
-<figure class='code'><figcaption><span>timeit.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">src</span> <span class="o">=</span> <span class="n">template</span> <span class="o">%</span> <span class="p">{</span><span class="s">&#39;stmt&#39;</span><span class="p">:</span> <span class="n">stmt</span><span class="p">,</span> <span class="s">&#39;setup&#39;</span><span class="p">:</span> <span class="n">setup</span><span class="p">}</span>
-</span><span class='line'><span class="k">print</span> <span class="n">src</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And now calling <code>test_with_timeit.py</code> again, it prints:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">inner</span><span class="p">(</span><span class="n">_it</span><span class="p">,</span> <span class="n">_timer</span><span class="p">):</span>
-</span><span class='line'>    <span class="kn">import</span> <span class="nn">re</span><span class="p">;</span>
-</span><span class='line'>    <span class="kn">import</span> <span class="nn">string</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">double</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;([a-z])()&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">short_test</span> <span class="o">=</span> <span class="s">&quot;hee&quot;</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">lowercase</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">long_test</span> <span class="o">=</span> <span class="s">&quot;hee&quot;</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">lowercase</span><span class="o">*</span><span class="mi">200</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">_t0</span> <span class="o">=</span> <span class="n">_timer</span><span class="p">()</span>
-</span><span class='line'>    <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">_it</span><span class="p">:</span>
-</span><span class='line'>        <span class="n">double</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">short_test</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">_t1</span> <span class="o">=</span> <span class="n">_timer</span><span class="p">()</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">_t1</span> <span class="o">-</span> <span class="n">_t0</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This looks mostly reasonable &hellip; but hey, wait, what happened to the regular expression?</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">double</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;([a-z])()&quot;</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That&rsquo;s not right!  Changing <code>print src</code> to <code>print repr(src)</code> gives us a better idea what&rsquo;s up &ndash; the relevant line is now:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">double</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;([a-z])(\x01)&quot;</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And looking back at the <code>SETUP</code> string &hellip; uh-oh, this isn&rsquo;t a raw string, and it contains an escape character (<code>(\1)</code>).  We can tell we&rsquo;re in trouble immediately in the REPL:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="s">&quot;</span><span class="se">\1</span><span class="s">&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="nb">repr</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\1</span><span class="s">&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="s">&quot;&#39;</span><span class="se">\\</span><span class="s">x01&#39;&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Why does this happen?  We can consult the <a href="http://docs.python.org/2/reference/lexical_analysis.html#string-literals">docs on string literals</a> to find out.  Unless you&rsquo;re working with a raw string (one prefixed with <code>r</code> or <code>R</code>), escape characters are interpreted the same way they are in C.  Our text, a backslash followed by a number, matches the pattern for an octal digit: a backslash followed by 1-3 integers. <code>\ooo</code> indicates a character with the octal value <code>ooo</code>.  And that&rsquo;s exactly what we&rsquo;ve done:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="nb">ord</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\1</span><span class="s">&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="mi">1</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</span><span class='line'><span class="s">&#39;</span><span class="se">\x01</span><span class="s">&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>\x01</code> is a legal (though unprintable) character, and <strong>it doesn&rsquo;t appear in our long string to test the regular expression.</strong> So <em>of course</em> the longer one took a longer time &ndash; it had to traverse the entire string looking for <code>\x01</code>, which it never found.</p>
-
-<p>The fix is quite easy &ndash; one character, in fact.  Make the <code>SETUP</code> string raw:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">SETUP</span> <span class="o">=</span> <span class="s">r&quot;&quot;&quot;import re;</span>
-</span><span class='line'><span class="s">import string;</span>
-</span><span class='line'><span class="s">double = re.compile(r&quot;([a-z])(\1)&quot;);</span>
-</span><span class='line'><span class="s">short_test = &quot;hee&quot; + string.lowercase;</span>
-</span><span class='line'><span class="s">long_test = &quot;hee&quot; + string.lowercase*200</span>
-</span><span class='line'><span class="s">&quot;&quot;&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>&hellip; and the problem is solved.  So we can pop a bunch of frame off our problem stack and go investigate the string copying, which is in fact the issue.</p>
-
-<pre>
- ---------------------------
-| reg exp? or string copy?  |
- ---------------------------
-| function is so slow, why? |
- ---------------------------
-|   find a faster solution  |
- ---------------------------
-|  solve wordplay problem   | (oldest)
- ---------------------------
-</pre>
-
-
-<h2>Lessons learned</h2>
-
-<p>Interesting bugs are a ton of fun!  Now for a bit of introspection: what could have gone better?</p>
-
-<ul>
-<li><p>Most obviously, I could have spent less time on the regular-expression branch of why the function was slow, especially as the stack grew.  Whether I should have done this depends on your perspective: at Hacker School, I&rsquo;m almost 100% learning motivated and about 0% get-it-done motivated, so my time to solve the bug is virtually unbounded.</p></li>
-<li><p>I was slightly overconfident about understanding how the <code>timeit</code> code splicing happened.  The code looked so simple that I didn&rsquo;t bother to check my understanding at first.</p></li>
-<li><p>Passing <code>timeit.timeit</code> strings is an unwieldy way of doing timing.  I should have been using either the callable option, or just timing with <code>time python test_file.py</code> from the command line.  Both of these would have been easier to work with and would have sidestepped the bug.</p></li>
-<li><p>My mental model of regular expressions was largely correct.  That&rsquo;s satisfying.</p></li>
-<li><p>Strings!  Ouch.  This may not seem like much of a lesson, but it&rsquo;s useful to add to my mental list of Places That Bugs Lurk.</p></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1912,6 +1137,14 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/03/16/pycon-prep-import-is-a-keyword/">PyCon prep: import is a keyword</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/03/16/reading-ebnf/">Reading EBNF</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/02/16/pycon-prep-require-in-ruby/">PyCon prep: `require` in Ruby</a>
       </li>
     
@@ -1921,14 +1154,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
     
       <li class="post">
         <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Introduction to the Python Interpreter, Part 3: Understanding Bytecode</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">Introduction to the Python Interpreter, Part 2: Code Objects</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Introduction to the Python Interpreter, Part 1: Function Objects</a>
       </li>
     
   </ul>

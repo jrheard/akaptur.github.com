@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Reading EBNF - Of Interest</title>
+  <meta name="author" content="akaptur">
+
+  
+  <meta name="description" content="One of the fun parts of pairing with Amy on Nagini was modifying the grammar of Python. You should try this &ndash; it&rsquo;s easier than you think &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://akaptur.github.com/blog/2014/03/16/reading-ebnf/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Of Interest" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42870230-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Of Interest</a></h1>
+  
+    <h2>An occasional blog on programming</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:akaptur.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Reading EBNF</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-16T15:39:00-04:00" pubdate data-updated="true">Mar 16<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>One of the fun parts of <a href="http://mathamy.com/import-accio-bootstrapping-python-grammar.html">pairing with Amy on Nagini</a> was modifying the grammar of Python. You should try this &ndash; it&rsquo;s easier than you think! Eli Bendersky has a <a href="eli.thegreenplace.net/2010/06/30/python-internals-adding-a-new-statement-to-python/">great post</a> with step-by-step instructions.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<p>Modifying Python&rsquo;s grammar starts in the Grammar/Grammar file. I&rsquo;ve recently learned how to read this (which, for me, mostly means learning how to pronounce the punctuation), so I want to walk through the <code>import</code> example in some detail. The syntax here is <a href="http://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form">Extended Backus-Naur Form</a>, or EBNF. You read it like a tree, and your primary verb is &ldquo;consists of&rdquo;:</p>
+
+<ul>
+<li><code>import_stmt</code> consists of one of two forms, <code>import_name</code> or <code>import_from</code>.</li>
+<li><code>import_name</code> consists of the literal word <code>import</code> followed by <code>dotted_as_names</code>.</li>
+<li><code>dotted_as_names</code> consists of a <code>dotted_as_name</code> (note the singular), optionally followed by one or more pairs of a comma and another <code>dotted_as_name</code>.</li>
+<li><code>dotted_as_name</code> consists of a <code>dotted_name</code>, optionally followed by the literal word &lsquo;as&rsquo; and a NAME.</li>
+<li>Finally, <code>dotted_name</code> consists of a <code>NAME</code>, maybe followed by pairs of a dot and another <code>NAME</code>.</li>
+</ul>
+
+
+<p>You can walk the other branches in a similar way.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import_stmt: import_name | import_from
+</span><span class='line'>import_name: 'import' dotted_as_names
+</span><span class='line'># note below: the ('.' | '...') is necessary because '...' is tokenized as ELLIPSIS
+</span><span class='line'>import_from: ('from' (('.' | '...')* dotted_name | ('.' | '...')+)
+</span><span class='line'>              'import' ('*' | '(' import_as_names ')' | import_as_names))
+</span><span class='line'>import_as_name: NAME ['as' NAME]
+</span><span class='line'>dotted_as_name: dotted_name ['as' NAME]
+</span><span class='line'>import_as_names: import_as_name (',' import_as_name)* [',']
+</span><span class='line'>dotted_as_names: dotted_as_name (',' dotted_as_name)*
+</span><span class='line'>dotted_name: NAME ('.' NAME)*</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To <code>accio</code>-ify Python, we had to replace the occurences of <code>'import'</code> with <code>'accio'</code>. There are only two &ndash; we were only interested in the literal string <code>import</code>, not all the other names. <code>import_as_name</code> and so on are just nodes in the tree, and only matter to the parser and compiler.</p>
+
+<p>Every other keyword and symbol that has special meaning to the Python parser also appears in Grammar as a string.</p>
+
+<p>Perusing the grammar is (goofy) way to learn about corner cases of Python syntax, too!  For example, did you know that <code>with</code> can take more than one context manager? It&rsquo;s right there in the grammar:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>with_stmt: 'with' with_item (',' with_item)*  ':' suite
+</span><span class='line'>with_item: test ['as' expr]</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;foo.txt&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;bar.txt&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">g</span><span class="p">:</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">g</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">f</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">closed</span> <span class="nb">file</span> <span class="s">&#39;foo.txt&#39;</span><span class="p">,</span> <span class="n">mode</span> <span class="s">&#39;w&#39;</span> <span class="n">at</span> <span class="mh">0x10bf71270</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">g</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">closed</span> <span class="nb">file</span> <span class="s">&#39;bar.txt&#39;</span><span class="p">,</span> <span class="n">mode</span> <span class="s">&#39;w&#39;</span> <span class="n">at</span> <span class="mh">0x10bf71810</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now go ahead and add your favorite keyword into Python!</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>Like Eli, I&rsquo;m not advocating for Python&rsquo;s actual grammar to change &ndash; it&rsquo;s just a fun exercise.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">akaptur</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-16T15:39:00-04:00" pubdate data-updated="true">Mar 16<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://akaptur.github.com/blog/2014/03/16/reading-ebnf/" data-via="" data-counturl="http://akaptur.github.com/blog/2014/03/16/reading-ebnf/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/02/16/pycon-prep-require-in-ruby/" title="Previous Post: PyCon prep: `require` in Ruby">&laquo; PyCon prep: `require` in Ruby</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/03/16/pycon-prep-import-is-a-keyword/" title="Next Post: PyCon prep: import is a keyword">PyCon prep: import is a keyword &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/03/16/pycon-prep-import-is-a-keyword/">PyCon prep: import is a keyword</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/03/16/reading-ebnf/">Reading EBNF</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/16/pycon-prep-require-in-ruby/">PyCon prep: `require` in Ruby</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/12/03/introduction-to-the-python-interpreter-4/">Introduction to the Python Interpreter, Part 4: It's Dynamic!</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Introduction to the Python Interpreter, Part 3: Understanding Bytecode</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - akaptur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
+  <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

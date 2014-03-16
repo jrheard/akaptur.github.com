@@ -4,7 +4,7 @@
   <title><![CDATA[Of Interest]]></title>
   <link href="http://akaptur.github.com/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-02-16T15:09:24-05:00</updated>
+  <updated>2014-03-16T16:13:14-04:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,6 +12,159 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[PyCon prep: import is a keyword]]></title>
+    <link href="http://akaptur.github.com/blog/2014/03/16/pycon-prep-import-is-a-keyword/"/>
+    <updated>2014-03-16T16:08:00-04:00</updated>
+    <id>http://akaptur.github.com/blog/2014/03/16/pycon-prep-import-is-a-keyword</id>
+    <content type="html"><![CDATA[<p>Last week I had a ton of fun working with <a href="https://twitter.com/amygdalama">Amy Hanlon</a> on her Harry Potter themed fork of Python, called Nagini.  Nagini is full of magic and surprises. It implements the things you&rsquo;d hope for out of a Harry Potter Python, like making <code>quit</code> into <code>avada_kedavra</code>, and many analogous jokes.</p>
+
+<p>Amy also had the idea to replace <code>import</code> with <code>accio</code>! Replacing <code>import</code> is a much harder problem than renaming a builtin.  Python doesn&rsquo;t prevent you from overwriting builtins, whereas to change keywords you have to edit the grammar and recompile Python. You should <a href="http://mathamy.com/import-accio-bootstrapping-python-grammar.html">go read Amy&rsquo;s post</a> on making this work.</p>
+
+<p>This brings us to an interesting question: why <em>is</em> <code>import</code> a keyword, anyway? There&rsquo;s a function, <code>__import__</code>, that does (mostly) the same thing:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;random&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">module</span> <span class="s">&#39;random&#39;</span> <span class="kn">from</span> <span class="s">&#39;/path/to/random.pyc&#39;</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The function form requires the programmer to assign the return value &ndash; the module &ndash; to a name, but once we&rsquo;ve done that it works just like a normal module:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">random</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;random&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+</span><span class='line'><span class="mf">0.32574174955668145</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>__import__</code> function can handle all the forms of import, including <code>from foo import bar</code> and <code>from baz import *</code> (although it never modifies the calling namespace).  There&rsquo;s no technical reason why <code>__import__</code> couldn&rsquo;t be the regular way to do imports.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<p>As far as I can tell, the main argument against an <code>import</code> function is aesthetic. Compare:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">foo</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">foo</span> <span class="kn">import</span> <span class="n">bar</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">longmodulename</span> <span class="kn">as</span> <span class="nn">short</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">foo</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">bar</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;random&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">bar</span>
+</span><span class='line'><span class="n">short</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;longmodulename&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The first way certainly feels much cleaner and more readable.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></p>
+
+<p>Part of my goal in my <a href="https://us.pycon.org/2014/schedule/presentation/229/">upcoming PyCon talk</a> is to invite Pythonistas to consider decisions they might not have thought about before. <code>import</code> is a great vehicle for this, because everyone learns it very early on in their programming development, but most people don&rsquo;t ever think about it again. Here&rsquo;s another variation on that theme: <code>import</code> doesn&rsquo;t have to be a keyword!</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>I think all keywords <em>could</em> be expressed as functions, except those used for flow control (which I loosely define as keywords that generate any <code>JUMP</code> instructions when compiled). For example, between Python 2 and 3, two keywords did become functions &ndash; <code>print</code> and <code>exec</code>.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>I realize this is a slightly circular argument &ndash; if the function strategy were the regular way to import, it probably wouldn&rsquo;t be so ugly.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Reading EBNF]]></title>
+    <link href="http://akaptur.github.com/blog/2014/03/16/reading-ebnf/"/>
+    <updated>2014-03-16T15:39:00-04:00</updated>
+    <id>http://akaptur.github.com/blog/2014/03/16/reading-ebnf</id>
+    <content type="html"><![CDATA[<p>One of the fun parts of <a href="http://mathamy.com/import-accio-bootstrapping-python-grammar.html">pairing with Amy on Nagini</a> was modifying the grammar of Python. You should try this &ndash; it&rsquo;s easier than you think! Eli Bendersky has a <a href="eli.thegreenplace.net/2010/06/30/python-internals-adding-a-new-statement-to-python/">great post</a> with step-by-step instructions.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<p>Modifying Python&rsquo;s grammar starts in the Grammar/Grammar file. I&rsquo;ve recently learned how to read this (which, for me, mostly means learning how to pronounce the punctuation), so I want to walk through the <code>import</code> example in some detail. The syntax here is <a href="http://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form">Extended Backus-Naur Form</a>, or EBNF. You read it like a tree, and your primary verb is &ldquo;consists of&rdquo;:</p>
+
+<ul>
+<li><code>import_stmt</code> consists of one of two forms, <code>import_name</code> or <code>import_from</code>.</li>
+<li><code>import_name</code> consists of the literal word <code>import</code> followed by <code>dotted_as_names</code>.</li>
+<li><code>dotted_as_names</code> consists of a <code>dotted_as_name</code> (note the singular), optionally followed by one or more pairs of a comma and another <code>dotted_as_name</code>.</li>
+<li><code>dotted_as_name</code> consists of a <code>dotted_name</code>, optionally followed by the literal word &lsquo;as&rsquo; and a NAME.</li>
+<li>Finally, <code>dotted_name</code> consists of a <code>NAME</code>, maybe followed by pairs of a dot and another <code>NAME</code>.</li>
+</ul>
+
+
+<p>You can walk the other branches in a similar way.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import_stmt: import_name | import_from
+</span><span class='line'>import_name: 'import' dotted_as_names
+</span><span class='line'># note below: the ('.' | '...') is necessary because '...' is tokenized as ELLIPSIS
+</span><span class='line'>import_from: ('from' (('.' | '...')* dotted_name | ('.' | '...')+)
+</span><span class='line'>              'import' ('*' | '(' import_as_names ')' | import_as_names))
+</span><span class='line'>import_as_name: NAME ['as' NAME]
+</span><span class='line'>dotted_as_name: dotted_name ['as' NAME]
+</span><span class='line'>import_as_names: import_as_name (',' import_as_name)* [',']
+</span><span class='line'>dotted_as_names: dotted_as_name (',' dotted_as_name)*
+</span><span class='line'>dotted_name: NAME ('.' NAME)*</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To <code>accio</code>-ify Python, we had to replace the occurences of <code>'import'</code> with <code>'accio'</code>. There are only two &ndash; we were only interested in the literal string <code>import</code>, not all the other names. <code>import_as_name</code> and so on are just nodes in the tree, and only matter to the parser and compiler.</p>
+
+<p>Every other keyword and symbol that has special meaning to the Python parser also appears in Grammar as a string.</p>
+
+<p>Perusing the grammar is (goofy) way to learn about corner cases of Python syntax, too!  For example, did you know that <code>with</code> can take more than one context manager? It&rsquo;s right there in the grammar:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>with_stmt: 'with' with_item (',' with_item)*  ':' suite
+</span><span class='line'>with_item: test ['as' expr]</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;foo.txt&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;bar.txt&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">g</span><span class="p">:</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">g</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">f</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">closed</span> <span class="nb">file</span> <span class="s">&#39;foo.txt&#39;</span><span class="p">,</span> <span class="n">mode</span> <span class="s">&#39;w&#39;</span> <span class="n">at</span> <span class="mh">0x10bf71270</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">g</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">closed</span> <span class="nb">file</span> <span class="s">&#39;bar.txt&#39;</span><span class="p">,</span> <span class="n">mode</span> <span class="s">&#39;w&#39;</span> <span class="n">at</span> <span class="mh">0x10bf71810</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now go ahead and add your favorite keyword into Python!</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>Like Eli, I&rsquo;m not advocating for Python&rsquo;s actual grammar to change &ndash; it&rsquo;s just a fun exercise.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[PyCon prep: `require` in Ruby]]></title>
