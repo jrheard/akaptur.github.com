@@ -81,6 +81,10 @@
         <lastmod>2014-03-16T16:11:43-04:00</lastmod>
     </url>
     <url>
+        <loc>http://akaptur.github.com/about/</loc>
+        <lastmod>2014-05-25T13:44:13-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://akaptur.github.com/blog/archives/</loc>
         <lastmod>2014-03-16T16:11:43-04:00</lastmod>
     </url>
@@ -91,5 +95,9 @@
     <url>
         <loc>http://akaptur.github.com/robots.txt</loc>
         <lastmod>2013-11-16T12:18:09-05:00</lastmod>
+    </url>
+    <url>
+        <loc>http://akaptur.github.com/talks/</loc>
+        <lastmod>2014-05-25T13:46:36-04:00</lastmod>
     </url>
 </urlset>
