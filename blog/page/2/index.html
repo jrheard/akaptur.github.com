@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="Last week at Hacker School I did a quick presentation on python bytecode and the dis module. The disassembler is a very powerful tool with a gentle &hellip;">
+  <meta name="description" content="I&rsquo;ve managed to encounter three different bugs with the same obscure source in the last week. I think Hacker School might be cursed. Here&rsquo &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +78,61 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/15/bug-hunting/">Bug Hunting</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-15T08:01:00-04:00" pubdate data-updated="true">Oct 15<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&rsquo;ve managed to encounter three different bugs with the same obscure source in the last week.  I think Hacker School might be cursed.  Here&rsquo;s a blog post attempting to rid us of the curse.</p>
+
+<h3>Bug 1: Flask app on Heroku can&rsquo;t find images and stylesheets</h3>
+
+<p>The first bug was a Flask app deployed to Heroku.  It worked fine locally, but when deployed, none of the images or stylesheets rendered.</p>
+
+<h3>Bug 2: A project fails to build</h3>
+
+<p>A Hacker Schooler cloned into a project and tried to build it with <code>python setup.py install</code>.  The build failed with the error <code>Supposed package directory '[project]' exists but is not a directory.</code></p>
+
+<h3>Bug 3: Heroku-deployed app crashes</h3>
+
+<p>I deployed a new feature to the Hacker School site (which is a Rails app), and crashed the application.  Again, everything worked fine locally on my machine and my colleague&rsquo;s machines.</p>
+
+<p>The solution and explanations are below the fold.  If you&rsquo;d like to try to guess, you can ask me debugging questions on twitter <a href="https://twitter.com/akaptur">(@akaptur)</a>, and I&rsquo;ll respond within 24 hours until Friday, October 18th, 2013. If you don&rsquo;t like guessing, or your own bugs are plenty for you, you can click through now.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/10/15/bug-hunting/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -2174,6 +2229,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/">Of Syntax Warnings and Symbol Tables</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/03/16/pycon-prep-import-is-a-keyword/">PyCon prep: import is a keyword</a>
       </li>
     
@@ -2187,10 +2246,6 @@
     
       <li class="post">
         <a href="/blog/2013/12/03/introduction-to-the-python-interpreter-4/">Introduction to the Python Interpreter, Part 4: It&#8217;s Dynamic!</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Introduction to the Python Interpreter, Part 3: Understanding Bytecode</a>
       </li>
     
   </ul>

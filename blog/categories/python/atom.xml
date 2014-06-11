@@ -4,7 +4,7 @@
   <title><![CDATA[Category: python, | Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/blog/categories/python/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-05-25T13:49:14-04:00</updated>
+  <updated>2014-06-11T19:48:52-04:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,6 +12,236 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Of Syntax Warnings and Symbol Tables]]></title>
+    <link href="http://akaptur.github.com/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/"/>
+    <updated>2014-06-11T18:30:00-04:00</updated>
+    <id>http://akaptur.github.com/blog/2014/06/11/of-syntax-warnings-and-symbol-tables</id>
+    <content type="html"><![CDATA[<p>A Hacker Schooler hit an interesting bug today: her program would sometimes emit the message <code>SyntaxWarning: import * only allowed at module level</code>.  I had never seen a <code>SyntaxWarning</code> before, so I decided to dig in.</p>
+
+<p>The wording of the warning is strange: it says that star-import is only <em>allowed</em> at the module level, but it&rsquo;s not a syntax error, just a warning.  In fact, you can use a star-import in a scope that isn&rsquo;t a module (in Python 2):</p>
+
+<p>```python</p>
+
+<blockquote><blockquote><blockquote><p>def nope():
+&hellip;     from random import *
+&hellip;     print randint(1,10)
+&hellip;
+<stdin>:1: SyntaxWarning: import * only allowed at module level
+nope()
+7
+```</p></blockquote></blockquote></blockquote>
+
+<p>The Python <a href="https://docs.python.org/2/reference/simple_stmts.html?highlight=import#the-import-statement">spec</a> gives some more details:</p>
+
+<blockquote><p>The from form with * may only occur in a module scope. If the wild card form of import — import * — is used in a function and the function contains or is a nested block with free variables, the compiler will raise a SyntaxError.</p></blockquote>
+
+<p>Just having <code>import *</code> in a function isn&rsquo;t enough to raise a syntax error &ndash; we also need free variables. The <a href="https://docs.python.org/2.7/reference/executionmodel.html">Python execution model</a> refers to three kinds of variables, &lsquo;local,&rsquo; &lsquo;global,&rsquo; and &lsquo;free&rsquo;, defined as follows:</p>
+
+<blockquote><p>If a name is bound in a block, it is a local variable of that block. If a name is bound at the module level, it is a global variable. (The variables of the module code block are local and global.) If a variable is used in a code block but not defined there, it is a free variable.</p></blockquote>
+
+<p>Now we can see how to trigger a syntax error from our syntax warning:</p>
+
+<p>``` python</p>
+
+<blockquote><blockquote><blockquote><p>def one():
+&hellip;     def two():
+&hellip;         from random import *
+&hellip;         print randint(1,10)
+&hellip;     two()
+&hellip;
+<stdin>:2: SyntaxWarning: import * only allowed at module level
+  File &ldquo;<stdin>&rdquo;, line 3
+SyntaxError: import * is not allowed in function &lsquo;two&rsquo; because it is a nested function
+```</p></blockquote></blockquote></blockquote>
+
+<p>and similarly,</p>
+
+<p>```python</p>
+
+<blockquote><blockquote><blockquote><p>def one():
+&hellip;     from random import *
+&hellip;     def two():
+&hellip;         print randint(1,10)
+&hellip;     two()
+&hellip;
+<stdin>:1: SyntaxWarning: import * only allowed at module level
+  File &ldquo;<stdin>&rdquo;, line 2
+SyntaxError: import * is not allowed in function &lsquo;one&rsquo; because it contains a nested function with free variables
+```</p></blockquote></blockquote></blockquote>
+
+<p>As Python programmers, we&rsquo;re used to our lovely dynamic language, and it&rsquo;s unusual to hit compile-time constraints.  As <a href="https://twitter.com/amygdalama">Amy Hanlon</a> points out, it&rsquo;s particularly weird to hit a compile-time error for code that wouldn&rsquo;t raise a NameError when it ran &ndash; <code>randint</code> would indeed be in <code>one</code>&rsquo;s namespace if the import-star had executed.</p>
+
+<p>But we can&rsquo;t run code that doesn&rsquo;t compile, and in this case the compiler doesn&rsquo;t have enough information to determine what bytecode to emit. There are different opcodes for loading and storing each of global, free, and local variables. A variable&rsquo;s status as global, free, or local must be determined at compile time and then stored in the symbol table.</p>
+
+<p>To investigate this, let&rsquo;s look at minor variations on this code snippet and disassemble them.</p>
+
+<p>```python</p>
+
+<blockquote><blockquote><blockquote><p>code_type = type((lambda: 1).<strong>code</strong>) # just a handle on the code type, which isn&rsquo;t exposed as a builtin</p>
+
+<h1>A helper function to disassemble nested functions</h1>
+
+<p>def recur_dis(fn):
+&hellip;     print(fn.<strong>code</strong>)
+&hellip;     dis.dis(fn)
+&hellip;     for const in fn.<strong>code</strong>.co_consts:
+&hellip;         if isinstance(const, code_type):
+&hellip;             print
+&hellip;             print
+&hellip;             print(const)
+&hellip;             dis.dis(const)
+```</p></blockquote></blockquote></blockquote>
+
+<p>First, when <code>x</code> is local, the compiler emits <code>STORE_FAST</code> in the assignment statement and <code>LOAD_FAST</code> to load it, marked with arrows below.</p>
+
+<p>```python</p>
+
+<blockquote><blockquote><blockquote><p>def one():
+&hellip;     def two():
+&hellip;         x = 1
+&hellip;         print x
+&hellip;     two()
+recur_dis(one)
+<code object one at 0x10e246730, file "<stdin>&ldquo;, line 1>
+  2           0 LOAD_CONST               1 (<code object two at 0x10e246030, file "<stdin>&rdquo;, line 2>)</p>
+
+<pre><code>          3 MAKE_FUNCTION            0
+          6 STORE_FAST               0 (two)
+</code></pre></blockquote></blockquote></blockquote>
+
+<p>  5           9 LOAD_FAST                0 (two)</p>
+
+<pre><code>         12 CALL_FUNCTION            0
+         15 POP_TOP
+         16 LOAD_CONST               0 (None)
+         19 RETURN_VALUE
+</code></pre>
+
+<p><code object two at 0x10e246030, file "<stdin>&ldquo;, line 2>
+  3           0 LOAD_CONST               1 (1)</p>
+
+<pre><code>          3 STORE_FAST               0 (x)          &lt;---- STORE_FAST
+</code></pre>
+
+<p>  4           6 LOAD_FAST                0 (x)          &lt;&mdash;&mdash;&ndash; LOAD_FAST</p>
+
+<pre><code>          9 PRINT_ITEM
+         10 PRINT_NEWLINE
+         11 LOAD_CONST               0 (None)
+         14 RETURN_VALUE
+</code></pre>
+
+<p>```</p>
+
+<p>When <code>x</code> is global, the compiler emits <code>LOAD_GLOBAL</code> to load it.  I think the assignment is <code>STORE_FAST</code> again, but it&rsquo;s not pictured here because the assignment is outside the function and thus not disassembled.</p>
+
+<p>```python</p>
+
+<blockquote><blockquote><blockquote><p>x = 1
+def one():
+&hellip;     def two():
+&hellip;         print x
+&hellip;     two()
+&hellip;
+recur_dis(one)
+<code object one at 0x10e246730, file "<stdin>&ldquo;, line 1>
+  2           0 LOAD_CONST               1 (<code object two at 0x10e2464b0, file "<stdin>&rdquo;, line 2>)</p>
+
+<pre><code>          3 MAKE_FUNCTION            0
+          6 STORE_FAST               0 (two)
+</code></pre></blockquote></blockquote></blockquote>
+
+<p>  4           9 LOAD_FAST                0 (two)</p>
+
+<pre><code>         12 CALL_FUNCTION            0
+         15 POP_TOP
+         16 LOAD_CONST               0 (None)
+         19 RETURN_VALUE
+</code></pre>
+
+<p><code object two at 0x10e2464b0, file "<stdin>&ldquo;, line 2>
+  3           0 LOAD_GLOBAL              0 (x)          &lt;&mdash;&mdash;&ndash; LOAD_GLOBAL</p>
+
+<pre><code>          3 PRINT_ITEM
+          4 PRINT_NEWLINE
+          5 LOAD_CONST               0 (None)
+          8 RETURN_VALUE
+</code></pre>
+
+<p>```</p>
+
+<p>Finally, when <code>x</code> is nonlocal, the compiler notices that we&rsquo;ll need a closure, and emits the opcodes <code>LOAD_CLOSURE</code>, <code>MAKE_CLOSURE</code>, and later <code>LOAD_DEREF</code>.</p>
+
+<p>```python</p>
+
+<blockquote><blockquote><blockquote><p>def one():
+&hellip;     x = 1
+&hellip;     def two():
+&hellip;        print x
+&hellip;     two()
+&hellip;
+recur_dis(one)
+<code object one at 0x10e246e30, file "<stdin>&ldquo;, line 1>
+  2           0 LOAD_CONST               1 (1)</p>
+
+<pre><code>          3 STORE_DEREF              0 (x)          &lt;----- STORE_DEREF
+</code></pre></blockquote></blockquote></blockquote>
+
+<p>  3           6 LOAD_CLOSURE             0 (x)          &lt;&mdash;&mdash;&ndash; LOAD_CLOSURE</p>
+
+<pre><code>          9 BUILD_TUPLE              1
+         12 LOAD_CONST               2 (&lt;code object two at 0x10e246d30, file "&lt;stdin&gt;", line 3&gt;)
+         15 MAKE_CLOSURE             0
+         18 STORE_FAST               0 (two)
+</code></pre>
+
+<p>  5          21 LOAD_FAST                0 (two)</p>
+
+<pre><code>         24 CALL_FUNCTION            0
+         27 POP_TOP
+         28 LOAD_CONST               0 (None)
+         31 RETURN_VALUE
+</code></pre>
+
+<p><code object two at 0x10e246d30, file "<stdin>&ldquo;, line 3>
+  4           0 LOAD_DEREF               0 (x)          &lt;&mdash;&mdash;&ndash; LOAD_DEREF</p>
+
+<pre><code>          3 PRINT_ITEM
+          4 PRINT_NEWLINE
+          5 LOAD_CONST               0 (None)
+          8 RETURN_VALUE
+</code></pre>
+
+<p>```</p>
+
+<p>Let&rsquo;s now return to a case that throws a syntax error.</p>
+
+<p>```</p>
+
+<blockquote><blockquote><blockquote><p>def one():
+&hellip;      from random import *
+&hellip;      def two():
+&hellip;          print x
+&hellip;      two()
+&hellip;
+<stdin>:1: SyntaxWarning: import * only allowed at module level
+  File &ldquo;<stdin>&rdquo;, line 2
+SyntaxError: import * is not allowed in function &lsquo;one&rsquo; because it contains a nested function with free variables
+```</p></blockquote></blockquote></blockquote>
+
+<p>I&rsquo;d love to show what the disassembled bytecode for this one looks like, but we can&rsquo;t do that because there is no bytecode! We got a compile-time error, so there&rsquo;s nothing here.</p>
+
+<h3>Further reading</h3>
+
+<p>Everything I know about symbol tables I learned from <a href="http://eli.thegreenplace.net/2010/09/18/python-internals-symbol-tables-part-1/">Eli Bendersky&rsquo;s blog</a>. I&rsquo;ve skipped some complexity in the implementation that Eli covers.</p>
+
+<p><code>ack</code>ing through the source code of CPython for the text of the error message leads us right to <code>symtable.c</code>, which is exactly where we&rsquo;d expect this message to be emitted. The function <code>check_unoptimized</code> shows where the syntax error gets thrown (and shows another illegal construct, too &ndash; but we&rsquo;ll leave that one as an exercise for the reader).</p>
+
+<p>p.s. In Python 3, <code>import *</code> anywhere other than a module is just an unqualified syntax error &ndash; none of this messing around with the symbol table.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 2: Code Objects]]></title>

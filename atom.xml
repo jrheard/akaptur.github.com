@@ -4,7 +4,7 @@
   <title><![CDATA[Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-05-25T13:49:06-04:00</updated>
+  <updated>2014-06-11T19:48:43-04:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,6 +12,325 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Of Syntax Warnings and Symbol Tables]]></title>
+    <link href="http://akaptur.github.com/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/"/>
+    <updated>2014-06-11T18:30:00-04:00</updated>
+    <id>http://akaptur.github.com/blog/2014/06/11/of-syntax-warnings-and-symbol-tables</id>
+    <content type="html"><![CDATA[<p>A Hacker Schooler hit an interesting bug today: her program would sometimes emit the message <code>SyntaxWarning: import * only allowed at module level</code>.  I had never seen a <code>SyntaxWarning</code> before, so I decided to dig in.</p>
+
+<p>The wording of the warning is strange: it says that star-import is only <em>allowed</em> at the module level, but it&rsquo;s not a syntax error, just a warning.  In fact, you can use a star-import in a scope that isn&rsquo;t a module (in Python 2):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">nope</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">print</span> <span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">stdin</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span> <span class="ne">SyntaxWarning</span><span class="p">:</span> <span class="kn">import</span> <span class="o">*</span> <span class="n">only</span> <span class="n">allowed</span> <span class="n">at</span> <span class="n">module</span> <span class="n">level</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">nope</span><span class="p">()</span>
+</span><span class='line'><span class="mi">7</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The Python <a href="https://docs.python.org/2/reference/simple_stmts.html?highlight=import#the-import-statement">spec</a> gives some more details:</p>
+
+<blockquote><p>The from form with * may only occur in a module scope. If the wild card form of import — import * — is used in a function and the function contains or is a nested block with free variables, the compiler will raise a SyntaxError.</p></blockquote>
+
+<p>Just having <code>import *</code> in a function isn&rsquo;t enough to raise a syntax error &ndash; we also need free variables. The <a href="https://docs.python.org/2.7/reference/executionmodel.html">Python execution model</a> refers to three kinds of variables, &lsquo;local,&rsquo; &lsquo;global,&rsquo; and &lsquo;free&rsquo;, defined as follows:</p>
+
+<blockquote><p>If a name is bound in a block, it is a local variable of that block. If a name is bound at the module level, it is a global variable. (The variables of the module code block are local and global.) If a variable is used in a code block but not defined there, it is a free variable.</p></blockquote>
+
+<p>Now we can see how to trigger a syntax error from our syntax warning:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">one</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">two</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>         <span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">two</span><span class="p">()</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">stdin</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">2</span><span class="p">:</span> <span class="ne">SyntaxWarning</span><span class="p">:</span> <span class="kn">import</span> <span class="o">*</span> <span class="n">only</span> <span class="n">allowed</span> <span class="n">at</span> <span class="n">module</span> <span class="n">level</span>
+</span><span class='line'>  <span class="n">File</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">3</span>
+</span><span class='line'><span class="ne">SyntaxError</span><span class="p">:</span> <span class="kn">import</span> <span class="o">*</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">allowed</span> <span class="ow">in</span> <span class="n">function</span> <span class="s">&#39;two&#39;</span> <span class="n">because</span> <span class="n">it</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">nested</span> <span class="n">function</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and similarly,</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">one</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">two</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">two</span><span class="p">()</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">stdin</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span> <span class="ne">SyntaxWarning</span><span class="p">:</span> <span class="kn">import</span> <span class="o">*</span> <span class="n">only</span> <span class="n">allowed</span> <span class="n">at</span> <span class="n">module</span> <span class="n">level</span>
+</span><span class='line'>  <span class="n">File</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">2</span>
+</span><span class='line'><span class="ne">SyntaxError</span><span class="p">:</span> <span class="kn">import</span> <span class="o">*</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">allowed</span> <span class="ow">in</span> <span class="n">function</span> <span class="s">&#39;one&#39;</span> <span class="n">because</span> <span class="n">it</span> <span class="n">contains</span> <span class="n">a</span> <span class="n">nested</span> <span class="n">function</span> <span class="k">with</span> <span class="n">free</span> <span class="n">variables</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As Python programmers, we&rsquo;re used to our lovely dynamic language, and it&rsquo;s unusual to hit compile-time constraints.  As <a href="https://twitter.com/amygdalama">Amy Hanlon</a> points out, it&rsquo;s particularly weird to hit a compile-time error for code that wouldn&rsquo;t raise a NameError when it ran &ndash; <code>randint</code> would indeed be in <code>one</code>&rsquo;s namespace if the import-star had executed.</p>
+
+<p>But we can&rsquo;t run code that doesn&rsquo;t compile, and in this case the compiler doesn&rsquo;t have enough information to determine what bytecode to emit. There are different opcodes for loading and storing each of global, free, and local variables. A variable&rsquo;s status as global, free, or local must be determined at compile time and then stored in the symbol table.</p>
+
+<p>To investigate this, let&rsquo;s look at minor variations on this code snippet and disassemble them.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">code_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">((</span><span class="k">lambda</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">__code__</span><span class="p">)</span> <span class="c"># just a handle on the code type, which isn&#39;t exposed as a builtin</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="c"># A helper function to disassemble nested functions</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">recur_dis</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">__code__</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">for</span> <span class="n">const</span> <span class="ow">in</span> <span class="n">fn</span><span class="o">.</span><span class="n">__code__</span><span class="o">.</span><span class="n">co_consts</span><span class="p">:</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">const</span><span class="p">,</span> <span class="n">code_type</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>             <span class="k">print</span>
+</span><span class='line'><span class="o">...</span>             <span class="k">print</span>
+</span><span class='line'><span class="o">...</span>             <span class="k">print</span><span class="p">(</span><span class="n">const</span><span class="p">)</span>
+</span><span class='line'><span class="o">...</span>             <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">const</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>First, when <code>x</code> is local, the compiler emits <code>STORE_FAST</code> in the assignment statement and <code>LOAD_FAST</code> to load it, marked with arrows below.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">one</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">two</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>         <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="n">x</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">two</span><span class="p">()</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">recur_dis</span><span class="p">(</span><span class="n">one</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">one</span> <span class="n">at</span> <span class="mh">0x10e246730</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">two</span> <span class="n">at</span> <span class="mh">0x10e246030</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">2</span><span class="o">&gt;</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">MAKE_FUNCTION</span>            <span class="mi">0</span>
+</span><span class='line'>              <span class="mi">6</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">two</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">5</span>           <span class="mi">9</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">two</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">CALL_FUNCTION</span>            <span class="mi">0</span>
+</span><span class='line'>             <span class="mi">15</span> <span class="n">POP_TOP</span>
+</span><span class='line'>             <span class="mi">16</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">19</span> <span class="n">RETURN_VALUE</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">two</span> <span class="n">at</span> <span class="mh">0x10e246030</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">2</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="mi">3</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>          <span class="o">&lt;----</span> <span class="n">STORE_FAST</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">4</span>           <span class="mi">6</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>          <span class="o">&lt;-----</span> <span class="n">LOAD_FAST</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">PRINT_ITEM</span>
+</span><span class='line'>             <span class="mi">10</span> <span class="n">PRINT_NEWLINE</span>
+</span><span class='line'>             <span class="mi">11</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">14</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When <code>x</code> is global, the compiler emits <code>LOAD_GLOBAL</code> to load it.  I think the assignment is <code>STORE_FAST</code> again, but it&rsquo;s not pictured here because the assignment is outside the function and thus not disassembled.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">one</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">two</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="n">x</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">two</span><span class="p">()</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">recur_dis</span><span class="p">(</span><span class="n">one</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">one</span> <span class="n">at</span> <span class="mh">0x10e246730</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">two</span> <span class="n">at</span> <span class="mh">0x10e2464b0</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">2</span><span class="o">&gt;</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">MAKE_FUNCTION</span>            <span class="mi">0</span>
+</span><span class='line'>              <span class="mi">6</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">two</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">4</span>           <span class="mi">9</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">two</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">CALL_FUNCTION</span>            <span class="mi">0</span>
+</span><span class='line'>             <span class="mi">15</span> <span class="n">POP_TOP</span>
+</span><span class='line'>             <span class="mi">16</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">19</span> <span class="n">RETURN_VALUE</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">two</span> <span class="n">at</span> <span class="mh">0x10e2464b0</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">2</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="mi">3</span>           <span class="mi">0</span> <span class="n">LOAD_GLOBAL</span>              <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>          <span class="o">&lt;-----</span> <span class="n">LOAD_GLOBAL</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">PRINT_ITEM</span>
+</span><span class='line'>              <span class="mi">4</span> <span class="n">PRINT_NEWLINE</span>
+</span><span class='line'>              <span class="mi">5</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">8</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, when <code>x</code> is nonlocal, the compiler notices that we&rsquo;ll need a closure, and emits the opcodes <code>LOAD_CLOSURE</code>, <code>MAKE_CLOSURE</code>, and later <code>LOAD_DEREF</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">one</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">two</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>        <span class="k">print</span> <span class="n">x</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">two</span><span class="p">()</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">recur_dis</span><span class="p">(</span><span class="n">one</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">one</span> <span class="n">at</span> <span class="mh">0x10e246e30</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">STORE_DEREF</span>              <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>          <span class="o">&lt;-----</span> <span class="n">STORE_DEREF</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">3</span>           <span class="mi">6</span> <span class="n">LOAD_CLOSURE</span>             <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>          <span class="o">&lt;-----</span> <span class="n">LOAD_CLOSURE</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">BUILD_TUPLE</span>              <span class="mi">1</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">two</span> <span class="n">at</span> <span class="mh">0x10e246d30</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">3</span><span class="o">&gt;</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">15</span> <span class="n">MAKE_CLOSURE</span>             <span class="mi">0</span>
+</span><span class='line'>             <span class="mi">18</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">two</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">5</span>          <span class="mi">21</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">two</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">24</span> <span class="n">CALL_FUNCTION</span>            <span class="mi">0</span>
+</span><span class='line'>             <span class="mi">27</span> <span class="n">POP_TOP</span>
+</span><span class='line'>             <span class="mi">28</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">31</span> <span class="n">RETURN_VALUE</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">two</span> <span class="n">at</span> <span class="mh">0x10e246d30</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">3</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="mi">4</span>           <span class="mi">0</span> <span class="n">LOAD_DEREF</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>          <span class="o">&lt;-----</span> <span class="n">LOAD_DEREF</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">PRINT_ITEM</span>
+</span><span class='line'>              <span class="mi">4</span> <span class="n">PRINT_NEWLINE</span>
+</span><span class='line'>              <span class="mi">5</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">8</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s now return to a case that throws a syntax error.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">one</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>      <span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span class='line'><span class="o">...</span>      <span class="k">def</span> <span class="nf">two</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>          <span class="k">print</span> <span class="n">x</span>
+</span><span class='line'><span class="o">...</span>      <span class="n">two</span><span class="p">()</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">stdin</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span> <span class="ne">SyntaxWarning</span><span class="p">:</span> <span class="kn">import</span> <span class="o">*</span> <span class="n">only</span> <span class="n">allowed</span> <span class="n">at</span> <span class="n">module</span> <span class="n">level</span>
+</span><span class='line'>  <span class="n">File</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">2</span>
+</span><span class='line'><span class="ne">SyntaxError</span><span class="p">:</span> <span class="kn">import</span> <span class="o">*</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">allowed</span> <span class="ow">in</span> <span class="n">function</span> <span class="s">&#39;one&#39;</span> <span class="n">because</span> <span class="n">it</span> <span class="n">contains</span> <span class="n">a</span> <span class="n">nested</span> <span class="n">function</span> <span class="k">with</span> <span class="n">free</span> <span class="n">variables</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;d love to show what the disassembled bytecode for this one looks like, but we can&rsquo;t do that because there is no bytecode! We got a compile-time error, so there&rsquo;s nothing here.</p>
+
+<h3>Further reading</h3>
+
+<p>Everything I know about symbol tables I learned from <a href="http://eli.thegreenplace.net/2010/09/18/python-internals-symbol-tables-part-1/">Eli Bendersky&rsquo;s blog</a>. I&rsquo;ve skipped some complexity in the implementation that Eli covers.</p>
+
+<p><code>ack</code>ing through the source code of CPython for the text of the error message leads us right to <code>symtable.c</code>, which is exactly where we&rsquo;d expect this message to be emitted. The function <code>check_unoptimized</code> shows where the syntax error gets thrown (and shows another illegal construct, too &ndash; but we&rsquo;ll leave that one as an exercise for the reader).</p>
+
+<p>p.s. In Python 3, <code>import *</code> anywhere other than a module is just an unqualified syntax error &ndash; none of this messing around with the symbol table.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[PyCon prep: import is a keyword]]></title>
