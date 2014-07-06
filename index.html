@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="A Hacker Schooler hit an interesting bug today: her program would sometimes emit the message SyntaxWarning: import * only allowed at module level. I &hellip;">
+  <meta name="description" content="This post is a guided tour of the Python interpreter in CPython 3.3. We&rsquo;ll look at a brief high-level overview of the interpreter, and then we& &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +78,919 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/19/introduction-to-the-python-interpreter-5/">Introduction to the Python Interpreter, Part 5: Into the Main Loop</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-19T15:22:00-04:00" pubdate data-updated="true">Jun 19<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post is a guided tour of the Python interpreter in CPython 3.3. We&rsquo;ll look at a brief high-level overview of the interpreter, and then we&rsquo;ll examine some interesting code snippets from the implementation. I&rsquo;ve included the function names and file names for all the code snippets I show here, so that you can grep through the source code and read it for yourself.</p>
+
+<h3>Overview</h3>
+
+<p>Let&rsquo;s begin with a high-level overview of the Python virtual machine (aka the Python interpreter).</p>
+
+<p>The Python VM has a call stack of frames.  A frame is a collection of information and context for a given code block, including the last bytecode instruction executed, the global and local namespaces, the exception state, and a reference to the calling frame.  Each frame has two stacks associated with it: a block stack, used for certain kinds of control flow such as exception handling, and a data stack.  The primary work of the Python VM is manipulating these three kinds of stacks.</p>
+
+<p>To make this concrete, let&rsquo;s suppose we have the following code, and the Python interpreter is currently executing the marked line.  Here&rsquo;s a schematic of the call stack of frames, the block stacks, and the data stacks.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<figure class='code'><figcaption><span>main.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">bar</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">z</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">2</span>  <span class="c"># &lt;--- (3) ... and the interpreter is here.</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">z</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c"># &lt;--- (2) ... which is returning a call to bar ...</span>
+</span><span class='line'><span class="n">foo</span><span class="p">()</span>              <span class="c"># &lt;--- (1) We&#39;re in the middle of a call to foo ...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>main.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">c</span>   <span class="o">---------------------------</span>
+</span><span class='line'><span class="n">a</span>  <span class="o">|</span> <span class="n">bar</span> <span class="n">Frame</span>                 <span class="o">|</span> <span class="o">-&gt;</span> <span class="n">block</span> <span class="n">stack</span><span class="p">:</span> <span class="p">[]</span>
+</span><span class='line'><span class="n">l</span>  <span class="o">|</span>     <span class="p">(</span><span class="n">newest</span><span class="p">)</span>              <span class="o">|</span> <span class="o">-&gt;</span> <span class="n">data</span> <span class="n">stack</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</span><span class='line'><span class="n">l</span>   <span class="o">---------------------------</span>
+</span><span class='line'>   <span class="o">|</span> <span class="n">foo</span> <span class="n">Frame</span>                 <span class="o">|</span> <span class="o">-&gt;</span> <span class="n">block</span> <span class="n">stack</span><span class="p">:</span> <span class="p">[]</span>
+</span><span class='line'><span class="n">s</span>  <span class="o">|</span>                           <span class="o">|</span> <span class="o">-&gt;</span> <span class="n">data</span> <span class="n">stack</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">Function</span> <span class="n">foo</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">bar</span> <span class="n">at</span> <span class="mh">0x10d389680</span><span class="o">&gt;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span><span class='line'><span class="n">t</span>   <span class="o">---------------------------</span>
+</span><span class='line'><span class="n">a</span>  <span class="o">|</span> <span class="n">main</span> <span class="p">(</span><span class="n">module</span><span class="p">)</span> <span class="n">Frame</span>       <span class="o">|</span> <span class="o">-&gt;</span> <span class="n">block</span> <span class="n">stack</span><span class="p">:</span> <span class="p">[]</span>
+</span><span class='line'><span class="n">c</span>  <span class="o">|</span>       <span class="p">(</span><span class="n">oldest</span><span class="p">)</span>            <span class="o">|</span> <span class="o">-&gt;</span> <span class="n">data</span> <span class="n">stack</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">Function</span> <span class="n">foo</span> <span class="n">at</span> <span class="mh">0x10d3540e0</span><span class="o">&gt;</span><span class="p">]</span>
+</span><span class='line'><span class="n">k</span>   <span class="o">---------------------------</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>At this point, the interpreter is in the middle of the nested function call to <code>bar</code>. There are three frames on the call stack: one for the module level, one for the function <code>foo</code>, and one for <code>bar</code>. Once <code>bar</code> returns, the frame associated with it is popped off of the call stack. In general, there will be a frame for each module, each function call, each class definition, etc. &ndash; one frame for each new scope.  Note that this is one frame per function invocation, not just one frame per function. A recursive function would have one frame on the call stack for each level of recursion.</p>
+
+<p>Each frame has its own data stack and block stack. Keeping separate data and block stacks enables the interpreter to pause and resume frames, as with a generator.</p>
+
+<p>That&rsquo;s enough schematics &ndash; let&rsquo;s dive in to the code.</p>
+
+<p>Frame objects: frameobj.c
+Creating a frame: <code>PyEval_EvalCodeEx</code> in ceval.c
+Running a frame: <code>PyEval_EvalFrameEx</code> in ceval.c</p>
+
+<h3>Where do frames come from?</h3>
+
+<p>New frames are set up in the function <code>PyEval_EvalCodeEx</code> in <code>ceval.c</code>. <code>PyEval_EvalCodeEx</code>, which executes a code object, is excerpted below.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup> This function first sets up a new frame, then parses the arguments (if any).  If the code object is a generator, the new generator object is returned.  Otherwise, the frame is run until it somehow returns, and that return value is passed through.</p>
+
+<figure class='code'><figcaption><span>ceval.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">PyObject</span> <span class="o">*</span>
+</span><span class='line'><span class="nf">PyEval_EvalCodeEx</span><span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="n">_co</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="n">globals</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="n">locals</span><span class="p">,</span>
+</span><span class='line'>           <span class="n">PyObject</span> <span class="o">**</span><span class="n">args</span><span class="p">,</span> <span class="kt">int</span> <span class="n">argcount</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">**</span><span class="n">kws</span><span class="p">,</span> <span class="kt">int</span> <span class="n">kwcount</span><span class="p">,</span>
+</span><span class='line'>           <span class="n">PyObject</span> <span class="o">**</span><span class="n">defs</span><span class="p">,</span> <span class="kt">int</span> <span class="n">defcount</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="n">kwdefs</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="n">closure</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">PyCodeObject</span><span class="o">*</span> <span class="n">co</span> <span class="o">=</span> <span class="p">(</span><span class="n">PyCodeObject</span><span class="o">*</span><span class="p">)</span><span class="n">_co</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">PyFrameObject</span> <span class="o">*</span><span class="n">f</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">PyObject</span> <span class="o">*</span><span class="n">retval</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">PyObject</span> <span class="o">**</span><span class="n">fastlocals</span><span class="p">,</span> <span class="o">**</span><span class="n">freevars</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">PyThreadState</span> <span class="o">*</span><span class="n">tstate</span> <span class="o">=</span> <span class="n">PyThreadState_GET</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/* [snip error-checking] */</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">f</span> <span class="o">=</span> <span class="n">PyFrame_New</span><span class="p">(</span><span class="n">tstate</span><span class="p">,</span> <span class="n">co</span><span class="p">,</span> <span class="n">globals</span><span class="p">,</span> <span class="n">locals</span><span class="p">);</span>   <span class="cm">/* &lt;--------- new frame */</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">f</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">fastlocals</span> <span class="o">=</span> <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_localsplus</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">freevars</span> <span class="o">=</span> <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_localsplus</span> <span class="o">+</span> <span class="n">co</span><span class="o">-&gt;</span><span class="n">co_nlocals</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/* [snip 150 lines of argument parsing] */</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">co</span><span class="o">-&gt;</span><span class="n">co_flags</span> <span class="o">&amp;</span> <span class="n">CO_GENERATOR</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* &lt;---- if the &quot;it&#39;s a generator&quot; flag is set */</span>
+</span><span class='line'>        <span class="cm">/* [snip] */</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="cm">/* Create a new generator that owns the ready to run frame</span>
+</span><span class='line'><span class="cm">         * and return that as the value. */</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">PyGen_New</span><span class="p">(</span><span class="n">f</span><span class="p">);</span> <span class="cm">/* &lt;----- new generator object */</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">retval</span> <span class="o">=</span> <span class="n">PyEval_EvalFrameEx</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span> <span class="cm">/* &lt;---- otherwise, run the frame */</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">fail:</span> <span class="cm">/* Jump here from prelude on failure */</span>
+</span><span class='line'>    <span class="cm">/* [snip some cleanup] */</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>                   <span class="cm">/* &lt;---- return the value from running the frame */</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>PyEval_EvalCodeEx</code> returns to <code>function_call</code> most of the time. <code>function_call</code> is the C function that gets invoked by any Python object being called<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup>. Every call of a callable Python object evaluates a code object, which means setting up a frame.</p>
+
+<figure class='code'><figcaption><span>funcobject.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="n">PyObject</span> <span class="o">*</span>
+</span><span class='line'><span class="nf">function_call</span><span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="n">func</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="n">kw</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">PyObject</span> <span class="o">*</span><span class="n">result</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">PyObject</span> <span class="o">*</span><span class="n">argdefs</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">PyObject</span> <span class="o">*</span><span class="n">kwtuple</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">PyObject</span> <span class="o">**</span><span class="n">d</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">Py_ssize_t</span> <span class="n">nk</span><span class="p">,</span> <span class="n">nd</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/* [snip 30 lines of argument parsing] */</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">PyEval_EvalCodeEx</span><span class="p">(</span>
+</span><span class='line'>        <span class="n">PyFunction_GET_CODE</span><span class="p">(</span><span class="n">func</span><span class="p">),</span>
+</span><span class='line'>        <span class="n">PyFunction_GET_GLOBALS</span><span class="p">(</span><span class="n">func</span><span class="p">),</span> <span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">)</span><span class="nb">NULL</span><span class="p">,</span>
+</span><span class='line'>        <span class="o">&amp;</span><span class="n">PyTuple_GET_ITEM</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">PyTuple_GET_SIZE</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span>
+</span><span class='line'>        <span class="n">k</span><span class="p">,</span> <span class="n">nk</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">nd</span><span class="p">,</span>
+</span><span class='line'>        <span class="n">PyFunction_GET_KW_DEFAULTS</span><span class="p">(</span><span class="n">func</span><span class="p">),</span>
+</span><span class='line'>        <span class="n">PyFunction_GET_CLOSURE</span><span class="p">(</span><span class="n">func</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I said above that <code>PyEval_EvalCodeEx</code> usually returns to <code>function_call</code>.  The other way that <code>PyEval_EvalCodeEx</code> can be invoked is by an entry point, such as <code>run_mod</code> and <code>run_pyc_file</code> in <code>pythonrun.c</code> and <code>exec_code_in_module</code> in <code>import.c</code>. These functions are largely similar, differing only in how they get the code object (by compiling it or by reading it from a file) and in the environment (i.e. the namespace) in which it&rsquo;s executed.</p>
+
+<p>[awkward transition]</p>
+
+<p>Let&rsquo;s now return to <code>PyEval_EvalFrameEx</code>. This function makes up the bulk of <code>ceval.c</code> &ndash; it&rsquo;s about 2,400 lines, 1,500 of which is a giant switch statement.  If you&rsquo;ve hear me talk about the <a href="/talks">1,500 line switch statement powering your Python</a>, this is where it lives. <code>PyEval_EvalFrameEx</code> takes a single frame and runs it until it returns.</p>
+
+<p>In <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-3/">Part 3</a> of this series we were introduced to bytecode, a series of bytes, with each byte acting as an instruction to the interpreter.  Let&rsquo;s return to our example from the beginning of the post.  Below, we see the code and the disassembly of each function&rsquo;s code object.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">PY3</span> <span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>     <span class="k">def</span> <span class="nf">bar</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>         <span class="n">z</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">2</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>         <span class="k">return</span> <span class="n">z</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>     <span class="k">return</span> <span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">3</span>           <span class="mi">6</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">bar</span> <span class="n">at</span> <span class="mh">0x107b548a0</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">3</span><span class="o">&gt;</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">LOAD_CONST</span>               <span class="mi">3</span> <span class="p">(</span><span class="s">&#39;foo.&lt;locals&gt;.bar&#39;</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">MAKE_FUNCTION</span>            <span class="mi">0</span>
+</span><span class='line'>             <span class="mi">15</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">bar</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">6</span>          <span class="mi">18</span> <span class="n">LOAD_FAST</span>                <span class="mi">1</span> <span class="p">(</span><span class="n">bar</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">21</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">24</span> <span class="n">CALL_FUNCTION</span>            <span class="mi">1</span> <span class="p">(</span><span class="mi">1</span> <span class="n">positional</span><span class="p">,</span> <span class="mi">0</span> <span class="n">keyword</span> <span class="n">pair</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">27</span> <span class="n">RETURN_VALUE</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">PY3</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">bar_code_obj</span> <span class="o">=</span> <span class="n">foo</span><span class="o">.</span><span class="n">__code__</span><span class="o">.</span><span class="n">co_consts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">bar_code_obj</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">4</span>           <span class="mi">0</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">6</span> <span class="n">BINARY_ADD</span>
+</span><span class='line'>              <span class="mi">7</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">5</span>          <span class="mi">10</span> <span class="n">LOAD_FAST</span>                <span class="mi">1</span> <span class="p">(</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">13</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>PyEval_EvalFrameEx</code> starts with the first byte in the bytecode &ndash; in this case, the <code>LOAD_CONST</code> from <code>foo</code>&rsquo;s bytecode &ndash; and finds the corresponding case in the giant switch. Once it&rsquo;s performed the operations found there, it moves to the next relevant opcode and continues the process. At some point, an opcode will break the loop with a <code>goto</code> that jumps outside the switch (for example, <code>RETURN_VALUE</code> below).</p>
+
+<p>Below is a small excerpt from <code>PyEval_EvalFrameEx</code> to give you a feel for how this works.  As always, I encourage you to read through the full version in the CPython source.</p>
+
+<figure class='code'><figcaption><span>ceval.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+</pre></td><td class='code'><pre><code class='C'><span class='line'><span class="cm">/* Interpreter main loop */</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">PyObject</span> <span class="o">*</span>
+</span><span class='line'><span class="nf">PyEval_EvalFrameEx</span><span class="p">(</span><span class="n">PyFrameObject</span> <span class="o">*</span><span class="n">f</span><span class="p">,</span> <span class="kt">int</span> <span class="n">throwflag</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">PyObject</span> <span class="o">**</span><span class="n">stack_pointer</span><span class="p">;</span>  <span class="cm">/* Next free slot in value stack */</span>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">next_instr</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">opcode</span><span class="p">;</span>        <span class="cm">/* Current opcode */</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">oparg</span><span class="p">;</span>         <span class="cm">/* Current opcode argument, if any */</span>
+</span><span class='line'>    <span class="k">enum</span> <span class="n">why_code</span> <span class="n">why</span><span class="p">;</span> <span class="cm">/* Reason for block stack unwind */</span>
+</span><span class='line'>    <span class="n">PyObject</span> <span class="o">**</span><span class="n">fastlocals</span><span class="p">,</span> <span class="o">**</span><span class="n">freevars</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">PyObject</span> <span class="o">*</span><span class="n">retval</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>            <span class="cm">/* Return value */</span>
+</span><span class='line'>    <span class="n">PyThreadState</span> <span class="o">*</span><span class="n">tstate</span> <span class="o">=</span> <span class="n">PyThreadState_GET</span><span class="p">();</span>
+</span><span class='line'>    <span class="n">PyCodeObject</span> <span class="o">*</span><span class="n">co</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">first_instr</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">PyObject</span> <span class="o">*</span><span class="n">names</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">PyObject</span> <span class="o">*</span><span class="n">consts</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define TARGET(op) \</span>
+</span><span class='line'><span class="cp">    case op:</span>
+</span><span class='line'><span class="cp">#define DISPATCH() continue</span>
+</span><span class='line'><span class="cp">#define FAST_DISPATCH() goto fast_next_opcode</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define NEXTOP()        (*next_instr++)</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/* Stack manipulation macros */</span>
+</span><span class='line'><span class="cp">#define STACK_LEVEL()     ((int)(stack_pointer - f-&gt;f_valuestack))</span>
+</span><span class='line'><span class="cp">#define TOP()             (stack_pointer[-1])</span>
+</span><span class='line'><span class="cp">#define PUSH(v)     (*stack_pointer++ = (v))</span>
+</span><span class='line'><span class="cp">#define POP()       (*--stack_pointer)</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/* Start of code */</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/* push frame */</span>
+</span><span class='line'>    <span class="n">tstate</span><span class="o">-&gt;</span><span class="n">frame</span> <span class="o">=</span> <span class="n">f</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">co</span> <span class="o">=</span> <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_code</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">names</span> <span class="o">=</span> <span class="n">co</span><span class="o">-&gt;</span><span class="n">co_names</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">consts</span> <span class="o">=</span> <span class="n">co</span><span class="o">-&gt;</span><span class="n">co_consts</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">fastlocals</span> <span class="o">=</span> <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_localsplus</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">freevars</span> <span class="o">=</span> <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_localsplus</span> <span class="o">+</span> <span class="n">co</span><span class="o">-&gt;</span><span class="n">co_nlocals</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">first_instr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span> <span class="n">PyBytes_AS_STRING</span><span class="p">(</span><span class="n">co</span><span class="o">-&gt;</span><span class="n">co_code</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">next_instr</span> <span class="o">=</span> <span class="n">first_instr</span> <span class="o">+</span> <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">stack_pointer</span> <span class="o">=</span> <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_stacktop</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_stacktop</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>       <span class="cm">/* remains NULL unless yield suspends frame */</span>
+</span><span class='line'>    <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_executing</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">why</span> <span class="o">=</span> <span class="n">WHY_NOT</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(;;)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nl">fast_next_opcode:</span>
+</span><span class='line'>        <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_lasti</span> <span class="o">=</span> <span class="n">INSTR_OFFSET</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="cm">/* Extract opcode and argument */</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">opcode</span> <span class="o">=</span> <span class="n">NEXTOP</span><span class="p">();</span>
+</span><span class='line'>        <span class="n">oparg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">HAS_ARG</span><span class="p">(</span><span class="n">opcode</span><span class="p">))</span>
+</span><span class='line'>            <span class="n">oparg</span> <span class="o">=</span> <span class="n">NEXTARG</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="cm">/* Main switch on opcode */</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">switch</span> <span class="p">(</span><span class="n">opcode</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="cm">/* [snip 1,500 lines of switch, about 100 cases] */</span>
+</span><span class='line'>            <span class="cm">/* [three cases shown below] */</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">TARGET</span><span class="p">(</span><span class="n">BINARY_ADD</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">PyObject</span> <span class="o">*</span><span class="n">right</span> <span class="o">=</span> <span class="n">POP</span><span class="p">();</span>
+</span><span class='line'>            <span class="n">PyObject</span> <span class="o">*</span><span class="n">left</span> <span class="o">=</span> <span class="n">TOP</span><span class="p">();</span>
+</span><span class='line'>            <span class="n">PyObject</span> <span class="o">*</span><span class="n">sum</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">sum</span> <span class="o">=</span> <span class="n">PyNumber_Add</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">Py_DECREF</span><span class="p">(</span><span class="n">left</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">Py_DECREF</span><span class="p">(</span><span class="n">right</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">SET_TOP</span><span class="p">(</span><span class="n">sum</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">sum</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+</span><span class='line'>                <span class="k">goto</span> <span class="n">error</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">DISPATCH</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">TARGET</span><span class="p">(</span><span class="n">LOAD_CONST</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">PyObject</span> <span class="o">*</span><span class="n">value</span> <span class="o">=</span> <span class="n">GETITEM</span><span class="p">(</span><span class="n">consts</span><span class="p">,</span> <span class="n">oparg</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">Py_INCREF</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">PUSH</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">FAST_DISPATCH</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">TARGET</span><span class="p">(</span><span class="n">RETURN_VALUE</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">retval</span> <span class="o">=</span> <span class="n">POP</span><span class="p">();</span>
+</span><span class='line'>            <span class="n">why</span> <span class="o">=</span> <span class="n">WHY_RETURN</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">goto</span> <span class="n">fast_block_end</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="p">}</span> <span class="cm">/* end switch */</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/* complex block cleanup code here */</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">}</span> <span class="cm">/* main loop */</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/* pop frame */</span>
+</span><span class='line'><span class="nl">exit_eval_frame:</span>
+</span><span class='line'>    <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_executing</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">tstate</span><span class="o">-&gt;</span><span class="n">frame</span> <span class="o">=</span> <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_back</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">In</span> <span class="n">Part</span> <span class="mi">3</span><span class="p">,</span> <span class="n">we</span> <span class="n">saw</span> <span class="n">that</span> <span class="err">`</span><span class="n">BINARY_ADD</span><span class="err">`</span> <span class="n">doesn</span><span class="err">&#39;</span><span class="n">t</span> <span class="n">have</span> <span class="n">arguments</span> <span class="o">-</span> <span class="n">there</span> <span class="n">are</span> <span class="n">no</span> <span class="n">arguments</span> <span class="n">shown</span> <span class="n">in</span> <span class="n">the</span> <span class="n">fourth</span> <span class="n">column</span> <span class="n">of</span> <span class="n">the</span> <span class="n">output</span> <span class="n">from</span> <span class="err">`</span><span class="n">dis</span><span class="err">`</span> <span class="n">above</span><span class="p">.</span> <span class="n">That</span> <span class="n">seemed</span> <span class="n">odd</span> <span class="n">at</span> <span class="n">the</span> <span class="n">time</span><span class="p">,</span> <span class="n">since</span> <span class="n">we</span><span class="err">&#39;</span><span class="n">d</span> <span class="n">expect</span> <span class="n">a</span> <span class="n">binary</span> <span class="n">function</span> <span class="n">to</span> <span class="n">have</span> <span class="n">two</span> <span class="n">arguments</span><span class="p">.</span>  <span class="n">Now</span><span class="p">,</span> <span class="n">looking</span> <span class="n">at</span> <span class="n">the</span> <span class="n">interpreter</span><span class="p">,</span> <span class="n">we</span> <span class="n">can</span> <span class="n">see</span> <span class="n">what</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">going</span> <span class="n">on</span><span class="o">:</span> <span class="n">the</span> <span class="n">two</span> <span class="n">arguments</span> <span class="n">to</span> <span class="n">a</span> <span class="n">binary</span> <span class="n">operation</span> <span class="n">are</span> <span class="n">found</span> <span class="n">on</span> <span class="n">top</span> <span class="n">of</span> <span class="n">the</span> <span class="n">frame</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">data</span> <span class="n">stack</span><span class="p">.</span> <span class="n">Below</span><span class="p">,</span> <span class="n">I</span><span class="err">&#39;</span><span class="n">ve</span> <span class="n">drawn</span> <span class="n">out</span> <span class="n">what</span> <span class="n">the</span> <span class="n">data</span> <span class="n">stack</span> <span class="n">looks</span> <span class="n">like</span> <span class="n">as</span> <span class="err">`</span><span class="n">bar</span><span class="err">`</span> <span class="n">is</span> <span class="n">executing</span><span class="p">.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p> python</p>
+
+<pre><code>                data: [] &lt;-- the data stack starts out empty
+</code></pre>
+
+<p>  4           0 LOAD_FAST                0 (y)</p>
+
+<pre><code>                data: [1] &lt;-- y has the value 1 when bar is called
+          3 LOAD_CONST               1 (2)
+                data: [1, 2]
+          6 BINARY_ADD
+                data: [3] &lt;--- BINARY_ADD adds the top two things on the stack
+                                 and pushes the answer onto the stack
+</code></pre>
+
+<p>&#8220;`</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>You can get a reference to the current frame using the <code>inspect</code> module, and see many of the attributes of frames for yourself. Unfortunately, the block stack and data stack are not exposed.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>The [snip] comments and the ones with arrows are mine; other comments were original to the source.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p>That is, <code>function_call</code> is in the <code>tp_call</code> slot of the function type, and is invoked with every call to <code>PyObject_Call</code>.<a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/16/how-generators-work/">How Generators Work</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-16T10:57:00-04:00" pubdate data-updated="true">Jun 16<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Today we&rsquo;re going to take a look under the hood of generators in CPython 3.3.</p>
+
+<p>Specifically, we&rsquo;re going to understand how five aspects of generators are implemented:
+1. Making a generator
+2. Starting a generator
+3. A generator yielding
+4. A generator resuming
+5. A generator ending
+(6. Yield-from)</p>
+
+<p>Generators allow Python programmers to halt &amp; resume execution of functions.  This comes in handy when you need to consume a large series of values, but you don&rsquo;t need all the values in memory at the same time (e.g. summing over a very large list).  Pausing and resuming execution also makes preserving state across calls trivial, which is very convenient for parsers, for example. In this post, we&rsquo;ll explore how generators are architected to allow this pausing &amp; resumption.</p>
+
+<h3>Background</h3>
+
+<h3>Making a generator</h3>
+
+<p>A function that is a generator (that is, one that contains <code>yield</code>) gets a flag set during compilation marking it as a generator. During interpretation, this code object</p>
+
+<h3>Starting a generator</h3>
+
+<h3>A generator yielding</h3>
+
+<h3>A generator resuming</h3>
+
+<h3>A generator ending</h3>
+
+<h3>Bonus: <code>yield from</code></h3>
+
+<ul>
+<li>call stack of frames</li>
+<li>each frame has a data stack and a block stack.  The block stack is for certain kinds of control flow, like exception handling and looping. The data stack is what you&rsquo;d usually think of as a program&rsquo;s stack &ndash; the space where data is manipulated.</li>
+</ul>
+
+
+<p>You may want to read my posts about how the interpreter works.</p>
+
+<p>Let&rsquo;s start by defining a simple generator that yields the numbers 0 to 9 one at a time. We&rsquo;ll compare it to a simple loop that prints the numbers 0 to 9 instead of yielding them. Here are the functions and their disassembled bytecode. Below, we&rsquo;ll compare the bytecode side-by-side.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">PY3</span> <span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">gen</span><span class="p">():</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>         <span class="k">yield</span> <span class="n">i</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">SETUP_LOOP</span>              <span class="mi">25</span> <span class="p">(</span><span class="n">to</span> <span class="mi">28</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">LOAD_GLOBAL</span>              <span class="mi">0</span> <span class="p">(</span><span class="nb">range</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">6</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">CALL_FUNCTION</span>            <span class="mi">1</span> <span class="p">(</span><span class="mi">1</span> <span class="n">positional</span><span class="p">,</span> <span class="mi">0</span> <span class="n">keyword</span> <span class="n">pair</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">GET_ITER</span>
+</span><span class='line'>        <span class="o">&gt;&gt;</span>   <span class="mi">13</span> <span class="n">FOR_ITER</span>                <span class="mi">11</span> <span class="p">(</span><span class="n">to</span> <span class="mi">27</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">16</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">3</span>          <span class="mi">19</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">22</span> <span class="n">YIELD_VALUE</span>
+</span><span class='line'>             <span class="mi">23</span> <span class="n">POP_TOP</span>
+</span><span class='line'>             <span class="mi">24</span> <span class="n">JUMP_ABSOLUTE</span>           <span class="mi">13</span>
+</span><span class='line'>        <span class="o">&gt;&gt;</span>   <span class="mi">27</span> <span class="n">POP_BLOCK</span>
+</span><span class='line'>        <span class="o">&gt;&gt;</span>   <span class="mi">28</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">31</span> <span class="n">RETURN_VALUE</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">PY3</span> <span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">not_gen</span><span class="p">():</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>         <span class="k">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">not_gen</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">SETUP_LOOP</span>              <span class="mi">30</span> <span class="p">(</span><span class="n">to</span> <span class="mi">33</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">LOAD_GLOBAL</span>              <span class="mi">0</span> <span class="p">(</span><span class="nb">range</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">6</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">CALL_FUNCTION</span>            <span class="mi">1</span> <span class="p">(</span><span class="mi">1</span> <span class="n">positional</span><span class="p">,</span> <span class="mi">0</span> <span class="n">keyword</span> <span class="n">pair</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">GET_ITER</span>
+</span><span class='line'>        <span class="o">&gt;&gt;</span>   <span class="mi">13</span> <span class="n">FOR_ITER</span>                <span class="mi">16</span> <span class="p">(</span><span class="n">to</span> <span class="mi">32</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">16</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">3</span>          <span class="mi">19</span> <span class="n">LOAD_GLOBAL</span>              <span class="mi">1</span> <span class="p">(</span><span class="k">print</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">22</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">25</span> <span class="n">CALL_FUNCTION</span>            <span class="mi">1</span> <span class="p">(</span><span class="mi">1</span> <span class="n">positional</span><span class="p">,</span> <span class="mi">0</span> <span class="n">keyword</span> <span class="n">pair</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">28</span> <span class="n">POP_TOP</span>
+</span><span class='line'>             <span class="mi">29</span> <span class="n">JUMP_ABSOLUTE</span>           <span class="mi">13</span>
+</span><span class='line'>        <span class="o">&gt;&gt;</span>   <span class="mi">32</span> <span class="n">POP_BLOCK</span>
+</span><span class='line'>        <span class="o">&gt;&gt;</span>   <span class="mi">33</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">36</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s the bytecode side-by-side, omitting the other columns of the disassembled output.  Notice that there&rsquo;s only one bytecode of difference between the two &ndash; the generator has <code>YIELD_VALUE</code>, and the not-generator doesn&rsquo;t.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">gen</span>                        <span class="n">not_gen</span>
+</span><span class='line'>
+</span><span class='line'> <span class="mi">0</span> <span class="n">SETUP_LOOP</span>              <span class="mi">0</span> <span class="n">SETUP_LOOP</span>
+</span><span class='line'> <span class="mi">3</span> <span class="n">LOAD_GLOBAL</span>             <span class="mi">3</span> <span class="n">LOAD_GLOBAL</span>
+</span><span class='line'> <span class="mi">6</span> <span class="n">LOAD_CONST</span>              <span class="mi">6</span> <span class="n">LOAD_CONST</span>
+</span><span class='line'> <span class="mi">9</span> <span class="n">CALL_FUNCTION</span>           <span class="mi">9</span> <span class="n">CALL_FUNCTION</span>
+</span><span class='line'><span class="mi">12</span> <span class="n">GET_ITER</span>               <span class="mi">12</span> <span class="n">GET_ITER</span>
+</span><span class='line'><span class="mi">13</span> <span class="n">FOR_ITER</span>               <span class="mi">13</span> <span class="n">FOR_ITER</span>
+</span><span class='line'><span class="mi">16</span> <span class="n">STORE_FAST</span>             <span class="mi">16</span> <span class="n">STORE_FAST</span>
+</span><span class='line'>
+</span><span class='line'>                      <span class="mi">19</span> <span class="n">LOAD_GLOBAL</span> <span class="p">(</span><span class="s">&#39;print&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="mi">19</span> <span class="n">LOAD_FAST</span>              <span class="mi">22</span> <span class="n">LOAD_FAST</span>
+</span><span class='line'><span class="mi">22</span> <span class="n">YIELD_VALUE</span>            <span class="mi">25</span> <span class="n">CALL_FUNCTION</span>
+</span><span class='line'><span class="mi">23</span> <span class="n">POP_TOP</span>                <span class="mi">28</span> <span class="n">POP_TOP</span>
+</span><span class='line'><span class="mi">24</span> <span class="n">JUMP_ABSOLUTE</span>          <span class="mi">29</span> <span class="n">JUMP_ABSOLUTE</span>
+</span><span class='line'><span class="mi">27</span> <span class="n">POP_BLOCK</span>              <span class="mi">32</span> <span class="n">POP_BLOCK</span>
+</span><span class='line'><span class="mi">28</span> <span class="n">LOAD_CONST</span>             <span class="mi">33</span> <span class="n">LOAD_CONST</span>
+</span><span class='line'><span class="mi">31</span> <span class="n">RETURN_VALUE</span>           <span class="mi">36</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Disassembling the generator suggests that all we need to do to understand generators is understand how <code>YIELD_VALUE</code> works!  Sadly, this turns out to be a <a href="link%20to%20comic">rather long thread we&rsquo;re pulling</a>.</p>
+
+<p>Here&rsquo;s the implementation for the bytecode <code>YIELD_VALUE</code> in <code>Python/ceval.c</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'>    <span class="n">TARGET</span><span class="p">(</span><span class="n">YIELD_VALUE</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">retval</span> <span class="o">=</span> <span class="n">POP</span><span class="p">();</span>
+</span><span class='line'>        <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_stacktop</span> <span class="o">=</span> <span class="n">stack_pointer</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">why</span> <span class="o">=</span> <span class="n">WHY_YIELD</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">goto</span> <span class="n">fast_yield</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is short, but quite dense.  First we pop the value to be yielded off the top of the stack.  Next we set the <code>f_stacktop</code> attribute of <code>f</code> &ndash; the current frame object &ndash; to the same location as <code>stack_pointer</code>. Next we set the <code>why</code> code, which keeps track of why the interpreter is unwinding the block stack, to the reason <code>WHY_YIELD</code>. Finally, we jump out of the giant switch statement to the <code>fast_yield</code> label.</p>
+
+<p>We&rsquo;re now ready to hop down to <code>fast_yield</code>, which looks like this. (I&rsquo;ve cut about 25 lines of code that&rsquo;s only relevant if we&rsquo;re currently tracing program execution, as with <code>sys.settrace</code>.)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="nl">fast_yield:</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">co</span><span class="o">-&gt;</span><span class="n">co_flags</span> <span class="o">&amp;</span> <span class="n">CO_GENERATOR</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">why</span> <span class="o">==</span> <span class="n">WHY_YIELD</span> <span class="o">||</span> <span class="n">why</span> <span class="o">==</span> <span class="n">WHY_RETURN</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="cm">/* The purpose of this block is to put aside the generator&#39;s exception</span>
+</span><span class='line'><span class="cm">           state and restore that of the calling frame. If the current</span>
+</span><span class='line'><span class="cm">           exception state is from the caller, we clear the exception values</span>
+</span><span class='line'><span class="cm">           on the generator frame, so they are not swapped back in later. The</span>
+</span><span class='line'><span class="cm">           origin of the current exception state is determined by checking for</span>
+</span><span class='line'><span class="cm">           except handler blocks, which we must be in iff a new exception</span>
+</span><span class='line'><span class="cm">           state came into existence in this frame. (An uncaught exception</span>
+</span><span class='line'><span class="cm">           would have why == WHY_EXCEPTION, and we wouldn&#39;t be here). */</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_iblock</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_blockstack</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">b_type</span> <span class="o">==</span> <span class="n">EXCEPT_HANDLER</span><span class="p">)</span>
+</span><span class='line'>                <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_iblock</span><span class="p">)</span>
+</span><span class='line'>            <span class="cm">/* We did not create this exception. */</span>
+</span><span class='line'>            <span class="n">restore_and_clear_exc_state</span><span class="p">(</span><span class="n">tstate</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">else</span>
+</span><span class='line'>            <span class="nf">swap_exc_state</span><span class="p">(</span><span class="n">tstate</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">tstate</span><span class="o">-&gt;</span><span class="n">use_tracing</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="cm">/* [snip ~25 lines of tracing-specific stuff] */</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/* pop frame */</span>
+</span><span class='line'><span class="nl">exit_eval_frame:</span>
+</span><span class='line'>    <span class="n">Py_LeaveRecursiveCall</span><span class="p">();</span>
+</span><span class='line'>    <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_executing</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">tstate</span><span class="o">-&gt;</span><span class="n">frame</span> <span class="o">=</span> <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_back</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are two <code>if</code> blocks here &ndash; one that deals with exception handling, as the comment details, and one that covers tracing. Our generator isn&rsquo;t going to throw exceptions, so we&rsquo;ll skip the exception handling bit for now. That&rsquo;s all there is for <code>fast_yield</code>.</p>
+
+<p>We now drop down into <code>exit_eval_frame</code>, which calls <code>Py_LeaveRecursiveCall</code> to decrement the recursion depth counter, sets a flag on the frame to mark it as not executing, and then changes the current frame to the parent frame of the one we&rsquo;ve been using. Finally, we return <code>retval</code>, which you&rsquo;ll recall was the value to be yielded that was set in <code>YIELD_VALUE</code>.</p>
+
+<p>Onward into PyGen_New:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">PyObject</span> <span class="o">*</span>
+</span><span class='line'><span class="nf">PyGen_New</span><span class="p">(</span><span class="n">PyFrameObject</span> <span class="o">*</span><span class="n">f</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">PyGenObject</span> <span class="o">*</span><span class="n">gen</span> <span class="o">=</span> <span class="n">PyObject_GC_New</span><span class="p">(</span><span class="n">PyGenObject</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">PyGen_Type</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">gen</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">Py_DECREF</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">gen</span><span class="o">-&gt;</span><span class="n">gi_frame</span> <span class="o">=</span> <span class="n">f</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">f</span><span class="o">-&gt;</span><span class="n">f_gen</span> <span class="o">=</span> <span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">)</span> <span class="n">gen</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">Py_INCREF</span><span class="p">(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_code</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">gen</span><span class="o">-&gt;</span><span class="n">gi_code</span> <span class="o">=</span> <span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">)(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_code</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">gen</span><span class="o">-&gt;</span><span class="n">gi_running</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">gen</span><span class="o">-&gt;</span><span class="n">gi_weakreflist</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">_PyObject_GC_TRACK</span><span class="p">(</span><span class="n">gen</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">)</span><span class="n">gen</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here we allocate a new object, the generator. Then it&rsquo;s initialized with a couple of attributes: a pointer from the generator to its frame and vice-versa, a pointer to the code object, a flag for whether it&rsquo;s running, and an empty list of weak references. That&rsquo;s it &ndash; the created generator gets returned.</p>
+
+<p>Remember that our call stack looks something like this right now:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'> <span class="o">---------------------------</span>
+</span><span class='line'><span class="o">|</span> <span class="n">PyGen_New</span>                 <span class="o">|</span>
+</span><span class='line'> <span class="o">---------------------------</span>
+</span><span class='line'><span class="o">|</span> <span class="n">PyEval_EvalCodeEx</span>         <span class="o">|</span>
+</span><span class='line'> <span class="o">---------------------------</span>
+</span><span class='line'><span class="o">|</span> <span class="n">PyEval_EvalCode</span>           <span class="o">|</span>
+</span><span class='line'> <span class="o">---------------------------</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>You might object that <code>not_gen</code> has two bytes of difference: one to load the print function, and one to invoke it.  If you prefer, you can write and disassemble a version of <code>not_gen</code> with a unary operator &ndash; <code>not i</code>, <code>+i</code>, <code>~i</code>, etc. &ndash; which will show exactly one byte&rsquo;s difference.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1266,155 +2179,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/31/python-puzzle-solutions/">Python Puzzle Solutions</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-31T10:47:00-04:00" pubdate data-updated="true">Oct 31<span>st</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I really enjoyed seeing all the clever solutions to the <a href="http://akaptur.github.io/blog/2013/10/29/a-python-puzzle/">python puzzle I posted</a>.  You&rsquo;re all very creative!  Here&rsquo;s a discussion of the solutions I&rsquo;ve seen, plus some clarifications.  All spoilers are below the fold.</p>
-
-<p>First, clarifications.  (These weren&rsquo;t always clear in the problem statement, particularly if you got the problem off of twitter, so award yourself full marks as desired.)</p>
-
-<h4>Order doesn&rsquo;t matter</h4>
-
-<p>&ldquo;Order doesn&rsquo;t matter&rdquo; means that the three-line version <em>always</em> returns <code>False</code>, and the semicolon version <em>always</em> returns <code>True</code>.</p>
-
-<h4>You control only the contents of the lines</h4>
-
-<p>Several people, including <a href="https://twitter.com/pepijndevos">Pepijn De Vos</a>, <a href="https://twitter.com/wolever">David Wolever</a>, and <a href="https://twitter.com/diarmuidbourke">diarmuidbourke</a> suggested something like the following:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="s">&quot;&quot;&quot;a; b; c&quot;&quot;&quot;</span> <span class="o">==</span> <span class="s">&#39;a; b; c&#39;</span>
-</span><span class='line'><span class="bp">True</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="s">&quot;&quot;&quot;a</span>
-</span><span class='line'><span class="s">... b</span>
-</span><span class='line'><span class="s">... c&quot;&quot;&quot;</span> <span class="o">==</span> <span class="s">&#39;a; b; c&#39;</span>
-</span><span class='line'><span class="bp">False</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I&rsquo;m being pedantic here, but I rule this cheating, since (a) each line has to be a valid python expression or statement, and a multi-line string literal is only one expression, and (b) the string <code>"""a; b; c"""</code> is not the same as the string <code>"""a\nb\nc"""</code>.</p>
-
-<p>Solutions appear below the fold.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/10/31/python-puzzle-solutions/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/29/a-python-puzzle/">A Python Puzzle</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-29T19:40:00-04:00" pubdate data-updated="true">Oct 29<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>A couple of Hacker Schoolers were discussing an interesting corner of python today.  We discovered a nice bit of trivia: there exist three lines of python code that display the following behavior:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">LINE_A</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">LINE_B</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">LINE_C</span>
-</span><span class='line'><span class="bp">False</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">LINE_A</span><span class="p">;</span> <span class="n">LINE_B</span><span class="p">;</span> <span class="n">LINE_C</span>
-</span><span class='line'><span class="bp">True</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">my_function</span><span class="p">():</span>
-</span><span class='line'><span class="o">...</span>     <span class="n">LINE_A</span>
-</span><span class='line'><span class="o">...</span>     <span class="n">LINE_B</span>
-</span><span class='line'><span class="o">...</span>     <span class="n">LINE_C</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">my_function</span><span class="p">()</span>
-</span><span class='line'><span class="bp">True</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>What are the lines?</p>
-
-<p>Some ground rules:</p>
-
-<ul>
-<li>Introspection of any kind is cheating (e.g. noting the line number).</li>
-<li>No dunder (<code>__foo__</code>) methods allowed.</li>
-<li>Each line is a valid python expression.</li>
-<li>You can&rsquo;t rely on order: while the lines will always execute A &ndash;> B &ndash;> C, a complete solution behaves identically if e.g. the semicolon version happens before the separate-line version.</li>
-<li>No cheating with the function: e.g. you can&rsquo;t add a <code>return</code> unless you add it everywhere.</li>
-<li><em>Edit: And nothing stateful.</em></li>
-</ul>
-
-
-<p>For bonus points, code golf!  My solution to this is <del>14</del> 19 characters long, not counting whitespace.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1430,6 +2194,14 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/06/19/introduction-to-the-python-interpreter-5/">Introduction to the Python Interpreter, Part 5: Into the Main Loop</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/16/how-generators-work/">How Generators Work</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/">Of Syntax Warnings and Symbol Tables</a>
       </li>
     
@@ -1439,14 +2211,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
     
       <li class="post">
         <a href="/blog/2014/03/16/reading-ebnf/">Reading EBNF</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/02/16/pycon-prep-require-in-ruby/">PyCon prep: `require` in Ruby</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/12/03/introduction-to-the-python-interpreter-4/">Introduction to the Python Interpreter, Part 4: It&#8217;s Dynamic!</a>
       </li>
     
   </ul>
