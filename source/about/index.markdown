@@ -13,4 +13,4 @@ I write mostly Python, and I love silly hacks. I've given some [talks](/talks) a
 
 Before Hacker School, I studied Astronomy & Physics at Yale.  I did a research project on [blazars](http://en.wikipedia.org/wiki/Blazar), a type of supermassive black hole, and was a co-author on a [paper](http://arxiv.org/abs/0812.4582) about our data. I worked in finance for a few years before I became a programmer.
 
-You can find me on [github](www.github.com/akaptur) and [twitter](www.twitter.com/akaptur).
+You can find me on [github](//www.github.com/akaptur) and [twitter](//www.twitter.com/akaptur).
