@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="I&rsquo;ve managed to encounter three different bugs with the same obscure source in the last week. I think Hacker School might be cursed. Here&rsquo &hellip;">
+  <meta name="description" content="A couple of Hacker Schoolers were discussing an interesting corner of python today. We discovered a nice bit of trivia: there exist three lines of &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +78,85 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/29/a-python-puzzle/">A Python Puzzle</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-29T19:40:00-04:00" pubdate data-updated="true">Oct 29<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>A couple of Hacker Schoolers were discussing an interesting corner of python today.  We discovered a nice bit of trivia: there exist three lines of python code that display the following behavior:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">LINE_A</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">LINE_B</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">LINE_C</span>
+</span><span class='line'><span class="bp">False</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">LINE_A</span><span class="p">;</span> <span class="n">LINE_B</span><span class="p">;</span> <span class="n">LINE_C</span>
+</span><span class='line'><span class="bp">True</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">my_function</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">LINE_A</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">LINE_B</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">LINE_C</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">my_function</span><span class="p">()</span>
+</span><span class='line'><span class="bp">True</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What are the lines?</p>
+
+<p>Some ground rules:</p>
+
+<ul>
+<li>Introspection of any kind is cheating (e.g. noting the line number).</li>
+<li>No dunder (<code>__foo__</code>) methods allowed.</li>
+<li>Each line is a valid python expression.</li>
+<li>You can&rsquo;t rely on order: while the lines will always execute A &ndash;> B &ndash;> C, a complete solution behaves identically if e.g. the semicolon version happens before the separate-line version.</li>
+<li>No cheating with the function: e.g. you can&rsquo;t add a <code>return</code> unless you add it everywhere.</li>
+<li><em>Edit: And nothing stateful.</em></li>
+</ul>
+
+
+<p>For bonus points, code golf!  My solution to this is <del>14</del> 19 characters long, not counting whitespace.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2229,6 +2308,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/08/02/the-cpython-peephole-optimizer-and-you/">The CPython Peephole Optimizer and You</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/">Of Syntax Warnings and Symbol Tables</a>
       </li>
     
@@ -2242,10 +2325,6 @@
     
       <li class="post">
         <a href="/blog/2014/02/16/pycon-prep-require-in-ruby/">PyCon prep: `require` in Ruby</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/12/03/introduction-to-the-python-interpreter-4/">Introduction to the Python Interpreter, Part 4: It&#8217;s Dynamic!</a>
       </li>
     
   </ul>
