@@ -4,7 +4,7 @@
   <title><![CDATA[Category: python-internals | Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/blog/categories/python-internals/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-08-02T16:43:49-04:00</updated>
+  <updated>2014-08-02T16:57:16-04:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,6 +12,500 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[The CPython Peephole Optimizer and You]]></title>
+    <link href="http://akaptur.github.com/blog/2014/08/02/the-cpython-peephole-optimizer-and-you/"/>
+    <updated>2014-08-02T11:25:00-04:00</updated>
+    <id>http://akaptur.github.com/blog/2014/08/02/the-cpython-peephole-optimizer-and-you</id>
+    <content type="html"><![CDATA[<p>Last Thursday I gave a lightning talk at <a href="//www.hackerschool.com">Hacker School</a> about the peephole optimizer in Python.  A &ldquo;peephole optimization&rdquo; is a compiler optimization that looks at a small chunk of code at a time and optimizes in that little spot. This post explains one surprising side-effect of an optimization in CPython.</p>
+
+<h2>Writing a test coverage tool</h2>
+
+<p>Suppose that we&rsquo;re setting out to write a test coverage tool. Python provides an easy way to trace execution using <code>sys.settrace</code>, so a simple version of a coverage analyzer isn&rsquo;t too hard.</p>
+
+<p>Our code to test is one simple function:</p>
+
+<p>``` python example.py
+def iffer(condition):</p>
+
+<pre><code>if condition:
+    return 3
+else:
+    return 10
+</code></pre>
+
+<p>```</p>
+
+<p>Then we&rsquo;ll write the world&rsquo;s simplest testing framework:</p>
+
+<p>``` python tests.py
+from example import iffer</p>
+
+<p>def test_iffer():</p>
+
+<pre><code>assert iffer(True) == 3
+assert iffer(False) == 10
+</code></pre>
+
+<p>def run_tests():</p>
+
+<pre><code>test_iffer()
+</code></pre>
+
+<p>```</p>
+
+<p>Now for the simplest possible coverage tool. We can pass <code>sys.settrace</code> any tracing function, and it&rsquo;ll be called with the arguments <code>frame</code>, <code>event</code>, and <code>arg</code> every time an event happens in the execution.  Lines of code being executed, function calls, function returns, and exceptions are all events. We&rsquo;ll filter out everything but <code>line</code> and <code>call</code> events, then keep track of what line of code was executing.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> Then we run the tests while the trace function is tracing, and finally report which (non-empty lines) failed to execute.</p>
+
+<p>``` python coverage.py
+import sys
+import tests
+import inspect</p>
+
+<p>class TinyCoverage(object):</p>
+
+<pre><code>def __init__(self, file_to_watch):
+    self.source_file = file_to_watch
+    self.source_code = open(file_to_watch).readlines()
+    self.executed_code = []
+
+def trace(self, frame, event, arg):
+    current_file = inspect.getframeinfo(frame).filename
+
+    if self.source_file in current_file and \
+        (event == "line" or event == "call"):
+
+        self.executed_code.append(frame.f_lineno)
+
+    return self.trace
+
+def unexecuted_code(self):
+    skipped = []
+    for line_num in range(1, len(self.source_code)+1):
+        if line_num not in self.executed_code:
+            src = self.source_code[line_num - 1]
+            if src != "\n":
+                skipped.append(line_num)
+    return skipped
+
+def report(self):
+    skipped = self.unexecuted_code()
+    percent_skipped = float(len(skipped)) / len(self.source_code)
+    if skipped:
+        print "{} line(s) did not execute ({:.0%})".format(len(skipped), percent_skipped)
+        for line_num in skipped:
+            print line_num, self.source_code[line_num - 1]
+    else:
+        print "100% coverage, go you!"
+</code></pre>
+
+<p>if <strong>name</strong> == &lsquo;<strong>main</strong>&rsquo;:</p>
+
+<pre><code>t = TinyCoverage('example.py')
+sys.settrace(t.trace)
+tests.run_tests()
+sys.settrace(None)
+t.report()
+</code></pre>
+
+<p>```</p>
+
+<p>Let&rsquo;s try it.  We&rsquo;re pretty confident in our test coverage &ndash; there are only two branches in the code, and we&rsquo;ve tested both of them.</p>
+
+<p><code>text
+peephole [master *] ⚲ python coverage.py
+1 line(s) did not execute (9%)
+4     else:
+</code></p>
+
+<p>Why didn&rsquo;t the <code>else</code> line execute? To answer this, we&rsquo;ll run our function through the disassembler.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></p>
+
+<p>```</p>
+
+<blockquote><blockquote><blockquote><p>from example import iffer
+import dis
+dis.dis(iffer)
+  2           0 LOAD_FAST                0 (condition)</p>
+
+<pre><code>          3 POP_JUMP_IF_FALSE       10
+</code></pre></blockquote></blockquote></blockquote>
+
+<p>  3           6 LOAD_CONST               1 (3)</p>
+
+<pre><code>          9 RETURN_VALUE
+</code></pre>
+
+<p>  5     >>   10 LOAD_CONST               2 (10)</p>
+
+<pre><code>         13 RETURN_VALUE
+         14 LOAD_CONST               0 (None)
+         17 RETURN_VALUE
+</code></pre>
+
+<p>```</p>
+
+<p>You don&rsquo;t need to follow exactly what&rsquo;s going on in this bytecode, but note that the first column is the line numbers of source code and line 4, the one containing the <code>else</code>, doesn&rsquo;t appear. Why not? Well, there&rsquo;s nothing to <em>do</em> with an else statement &ndash; it&rsquo;s just a separator between two branches of an <code>if</code> statement. The second line in the disassembly, <code>POP_JUMP_IF_FALSE   10</code>, means that the interpreter will pop the top thing off of the virtual machine stack, jump to bytecode index ten if that thing is false, or continue with the next instruction if it&rsquo;s true.</p>
+
+<p>From the bytecode&rsquo;s perspective, there&rsquo;s no difference at all between writing this:
+``` python
+if a:</p>
+
+<pre><code>...
+</code></pre>
+
+<p>else:</p>
+
+<pre><code>if b:
+   ...
+else:
+    ...
+</code></pre>
+
+<p>```</p>
+
+<p>and this:</p>
+
+<p>```python
+if a:</p>
+
+<pre><code>...
+</code></pre>
+
+<p>elif b:
+   &hellip;
+else:</p>
+
+<pre><code>...
+</code></pre>
+
+<p>```
+(even though the second is better style).</p>
+
+<p>We&rsquo;ve learned we need to special-case <code>else</code> statements in our code coverage tool.  Since there&rsquo;s no logic in them, let&rsquo;s just drop lines that only contain <code>else:</code>. We can revise our <code>unexecuted_code</code> method accordingly:</p>
+
+<p>``` python coverage.py</p>
+
+<pre><code>def unexecuted_code(self):
+    skipped = []
+    for line_num in range(1, len(self.source_code)+1):
+        if line_num not in self.executed_code:
+            src = self.source_code[line_num - 1]
+            if src != "\n" and "else:\n" not in src:  # Add "else" dropping
+                skipped.append(line_num)
+    return skipped
+</code></pre>
+
+<p>```</p>
+
+<p>Then run it again:</p>
+
+<p><code>text
+peephole [master *] ⚲ python coverage.py
+100% coverage, go you!
+</code></p>
+
+<p>Success!</p>
+
+<h2>Complications arise</h2>
+
+<p>Our previous example was really simple. Let&rsquo;s add a more complex one.</p>
+
+<p>``` python example.py
+def iffer(condition):</p>
+
+<pre><code>if condition:
+    return 3
+else:
+    return 10
+</code></pre>
+
+<p>def continuer():</p>
+
+<pre><code>a = b = c = 0
+for n in range(100):
+    if n % 2:
+        if n % 4:
+            a += 1
+        continue
+    else:
+        b += 1
+    c += 1
+
+return a, b, c
+</code></pre>
+
+<p>```</p>
+
+<p><code>continuer</code> will increment <code>a</code> on all odd numbers and increment <code>b</code> and <code>c</code> for all even numbers. Don&rsquo;t forget to add a test:</p>
+
+<p>``` python tests.py
+import sys
+import inspect
+from example2 import iffer, continuer</p>
+
+<p>def test_iffer():</p>
+
+<pre><code>assert iffer(True) == 3
+assert iffer(False) == 10
+</code></pre>
+
+<p>def test_continuer():</p>
+
+<pre><code>assert continuer() == (50, 50, 50)
+</code></pre>
+
+<p>def run_tests():</p>
+
+<pre><code>test_iffer()
+test_continuer()
+</code></pre>
+
+<p>```</p>
+
+<p><code>text
+peephole [master *] ⚲ python coverage2.py
+1 line(s) did not execute (4%)
+13             continue
+</code></p>
+
+<p>Hmm. The test we wrote certainly did involve the <code>continue</code> statement &ndash; if the interpreter hadn&rsquo;t skipped the bottom half of the loop, the test wouldn&rsquo;t have passed. Let&rsquo;s use the strategy we used before to understand what&rsquo;s happening: examining the output of the disassembler.</p>
+
+<p>``` python</p>
+
+<blockquote><blockquote><blockquote><p>dis.dis(continuer)
+  8           0 LOAD_CONST               1 (0)</p>
+
+<pre><code>          3 DUP_TOP
+          4 STORE_FAST               0 (a)
+          7 DUP_TOP
+          8 STORE_FAST               1 (b)
+         11 STORE_FAST               2 (c)
+</code></pre></blockquote></blockquote></blockquote>
+
+<p>  9          14 SETUP_LOOP              79 (to 96)</p>
+
+<pre><code>         17 LOAD_GLOBAL              0 (range)
+         20 LOAD_CONST               2 (100)
+         23 CALL_FUNCTION            1
+         26 GET_ITER
+    &gt;&gt;   27 FOR_ITER                65 (to 95)
+         30 STORE_FAST               3 (n)
+</code></pre>
+
+<p> 10          33 LOAD_FAST                3 (n)</p>
+
+<pre><code>         36 LOAD_CONST               3 (2)
+         39 BINARY_MODULO
+         40 POP_JUMP_IF_FALSE       72
+</code></pre>
+
+<p> 11          43 LOAD_FAST                3 (n)</p>
+
+<pre><code>         46 LOAD_CONST               4 (4)
+         49 BINARY_MODULO
+         50 POP_JUMP_IF_FALSE       27
+</code></pre>
+
+<p> 12          53 LOAD_FAST                0 (a)</p>
+
+<pre><code>         56 LOAD_CONST               5 (1)
+         59 INPLACE_ADD
+         60 STORE_FAST               0 (a)
+         63 JUMP_ABSOLUTE           27
+</code></pre>
+
+<p> 13          66 JUMP_ABSOLUTE           27</p>
+
+<pre><code>         69 JUMP_FORWARD            10 (to 82)
+</code></pre>
+
+<p> 15     >>   72 LOAD_FAST                1 (b)</p>
+
+<pre><code>         75 LOAD_CONST               5 (1)
+         78 INPLACE_ADD
+         79 STORE_FAST               1 (b)
+</code></pre>
+
+<p> 16     >>   82 LOAD_FAST                2 &copy;</p>
+
+<pre><code>         85 LOAD_CONST               5 (1)
+         88 INPLACE_ADD
+         89 STORE_FAST               2 (c)
+         92 JUMP_ABSOLUTE           27
+    &gt;&gt;   95 POP_BLOCK
+</code></pre>
+
+<p> 18     >>   96 LOAD_FAST                0 (a)</p>
+
+<pre><code>         99 LOAD_FAST                1 (b)
+        102 LOAD_FAST                2 (c)
+        105 BUILD_TUPLE              3
+        108 RETURN_VALUE
+</code></pre>
+
+<p>```</p>
+
+<p>There&rsquo;s a lot more going on here, but you don&rsquo;t need to understand all of it to proceed. Here are the things we need to know to make sense of this:</p>
+
+<ul>
+<li>The second column in the output is the index in the bytecode, the third is the byte name, and the fourth is the argument.  The fifth, when present, is a hint about the meaning of the argument.</li>
+<li><code>POP_JUMP_IF_FALSE</code>, <code>POP_JUMP_IF_TRUE</code>, and <code>JUMP_ABSOLUTE</code> have the jump target as their argument. So, e.g. <code>POP_JUMP_IF_TRUE 27</code> means &ldquo;if the popped expression is true, jump to position 27.&rdquo;</li>
+<li><code>JUMP_FORWARD</code>&rsquo;s argument specifies the distance to jump forward in the bytecode, and the fifth column shows where the jump will end.</li>
+<li>When an iterator is done, <code>FOR_ITER</code> jumps forward the number of bytes specified in its argument.</li>
+</ul>
+
+
+<p>Unlike the <code>else</code> case, the line containing the <code>continue</code> does appear in the bytecode. But trace through the bytecode using what you know about jumps: no matter how hard you try, you can&rsquo;t end up on bytes 66 or 69, the two that belong to line 13.</p>
+
+<p>The <code>continue</code> is unreachable because of a compiler optimization. In this particular optimization, the compiler notices that two instructions in a row are jumps, and it combines these two hops into one larger jump. So, in a very real sense, the <code>continue</code> line didn&rsquo;t execute &ndash; it was optimized out &ndash; even though the logic reflected in the <code>continue</code> is still reflected in the bytecode.</p>
+
+<p>What would this bytecode have looked like without the optimizations? There&rsquo;s not currently an option to disable the peephole bytecode optimizations, although there will be in a future version of Python (following an <a href="//mail.python.org/pipermail/python-ideas/2014-May/027893.html">extensive debate</a> on the python-dev list). For now, the only way to turn off optimizations is to comment out the relevant line in <code>compile.c</code>, the call to <code>PyCode_Optimize</code>, and recompile Python. Here&rsquo;s the diff, if you&rsquo;re playing along at home.</p>
+
+<p>``` diff
+cpython ⚲ hg diff
+diff -r 77f36cdb71b0 Python/compile.c
+&mdash;&ndash; a/Python/compile.c  Fri Aug 01 17:48:34 2014 +0200
++++ b/Python/compile.c  Sat Aug 02 15:43:45 2014 -0400
+@@ -4256,10 +4256,6 @@</p>
+
+<pre><code> if (flags &lt; 0)
+     goto error;
+</code></pre>
+
+<ul>
+<li> bytecode = PyCode_Optimize(a->a_bytecode, consts, names, a->a_lnotab);</li>
+<li> if (!bytecode)
+
+<h2>&ndash;        goto error;</h2>
+
+<p> tmp = PyList_AsTuple(consts); /<em> PyCode_New requires a tuple </em>/
+ if (!tmp)
+     goto error;
+@@ -4270,7 +4266,7 @@
+ kwonlyargcount = Py_SAFE_DOWNCAST(c->u->u_kwonlyargcount, Py_ssize_t, int);
+ co = PyCode_New(argcount, kwonlyargcount,
+                 nlocals_int, stackdepth&copy;, flags,</p></li>
+<li><pre><code>             bytecode, consts, names, varnames,
+</code></pre></li>
+<li><pre><code>             a-&gt;a_bytecode, consts, names, varnames,
+             freevars, cellvars,
+             c-&gt;c_filename, c-&gt;u-&gt;u_name,
+             c-&gt;u-&gt;u_firstlineno,
+</code></pre>
+
+<p>```</p></li>
+</ul>
+
+
+<p>``` python</p>
+
+<blockquote><blockquote><blockquote><p>dis.dis(continuer)
+  8           0 LOAD_CONST               1 (0)</p>
+
+<pre><code>          3 DUP_TOP
+          4 STORE_FAST               0 (a)
+          7 DUP_TOP
+          8 STORE_FAST               1 (b)
+         11 STORE_FAST               2 (c)
+</code></pre></blockquote></blockquote></blockquote>
+
+<p>  9          14 SETUP_LOOP              79 (to 96)</p>
+
+<pre><code>         17 LOAD_GLOBAL              0 (range)
+         20 LOAD_CONST               2 (100)
+         23 CALL_FUNCTION            1 (1 positional, 0 keyword pair)
+         26 GET_ITER
+    &gt;&gt;   27 FOR_ITER                65 (to 95)
+         30 STORE_FAST               3 (n)
+</code></pre>
+
+<p>  10         33 LOAD_FAST                3 (n)</p>
+
+<pre><code>         36 LOAD_CONST               3 (2)
+         39 BINARY_MODULO
+         40 POP_JUMP_IF_FALSE       72
+</code></pre>
+
+<p>  11         43 LOAD_FAST                3 (n)</p>
+
+<pre><code>         46 LOAD_CONST               4 (4)
+         49 BINARY_MODULO
+         50 POP_JUMP_IF_FALSE       66
+</code></pre>
+
+<p>  12         53 LOAD_FAST                0 (a)</p>
+
+<pre><code>         56 LOAD_CONST               5 (1)
+         59 INPLACE_ADD
+         60 STORE_FAST               0 (a)
+         63 JUMP_FORWARD             0 (to 66)
+</code></pre>
+
+<p>  13    >>   66 JUMP_ABSOLUTE           27</p>
+
+<pre><code>         69 JUMP_FORWARD            10 (to 82)
+</code></pre>
+
+<p>  14    >>   72 LOAD_FAST                1 (b)</p>
+
+<pre><code>         75 LOAD_CONST               5 (1)
+         78 INPLACE_ADD
+         79 STORE_FAST               1 (b)
+</code></pre>
+
+<p>  15    >>   82 LOAD_FAST                2 &copy;</p>
+
+<pre><code>         85 LOAD_CONST               5 (1)
+         88 INPLACE_ADD
+         89 STORE_FAST               2 (c)
+         92 JUMP_ABSOLUTE           27
+    &gt;&gt;   95 POP_BLOCK
+</code></pre>
+
+<p>  16    >>   96 LOAD_FAST                0 (a)</p>
+
+<pre><code>         99 LOAD_FAST                1 (b)
+        102 LOAD_FAST                2 (c)
+        105 BUILD_TUPLE              3
+        108 RETURN_VALUE
+</code></pre>
+
+<p>```</p>
+
+<p>Just as we expected, the jump targets have changed. The instruction at position 50, <code>POP_JUMP_IF_FALSE</code>, now has 66 as its jump target &ndash; a previously unreachable instruction associated with the <code>continue</code>. Instruction 63, <code>JUMP_FORWARD</code>, is also targeting 66. In both cases, the only way to reach this instruction is to jump to it, and the instruction itself jumps away.<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></p>
+
+<p>Now we can run our coverage tool with the unoptimized Python:</p>
+
+<p><code>text
+peephole [master *+] ⚲ ../cpython/python.exe coverage2.py
+100% coverage, go you!
+</code></p>
+
+<p>Complete success!</p>
+
+<h2>So is this a good idea or not?</h2>
+
+<p>Compiler optimizations are often a straightforward win.  If the compiler can apply simple rules that make my code faster without requiring work from me, that&rsquo;s great. Almost nobody requires a strict mapping of code that they write to code that ends up executing. So, peephole optimization in general: yes! Great!</p>
+
+<p>But &ldquo;almost nobody&rdquo; is not nobody, and one kind of people who <em>do</em> require strict reasoning about executed code are the authors of test coverage software. In the <a href="//mail.python.org/pipermail/python-ideas/2014-May/027893.html">python-dev thread</a> I linked to earlier, there was an extensive discussion over whether or not serving this demographic by providing an option to disable to optimizations was worth increasing the complexity of the codebase. Ultimately it was decided that it was worthwhile, but this is a fair question to ask.</p>
+
+<h2>Further reading</h2>
+
+<p>Beyond the interesting Python-dev thread linked above, my other suggestions are mostly code. <a href="//hg.python.org/cpython/file/118d6f49d6d6/Python/peephole.c">CPython&rsquo;s <code>peephole.c</code></a> is pretty readable C code, and I encourage you to take a look at it. (&ldquo;Constant folding&rdquo; is a great place to start.) There&rsquo;s also a website <a href="//www.compileroptimizations.com/">compileroptimizations.com</a> which has short examples and discussion of 45 different optimizations. If you&rsquo;d like to play with these code examples, they&rsquo;re all available on my <a href="//github.com/akaptur/peephole-optimization">github</a>.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>We need to include <code>call</code> events to capture the first line of a function declaration, <code>def fn(...):</code><a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>I&rsquo;ve previously written an introduction to the disassembler <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">here</a>.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p>You may be wondering what the <code>JUMP_FORWARD</code> instruction at position 69 is doing.  This instruction does nothing unless a particular compiler optimization is turned on. The optimization support faster loops, but creates restrictions on what those loops can do. See <code>ceval.c</code> for more.<a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Of Syntax Warnings and Symbol Tables]]></title>
@@ -501,56 +995,6 @@ foo.func_code.co_argcount
 ```</p></blockquote></blockquote></blockquote>
 
 <p>So much for our intelligible-looking things.  What&rsquo;s going on here?  We&rsquo;ll dive in to bytecode in Part 3.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 1: Function Objects]]></title>
-    <link href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/"/>
-    <updated>2013-11-15T18:50:00-05:00</updated>
-    <id>http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter</id>
-    <content type="html"><![CDATA[<p>Over the last three months, I&rsquo;ve spent a lot of time working with Ned Batchelder on <a href="https://github.com/nedbat/byterun">byterun</a>, a python bytecode interpreter written in python.  Working on byterun has been tremendously educational and a lot of fun for me.  At the end of this series, I&rsquo;m going to attempt to convince you that it would be interesting and fun for you to play with byterun, too.  But before we do that, we need a bit of a warm-up: an overview of how python&rsquo;s internals work, so that we can understand what an interpreter is, what it does, and what it doesn&rsquo;t do.</p>
-
-<p>This series assumes that you&rsquo;re in a similar position to where I was three months ago: you know python, but you don&rsquo;t know anything about the internals.</p>
-
-<p>One quick note: I&rsquo;m going to work in and talk about Python 2.7 in this post.  The interpreter in Python 3 is mostly pretty similar.  There are also some syntax and naming differences, which I&rsquo;m going to ignore, but everything we do here is possible in Python 3 as well.</p>
-
-<h3>How does it python?</h3>
-
-<p>We&rsquo;ll start out with a really (really) high-level view of python&rsquo;s internals.  What happens when you execute a line of code in your python REPL?</p>
-
-<p>```python
-~ $ python
-Python 2.7.2 (default, Jun 20 2012, 16:23:33)
-[GCC 4.2.1 Compatible Apple Clang 4.0 (tags/Apple/clang-418.0.60)] on darwin
-Type &ldquo;help&rdquo;, &ldquo;copyright&rdquo;, &ldquo;credits&rdquo; or &ldquo;license&rdquo; for more information.</p>
-
-<blockquote><blockquote><blockquote><p>a = &ldquo;hello&rdquo;
-```</p></blockquote></blockquote></blockquote>
-
-<p>There are four steps that python takes when you hit return: lexing, parsing, compiling, and interpreting. Lexing is breaking the line of code you just typed into tokens.  The parser takes those tokens and generates a structure that shows their relationship to each other (in this case, an Abstract Syntax Tree).  The compiler then takes the AST and turns it into one (or more) code objects.  Finally, the interpreter takes each code object executes the code it represents.</p>
-
-<p>I&rsquo;m not going to talk about lexing, parsing, or compiling at all today, mainly because I don&rsquo;t know anything about these steps yet.  Instead, we&rsquo;ll suppose that all that went just fine, and we&rsquo;ll have a proper python code object for the interpreter to interpret.</p>
-
-<p>Before we get to code objects, let me clear up some common confusion.  In this series, we&rsquo;re going to talk about function objects, code objects, and bytecode. They&rsquo;re all different things.  Let&rsquo;s start with function objects.  We don&rsquo;t really have to understand function objects to get to the interpreter, but I want to stress that function objects and code objects are not the same &ndash; and besides, function objects are cool.</p>
-
-<h3>Function objects</h3>
-
-<p>You might have heard of &ldquo;function objects.&rdquo;  These are the things people are talking about when they say things like &ldquo;Functions are first-class objects,&rdquo; or &ldquo;Python has first-class functions.&rdquo;  Let&rsquo;s take a look at one.</p>
-
-<p>``` python</p>
-
-<blockquote><blockquote><blockquote><p>def foo(a):
-&hellip;     x = 3
-&hellip;     return x + a
-&hellip;
-foo
-<function foo at 0x107ef7aa0>
-```</p></blockquote></blockquote></blockquote>
-
-<p>&ldquo;Functions are first-class objects,&rdquo; means that function are objects, like a list is an object or an instance of <code>MyObject</code> is an object.  Since <code>foo</code> is an object, we can talk about it without invoking it (that is, there&rsquo;s a difference between <code>foo</code> and <code>foo()</code>).  We can pass <code>foo</code> into another function as an argument, or we could bind it to a new name (<code>other_function = foo</code>). With first-class functions, all sorts of possibilities are open to us!</p>
-
-<p>In Part 2, we&rsquo;ll dive down a level and look at the code object.</p>
 ]]></content>
   </entry>
   
