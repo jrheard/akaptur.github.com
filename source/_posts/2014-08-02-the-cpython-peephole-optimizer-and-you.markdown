@@ -2,7 +2,7 @@
 layout: post
 title: "The CPython Peephole Optimizer and You"
 date: 2014-08-02 11:25
-categories:
+categories: python python-internals
 ---
 
 Last Thursday I gave a lightning talk at [Hacker School](//www.hackerschool.com) about the peephole optimizer in Python.  A "peephole optimization" is a compiler optimization that looks at a small chunk of code at a time and optimizes in that little spot. This post explains one surprising side-effect of an optimization in CPython.
