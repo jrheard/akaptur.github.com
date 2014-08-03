@@ -4,7 +4,7 @@
   <title><![CDATA[Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-08-02T16:57:16-04:00</updated>
+  <updated>2014-08-03T11:03:15-04:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,6 +12,208 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Getting Started with Python Internals]]></title>
+    <link href="http://akaptur.github.com/blog/2014/08/03/getting-started-with-python-internals/"/>
+    <updated>2014-08-03T09:17:00-04:00</updated>
+    <id>http://akaptur.github.com/blog/2014/08/03/getting-started-with-python-internals</id>
+    <content type="html"><![CDATA[<p>I talk to a lot of people at Hacker School and elsewhere who have been programming Python for some time and want to get a better mental model of what&rsquo;s happening under the hood.  The words &ldquo;really&rdquo; or &ldquo;why&rdquo; often features in these questions &ndash; &ldquo;What&rsquo;s <em>really</em> happening when I write a list comprehension?&rdquo; &ldquo;Why are function calls considered expensive?&rdquo; If you&rsquo;ve seen any of the rest of this blog, you know I love digging around in Python internals, and I&rsquo;m always happy to share that with others.</p>
+
+<h2>Why do this?</h2>
+
+<p>First off, I reject the idea that you <em>have</em> to understand the internals of Python to be a good Python developer. Many of the things you&rsquo;ll learn about Python won&rsquo;t help you write better Python. The &ldquo;under the hood&rdquo; construction is specious, too &ndash; why stop at Python internals? Do you also need to know C perfectly, and the C compiler, and the assembly, and &hellip;</p>
+
+<p>That said, I think you should dig around in Python &ndash; it sometimes will help you write better Python, you&rsquo;ll be more prepared to contribute to Python if you want to, and most importantly, it&rsquo;s often really interesting and fun.</p>
+
+<h2>Setup</h2>
+
+<p>Follow the instructions in the <a href="https://docs.python.org/devguide/setup.html">Python dev guide</a> under &ldquo;Version Control Setup&rdquo; and &ldquo;Getting the Source Code&rdquo;. You now have a Python that you can play with.</p>
+
+<h2>Strategies</h2>
+
+<h4>1. Naturalism</h4>
+
+<p>Peter Seibel has a <a href="http://akaptur.github.com//www.gigamonkeys.com/code-reading/">great blog post</a> about reading code. He thinks that &ldquo;reading&rdquo; isn&rsquo;t how most people interact with code &ndash; instead, they dissect it. From the post:</p>
+
+<blockquote><p>But then it hit me. Code is not literature and we are not readers. Rather, interesting pieces of code are specimens and we are naturalists. So instead of trying to pick out a piece of code and reading it and then discussing it like a bunch of Comp Lit. grad students, I think a better model is for one of us to play the role of a 19th century naturalist returning from a trip to some exotic island to present to the local scientific society a discussion of the crazy beetles they found: “Look at the antenna on this monster! They look incredibly ungainly but the male of the species can use these to kill small frogs in whose carcass the females lay their eggs.”</p>
+
+<p>The point of such a presentation is to take a piece of code that the presenter has understood deeply and for them to help the audience understand the core ideas by pointing them out amidst the layers of evolutionary detritus (a.k.a. kluges) that are also part of almost all code. One reasonable approach might be to show the real code and then to show a stripped down reimplementation of just the key bits, kind of like a biologist staining a specimen to make various features easier to discern.</p></blockquote>
+
+<h4>2. Science!</h4>
+
+<p>I&rsquo;m a big fan of hypothesis-driven debugging, and that also applies in exploring Python.  I think you <em>should not</em> just sit down and read CPython at random. Instead, enter the codebase with (1) a question and (2) a hypothesis. For each thing you&rsquo;re wondering about, make a guess for how it might be implemented, then try to confirm or refute your guess.</p>
+
+<h4>3. Guided tours</h4>
+
+<p>Follow a step-by-step guide to changing something in Python. I like <a href="http://akaptur.github.com//mathamy.com/import-accio-bootstrapping-python-grammar.html">Amy Hanlon&rsquo;s post</a> on changing a keyword in Python and <a href="http://akaptur.github.com//eli.thegreenplace.net/2010/06/30/python-internals-adding-a-new-statement-to-python/">Eli Bendersky&rsquo;s</a> on adding a keyword.</p>
+
+<h4>4. Reading recommendations.</h4>
+
+<p>I don&rsquo;t think you should sit down and read CPython at random, but I do have some suggestions for my favorite modules that are implemented in Python. I think you should read the implementation of</p>
+
+<h5>1. <code>timeit</code> in <code>Lib/timeit.py</code></h5>
+
+<h5>2. <code>namedtuple</code> in <code>Lib/collections.py</code>.</h5>
+
+<p>If you have a favorite module implemented in Python, <a href="http://akaptur.github.com//twitter.com/akaptur">tweet at me</a> and I&rsquo;ll add it to this list.</p>
+
+<h4>5. Blog &amp; talk</h4>
+
+<p>Did you learn something interesting? Write it up and share it, or present at your local meetup group! It&rsquo;s easy to feel like everyone else already knows everything you know, but trust me, they don&rsquo;t.</p>
+
+<h4>6. Rewrite</h4>
+
+<p>Try to write your own implementation of <code>timeit</code> or <code>namedtuple</code> before reading the implementation.  Or read a bit of C and rewrite the logic in Python. <a href="http://akaptur.github.com//github.com/nedbat/byterun">Byterun</a> is an example of the latter strategy.</p>
+
+<h2>Tools</h2>
+
+<p>I sometimes hesitate to recommend tooling because it&rsquo;s so easy to get stuck on installation problems. If you&rsquo;re having trouble installing something, get assistance (IRC, StackOverflow, a Meetup, etc.)  These problems are challenging to fix if you haven&rsquo;t seen them before, but often straightforward once you know what you&rsquo;re looking for. If you don&rsquo;t believe me, <a href="http://akaptur.github.com//mail.python.org/pipermail/python-dev/2014-February/132313.html">this thread</a> features Guido van Rossum totally misunderstanding a problem he&rsquo;s having with a module that turns out to be related to upgrading to OS X Mavericks. <em>This stuff is hard.</em></p>
+
+<h4>1. Ack</h4>
+
+<p>I&rsquo;d been using <code>grep</code> in the CPython codebase, which was noticeably slow. (It&rsquo;s especially slow when you forget to add the <code>.</code> at the end of the command and grep patiently waits on stdin, a mistake I manage to make <em>all the time</em>.) I started using <a href="http://akaptur.github.com//beyondgrep.com/">ack</a> a few months ago and really like it.</p>
+
+<p>If you&rsquo;re on a Mac and use homebrew, you can <code>brew install ack</code>, which takes only a few seconds. Then do <code>ack string_youre_looking_for</code> and you get a nicely-formatted output. I imagine you could get the same result with <code>grep</code> if you knew the right options to pass it, but I find ack fast and simple.</p>
+
+<p>Try using <code>ack</code> on <a href="http://akaptur.github.com/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/">the text of an error message</a> or <a href="http://akaptur.github.com//acmonette.com/here-there-be-pydras.html">a mysterious constant</a>. You may be surprised how often this leads you directly to the relevant source code.</p>
+
+<h4>2. timeit</h4>
+
+<p>Timing &amp; efficiency questions are a great place to use the &ldquo;Science!&rdquo; strategy. You may have a question like &ldquo;Which is faster, X or Y?&rdquo; For example, is it faster to do two assignment statements in a row, or do both in one tuple-unpacking assignment? I&rsquo;m guessing that the tuple-unpacking will take longer because of the unpacking step. Let&rsquo;s find out!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>~ ⚲ python -m timeit &quot;x = 1; y = 2&quot;
+</span><span class='line'>10000000 loops, best of 3: 0.0631 usec per loop
+</span><span class='line'>~ ⚲ python -m timeit &quot;x, y = 1, 2&quot;
+</span><span class='line'>10000000 loops, best of 3: 0.0456 usec per loop
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;m wrong! Interesting! I wonder why that is. What if instead of unpacking a tuple, we did &hellip;</p>
+
+<p>A lot of people I talk to like using IPython for timing. IPython is pip-installable, and it usually installs smoothly into a virtual environment. In the IPython REPL, you can use <code>%timeit</code> for timing questions. There are also other <a href="http://akaptur.github.com//ipython.org/ipython-doc/dev/interactive/tutorial.html#magic-functions">magic functions</a> available in IPython.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+</span><span class='line'><span class="mi">10000000</span> <span class="n">loops</span><span class="p">,</span> <span class="n">best</span> <span class="n">of</span> <span class="mi">3</span><span class="p">:</span> <span class="mf">82.3</span> <span class="n">ns</span> <span class="n">per</span> <span class="n">loop</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span>
+</span><span class='line'><span class="mi">10000000</span> <span class="n">loops</span><span class="p">,</span> <span class="n">best</span> <span class="n">of</span> <span class="mi">3</span><span class="p">:</span> <span class="mf">47.3</span> <span class="n">ns</span> <span class="n">per</span> <span class="n">loop</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>One caveat on timing stuff &ndash; use <code>timeit</code> to enhance your understanding, but unless you have real speed problems, you should write code for clarity, not for miniscule speed gains like this one.</p>
+
+<h4>3. Disassembling</h4>
+
+<p>Python compiles down to bytecode, an intermediate representation of your Python code used by the Python virtual machine.  It&rsquo;s sometimes enlightening and often fun to look at that bytecode using the built-in <code>dis</code> module.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">one</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">y</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">two</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">dis</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">one</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">3</span>           <span class="mi">6</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">15</span> <span class="n">RETURN_VALUE</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">two</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">3</span> <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">UNPACK_SEQUENCE</span>          <span class="mi">2</span>
+</span><span class='line'>              <span class="mi">6</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">15</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The implementation of the various operations are in <code>Python/ceval.c</code>.</p>
+
+<h4>4. Inspect/cinspect</h4>
+
+<p>You can get into the habit of trying to call <code>inspect</code> on anything you&rsquo;re curious about to see the source code.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">inspect</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">collections</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">)</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">namedtuple</span><span class="p">(</span><span class="n">typename</span><span class="p">,</span> <span class="n">field_names</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+</span><span class='line'>    <span class="s">&quot;&quot;&quot;Returns a new subclass of tuple with named fields.</span>
+</span><span class='line'><span class="s">    ...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However, <code>inspect</code> will only show the source code of things that are implemented in Python, which can be frustrating.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">)</span>
+</span><span class='line'><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+</span><span class='line'>   <span class="p">[</span><span class="o">...</span> <span class="n">snip</span> <span class="o">...</span><span class="p">]</span>
+</span><span class='line'><span class="ne">IOError</span><span class="p">:</span> <span class="n">could</span> <span class="ow">not</span> <span class="n">find</span> <span class="k">class</span> <span class="nc">definition</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="p">:(</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To get around this, <a href="http://akaptur.github.com//github.com/punchagan">Puneeth Chaganti</a> wrote a tool called <a href="http://akaptur.github.com//github.com/punchagan/cinspect">cinspect</a> that extends <code>inspect</code> to work reasonably consistently with C-implemented code as well.</p>
+
+<h4>5. K&amp;R</h4>
+
+<p>I think C is about a hundred times easier to read than it is to write, so I encourage you to read C code even if you don&rsquo;t totally know what&rsquo;s going on. That said, I think an afternoon spent with the first few chapters of <a href="http://akaptur.github.com//www.amazon.com/The-Programming-Language-2nd-Edition/dp/0131103628">K&amp;R</a> would take you pretty far.  <a href="http://akaptur.github.com//www.amazon.com/Hacking-The-Art-Exploitation-Edition/dp/1593271441">Hacking: The Art of Exploitation</a> is another fun, if less direct, way to learn C.</p>
+
+<h2>Get started!</h2>
+
+<p>CPython is a huge codebase, and you should expect that building a mental model of it will be a long process. Download the source code now and begin poking around, spending five or ten minutes when you&rsquo;re curious about something. Over time, you&rsquo;ll get faster and more rigorous, and the process will get easier.</p>
+
+<p>Do you have recommended strategies and tools that don&rsquo;t appear here? <a href="http://akaptur.github.com//twitter.com/akaptur">Let me know!</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[The CPython Peephole Optimizer and You]]></title>
@@ -3741,193 +3943,6 @@ However, Jessica&rsquo;s solution <del>fails the &ldquo;order doesn&rsquo;t matt
 <p>Together, this code is entirely reasonable.</p>
 
 <p>Thanks to user ruakh on <a href="http://stackoverflow.com/questions/13976472/what-does-if-x-x-do-in-bash">Stack Overflow</a> for the key insight here.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Git add -p: The Wave of the Future]]></title>
-    <link href="http://akaptur.github.com/blog/2012/12/18/git-add-p-the-wave-of-the-future/"/>
-    <updated>2012-12-18T16:12:00-05:00</updated>
-    <id>http://akaptur.github.com/blog/2012/12/18/git-add-p-the-wave-of-the-future</id>
-    <content type="html"><![CDATA[<p>I recently started using git&rsquo;s patch mode via <code>git add -p</code>. Patch mode makes my commits more granular, which means my commit messages are more accurate.  Better still, patch mode allows you to abstract away from adding &ldquo;files&rdquo; &ndash; you&rsquo;re adding changes to be committed.  This is a closer mental model to what git is actually doing.  I&rsquo;m finding it particularly useful for code review: make several changes in a friend&rsquo;s program, group the changes by concept, and commit one concept at a time.</p>
-
-<p>That&rsquo;s the why &ndash; here&rsquo;s the how.</p>
-
-<p><code>git add -p</code> launches what git calls the &ldquo;interactive hunk selector.&rdquo;  This leads me to my other favorite reason to use -p: besides being useful, all the <a href="http://www.kernel.org/pub/software/scm/git/docs/git-add.html">docs</a> sound like an episode of The Bachelorette.  &ldquo;Once you have decided the fate of all the hunks, if there is any hunk that is chosen, the index is updated with the selected hunks.&rdquo; And if not, our bachelorette takes the million dollars!</p>
-
-<p>In practice, I only end up using three of the interactive hunk selector options: [y]es, [n]o, and [s]plit.  Split takes the current hunk and divides it into smaller hunks, then presents them for selection one at a time.  (If you&rsquo;re attempting to continue the Bachelorette metaphor, now is a good time to stop.)</p>
-
-<p>Let&rsquo;s look at an example.  Suppose I&rsquo;m working on a function that recursively calculates the sum of element of a list.  My first draft looks like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>def sum(list_in):
-</span><span class='line'>    """ Returns the sum of elements of a list."""
-</span><span class='line'>    if list_in == []:
-</span><span class='line'>        return 0
-</span><span class='line'>    else:
-</span><span class='line'>        return list_in.pop() + sum(list_in)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Not bad, but it&rsquo;s a little verbose.  Let&rsquo;s take advantage of the fact that an empty list is falsey.  And, oops, we&rsquo;re overwriting the built-in <code>sum</code> function in python &ndash; we probably don&rsquo;t want to do that.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>def summer(list_in):
-</span><span class='line'>    """ Returns the sum of elements of a list."""
-</span><span class='line'>    if not list_in:
-</span><span class='line'>        return 0
-</span><span class='line'>    else:
-</span><span class='line'>        return list_in.pop() + summer(list_in)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Ok, these are two different thoughts, but we didn&rsquo;t commit in between.  Interactive mode to the rescue &ndash; let&rsquo;s stage those hunks.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sum [master]\ ⚲git add -p
-</span><span class='line'>diff --git a/sum.py b/sum.py
-</span><span class='line'>index fdccd3f..6d000f7 100644
-</span><span class='line'>--- a/sum.py
-</span><span class='line'>+++ b/sum.py
-</span><span class='line'>@@ -1,6 +1,6 @@
-</span><span class='line'>-def sum(list_in):
-</span><span class='line'>+def summer(list_in):
-</span><span class='line'>     """ Returns the sum of elements of a list."""
-</span><span class='line'>-    if list_in == []:
-</span><span class='line'>+    if not list_in:
-</span><span class='line'>         return 0
-</span><span class='line'>     else:
-</span><span class='line'>-        return list_in.pop() + sum(list_in)
-</span><span class='line'>+        return list_in.pop() + summer(list_in)
-</span><span class='line'>Stage this hunk [y,n,q,a,d,/,s,e,?]? </span></code></pre></td></tr></table></div></figure>
-
-
-<p>Our changes aren&rsquo;t in the right hunks, so we&rsquo;ll pick <code>s</code> to split them.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Stage this hunk [y,n,q,a,d,/,s,e,?]? s
-</span><span class='line'>Split into 3 hunks.
-</span><span class='line'>@@ -1,2 +1,2 @@
-</span><span class='line'>-def sum(list_in):
-</span><span class='line'>+def summer(list_in):
-</span><span class='line'>     """ Returns the sum of elements of a list."""
-</span><span class='line'>Stage this hunk [y,n,q,a,d,/,j,J,g,e,?]? </span></code></pre></td></tr></table></div></figure>
-
-
-<p>Let&rsquo;s deal with the naming issue first.  <code>y</code>.  Next up:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>@@ -2,4 +2,4 @@
-</span><span class='line'>     """ Returns the sum of elements of a list."""
-</span><span class='line'>-    if list_in == []:
-</span><span class='line'>+    if not list_in:
-</span><span class='line'>         return 0
-</span><span class='line'>     else:</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This one&rsquo;s different. <code>n</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Stage this hunk [y,n,q,a,d,/,K,j,J,g,e,?]? n
-</span><span class='line'>@@ -4,3 +4,3 @@
-</span><span class='line'>         return 0
-</span><span class='line'>     else:
-</span><span class='line'>-        return list_in.pop() + sum(list_in)
-</span><span class='line'>+        return list_in.pop() + summer(list_in)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Back to the naming issue.  <code>y</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sum [master *+]\ ⚲git commit -m "fix naming to not conflict with builtin"
-</span><span class='line'>[master caaa300] fix naming to not conflict with builtin
-</span><span class='line'> 1 file changed, 2 insertions(+), 2 deletions(-)</span></code></pre></td></tr></table></div></figure>
-
-
-<p> Now we can repeat this process for our other change.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'> sum [master *]\ ⚲git add -p
-</span><span class='line'>diff --git a/sum.py b/sum.py
-</span><span class='line'>index 77676b1..6d000f7 100644
-</span><span class='line'>--- a/sum.py
-</span><span class='line'>+++ b/sum.py
-</span><span class='line'>@@ -1,6 +1,6 @@
-</span><span class='line'> def summer(list_in):
-</span><span class='line'>     """ Returns the sum of elements of a list."""
-</span><span class='line'>-    if list_in == []:
-</span><span class='line'>+    if not list_in:
-</span><span class='line'>         return 0
-</span><span class='line'>     else:
-</span><span class='line'>         return list_in.pop() + summer(list_in)
-</span><span class='line'>Stage this hunk [y,n,q,a,d,/,e,?]? </span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is our only hunk now, so <code>y</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sum [master +]\ ⚲git commit -m "use falseyness of empty list"
-</span><span class='line'>[master 5209728] use falseyness of empty list
-</span><span class='line'> 1 file changed, 1 insertion(+), 1 deletion(-)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Of course, you may not want your commits to be quite <em>this</em> granular &ndash; but hopefully the example has demonstrated the strength of <code>git add -p</code> in creating single-concept commits.</p>
 ]]></content>
   </entry>
   

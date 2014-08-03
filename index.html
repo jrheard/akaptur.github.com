@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="Last Thursday I gave a lightning talk at Hacker School about the peephole optimizer in Python. A &ldquo;peephole optimization&rdquo; is a compiler &hellip;">
+  <meta name="description" content="I talk to a lot of people at Hacker School and elsewhere who have been programming Python for some time and want to get a better mental model of what &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +78,235 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/03/getting-started-with-python-internals/">Getting Started With Python Internals</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-03T09:17:00-04:00" pubdate data-updated="true">Aug 3<span>rd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I talk to a lot of people at Hacker School and elsewhere who have been programming Python for some time and want to get a better mental model of what&rsquo;s happening under the hood.  The words &ldquo;really&rdquo; or &ldquo;why&rdquo; often features in these questions &ndash; &ldquo;What&rsquo;s <em>really</em> happening when I write a list comprehension?&rdquo; &ldquo;Why are function calls considered expensive?&rdquo; If you&rsquo;ve seen any of the rest of this blog, you know I love digging around in Python internals, and I&rsquo;m always happy to share that with others.</p>
+
+<h2>Why do this?</h2>
+
+<p>First off, I reject the idea that you <em>have</em> to understand the internals of Python to be a good Python developer. Many of the things you&rsquo;ll learn about Python won&rsquo;t help you write better Python. The &ldquo;under the hood&rdquo; construction is specious, too &ndash; why stop at Python internals? Do you also need to know C perfectly, and the C compiler, and the assembly, and &hellip;</p>
+
+<p>That said, I think you should dig around in Python &ndash; it sometimes will help you write better Python, you&rsquo;ll be more prepared to contribute to Python if you want to, and most importantly, it&rsquo;s often really interesting and fun.</p>
+
+<h2>Setup</h2>
+
+<p>Follow the instructions in the <a href="https://docs.python.org/devguide/setup.html">Python dev guide</a> under &ldquo;Version Control Setup&rdquo; and &ldquo;Getting the Source Code&rdquo;. You now have a Python that you can play with.</p>
+
+<h2>Strategies</h2>
+
+<h4>1. Naturalism</h4>
+
+<p>Peter Seibel has a <a href="//www.gigamonkeys.com/code-reading/">great blog post</a> about reading code. He thinks that &ldquo;reading&rdquo; isn&rsquo;t how most people interact with code &ndash; instead, they dissect it. From the post:</p>
+
+<blockquote><p>But then it hit me. Code is not literature and we are not readers. Rather, interesting pieces of code are specimens and we are naturalists. So instead of trying to pick out a piece of code and reading it and then discussing it like a bunch of Comp Lit. grad students, I think a better model is for one of us to play the role of a 19th century naturalist returning from a trip to some exotic island to present to the local scientific society a discussion of the crazy beetles they found: “Look at the antenna on this monster! They look incredibly ungainly but the male of the species can use these to kill small frogs in whose carcass the females lay their eggs.”</p>
+
+<p>The point of such a presentation is to take a piece of code that the presenter has understood deeply and for them to help the audience understand the core ideas by pointing them out amidst the layers of evolutionary detritus (a.k.a. kluges) that are also part of almost all code. One reasonable approach might be to show the real code and then to show a stripped down reimplementation of just the key bits, kind of like a biologist staining a specimen to make various features easier to discern.</p></blockquote>
+
+<h4>2. Science!</h4>
+
+<p>I&rsquo;m a big fan of hypothesis-driven debugging, and that also applies in exploring Python.  I think you <em>should not</em> just sit down and read CPython at random. Instead, enter the codebase with (1) a question and (2) a hypothesis. For each thing you&rsquo;re wondering about, make a guess for how it might be implemented, then try to confirm or refute your guess.</p>
+
+<h4>3. Guided tours</h4>
+
+<p>Follow a step-by-step guide to changing something in Python. I like <a href="//mathamy.com/import-accio-bootstrapping-python-grammar.html">Amy Hanlon&rsquo;s post</a> on changing a keyword in Python and <a href="//eli.thegreenplace.net/2010/06/30/python-internals-adding-a-new-statement-to-python/">Eli Bendersky&rsquo;s</a> on adding a keyword.</p>
+
+<h4>4. Reading recommendations.</h4>
+
+<p>I don&rsquo;t think you should sit down and read CPython at random, but I do have some suggestions for my favorite modules that are implemented in Python. I think you should read the implementation of</p>
+
+<h5>1. <code>timeit</code> in <code>Lib/timeit.py</code></h5>
+
+<h5>2. <code>namedtuple</code> in <code>Lib/collections.py</code>.</h5>
+
+<p>If you have a favorite module implemented in Python, <a href="//twitter.com/akaptur">tweet at me</a> and I&rsquo;ll add it to this list.</p>
+
+<h4>5. Blog &amp; talk</h4>
+
+<p>Did you learn something interesting? Write it up and share it, or present at your local meetup group! It&rsquo;s easy to feel like everyone else already knows everything you know, but trust me, they don&rsquo;t.</p>
+
+<h4>6. Rewrite</h4>
+
+<p>Try to write your own implementation of <code>timeit</code> or <code>namedtuple</code> before reading the implementation.  Or read a bit of C and rewrite the logic in Python. <a href="//github.com/nedbat/byterun">Byterun</a> is an example of the latter strategy.</p>
+
+<h2>Tools</h2>
+
+<p>I sometimes hesitate to recommend tooling because it&rsquo;s so easy to get stuck on installation problems. If you&rsquo;re having trouble installing something, get assistance (IRC, StackOverflow, a Meetup, etc.)  These problems are challenging to fix if you haven&rsquo;t seen them before, but often straightforward once you know what you&rsquo;re looking for. If you don&rsquo;t believe me, <a href="//mail.python.org/pipermail/python-dev/2014-February/132313.html">this thread</a> features Guido van Rossum totally misunderstanding a problem he&rsquo;s having with a module that turns out to be related to upgrading to OS X Mavericks. <em>This stuff is hard.</em></p>
+
+<h4>1. Ack</h4>
+
+<p>I&rsquo;d been using <code>grep</code> in the CPython codebase, which was noticeably slow. (It&rsquo;s especially slow when you forget to add the <code>.</code> at the end of the command and grep patiently waits on stdin, a mistake I manage to make <em>all the time</em>.) I started using <a href="//beyondgrep.com/">ack</a> a few months ago and really like it.</p>
+
+<p>If you&rsquo;re on a Mac and use homebrew, you can <code>brew install ack</code>, which takes only a few seconds. Then do <code>ack string_youre_looking_for</code> and you get a nicely-formatted output. I imagine you could get the same result with <code>grep</code> if you knew the right options to pass it, but I find ack fast and simple.</p>
+
+<p>Try using <code>ack</code> on <a href="/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/">the text of an error message</a> or <a href="//acmonette.com/here-there-be-pydras.html">a mysterious constant</a>. You may be surprised how often this leads you directly to the relevant source code.</p>
+
+<h4>2. timeit</h4>
+
+<p>Timing &amp; efficiency questions are a great place to use the &ldquo;Science!&rdquo; strategy. You may have a question like &ldquo;Which is faster, X or Y?&rdquo; For example, is it faster to do two assignment statements in a row, or do both in one tuple-unpacking assignment? I&rsquo;m guessing that the tuple-unpacking will take longer because of the unpacking step. Let&rsquo;s find out!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>~ ⚲ python -m timeit &quot;x = 1; y = 2&quot;
+</span><span class='line'>10000000 loops, best of 3: 0.0631 usec per loop
+</span><span class='line'>~ ⚲ python -m timeit &quot;x, y = 1, 2&quot;
+</span><span class='line'>10000000 loops, best of 3: 0.0456 usec per loop
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;m wrong! Interesting! I wonder why that is. What if instead of unpacking a tuple, we did &hellip;</p>
+
+<p>A lot of people I talk to like using IPython for timing. IPython is pip-installable, and it usually installs smoothly into a virtual environment. In the IPython REPL, you can use <code>%timeit</code> for timing questions. There are also other <a href="//ipython.org/ipython-doc/dev/interactive/tutorial.html#magic-functions">magic functions</a> available in IPython.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+</span><span class='line'><span class="mi">10000000</span> <span class="n">loops</span><span class="p">,</span> <span class="n">best</span> <span class="n">of</span> <span class="mi">3</span><span class="p">:</span> <span class="mf">82.3</span> <span class="n">ns</span> <span class="n">per</span> <span class="n">loop</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span>
+</span><span class='line'><span class="mi">10000000</span> <span class="n">loops</span><span class="p">,</span> <span class="n">best</span> <span class="n">of</span> <span class="mi">3</span><span class="p">:</span> <span class="mf">47.3</span> <span class="n">ns</span> <span class="n">per</span> <span class="n">loop</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>One caveat on timing stuff &ndash; use <code>timeit</code> to enhance your understanding, but unless you have real speed problems, you should write code for clarity, not for miniscule speed gains like this one.</p>
+
+<h4>3. Disassembling</h4>
+
+<p>Python compiles down to bytecode, an intermediate representation of your Python code used by the Python virtual machine.  It&rsquo;s sometimes enlightening and often fun to look at that bytecode using the built-in <code>dis</code> module.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">one</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">y</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">two</span><span class="p">():</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">dis</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">one</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">3</span>           <span class="mi">6</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">15</span> <span class="n">RETURN_VALUE</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">two</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">3</span> <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">UNPACK_SEQUENCE</span>          <span class="mi">2</span>
+</span><span class='line'>              <span class="mi">6</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">15</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The implementation of the various operations are in <code>Python/ceval.c</code>.</p>
+
+<h4>4. Inspect/cinspect</h4>
+
+<p>You can get into the habit of trying to call <code>inspect</code> on anything you&rsquo;re curious about to see the source code.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">inspect</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">collections</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">)</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">namedtuple</span><span class="p">(</span><span class="n">typename</span><span class="p">,</span> <span class="n">field_names</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+</span><span class='line'>    <span class="s">&quot;&quot;&quot;Returns a new subclass of tuple with named fields.</span>
+</span><span class='line'><span class="s">    ...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However, <code>inspect</code> will only show the source code of things that are implemented in Python, which can be frustrating.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">)</span>
+</span><span class='line'><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+</span><span class='line'>   <span class="p">[</span><span class="o">...</span> <span class="n">snip</span> <span class="o">...</span><span class="p">]</span>
+</span><span class='line'><span class="ne">IOError</span><span class="p">:</span> <span class="n">could</span> <span class="ow">not</span> <span class="n">find</span> <span class="k">class</span> <span class="nc">definition</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="p">:(</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To get around this, <a href="//github.com/punchagan">Puneeth Chaganti</a> wrote a tool called <a href="//github.com/punchagan/cinspect">cinspect</a> that extends <code>inspect</code> to work reasonably consistently with C-implemented code as well.</p>
+
+<h4>5. K&amp;R</h4>
+
+<p>I think C is about a hundred times easier to read than it is to write, so I encourage you to read C code even if you don&rsquo;t totally know what&rsquo;s going on. That said, I think an afternoon spent with the first few chapters of <a href="//www.amazon.com/The-Programming-Language-2nd-Edition/dp/0131103628">K&amp;R</a> would take you pretty far.  <a href="//www.amazon.com/Hacking-The-Art-Exploitation-Edition/dp/1593271441">Hacking: The Art of Exploitation</a> is another fun, if less direct, way to learn C.</p>
+
+<h2>Get started!</h2>
+
+<p>CPython is a huge codebase, and you should expect that building a mental model of it will be a long process. Download the source code now and begin poking around, spending five or ten minutes when you&rsquo;re curious about something. Over time, you&rsquo;ll get faster and more rigorous, and the process will get easier.</p>
+
+<p>Do you have recommended strategies and tools that don&rsquo;t appear here? <a href="//twitter.com/akaptur">Let me know!</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1958,76 +2187,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/31/python-puzzle-solutions/">Python Puzzle Solutions</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-31T10:47:00-04:00" pubdate data-updated="true">Oct 31<span>st</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I really enjoyed seeing all the clever solutions to the <a href="http://akaptur.github.io/blog/2013/10/29/a-python-puzzle/">python puzzle I posted</a>.  You&rsquo;re all very creative!  Here&rsquo;s a discussion of the solutions I&rsquo;ve seen, plus some clarifications.  All spoilers are below the fold.</p>
-
-<p>First, clarifications.  (These weren&rsquo;t always clear in the problem statement, particularly if you got the problem off of twitter, so award yourself full marks as desired.)</p>
-
-<h4>Order doesn&rsquo;t matter</h4>
-
-<p>&ldquo;Order doesn&rsquo;t matter&rdquo; means that the three-line version <em>always</em> returns <code>False</code>, and the semicolon version <em>always</em> returns <code>True</code>.</p>
-
-<h4>You control only the contents of the lines</h4>
-
-<p>Several people, including <a href="https://twitter.com/pepijndevos">Pepijn De Vos</a>, <a href="https://twitter.com/wolever">David Wolever</a>, and <a href="https://twitter.com/diarmuidbourke">diarmuidbourke</a> suggested something like the following:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="s">&quot;&quot;&quot;a; b; c&quot;&quot;&quot;</span> <span class="o">==</span> <span class="s">&#39;a; b; c&#39;</span>
-</span><span class='line'><span class="bp">True</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="s">&quot;&quot;&quot;a</span>
-</span><span class='line'><span class="s">... b</span>
-</span><span class='line'><span class="s">... c&quot;&quot;&quot;</span> <span class="o">==</span> <span class="s">&#39;a; b; c&#39;</span>
-</span><span class='line'><span class="bp">False</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I&rsquo;m being pedantic here, but I rule this cheating, since (a) each line has to be a valid python expression or statement, and a multi-line string literal is only one expression, and (b) the string <code>"""a; b; c"""</code> is not the same as the string <code>"""a\nb\nc"""</code>.</p>
-
-<p>Solutions appear below the fold.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/10/31/python-puzzle-solutions/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -2043,6 +2202,10 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/08/03/getting-started-with-python-internals/">Getting Started with Python Internals</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/08/02/the-cpython-peephole-optimizer-and-you/">The CPython Peephole Optimizer and You</a>
       </li>
     
@@ -2056,10 +2219,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
     
       <li class="post">
         <a href="/blog/2014/03/16/reading-ebnf/">Reading EBNF</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/02/16/pycon-prep-require-in-ruby/">PyCon prep: `require` in Ruby</a>
       </li>
     
   </ul>

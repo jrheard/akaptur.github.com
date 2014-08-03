@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="A couple of Hacker Schoolers were discussing an interesting corner of python today. We discovered a nice bit of trivia: there exist three lines of &hellip;">
+  <meta name="description" content="I really enjoyed seeing all the clever solutions to the python puzzle I posted. You&rsquo;re all very creative! Here&rsquo;s a discussion of the &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +78,76 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/31/python-puzzle-solutions/">Python Puzzle Solutions</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-31T10:47:00-04:00" pubdate data-updated="true">Oct 31<span>st</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I really enjoyed seeing all the clever solutions to the <a href="http://akaptur.github.io/blog/2013/10/29/a-python-puzzle/">python puzzle I posted</a>.  You&rsquo;re all very creative!  Here&rsquo;s a discussion of the solutions I&rsquo;ve seen, plus some clarifications.  All spoilers are below the fold.</p>
+
+<p>First, clarifications.  (These weren&rsquo;t always clear in the problem statement, particularly if you got the problem off of twitter, so award yourself full marks as desired.)</p>
+
+<h4>Order doesn&rsquo;t matter</h4>
+
+<p>&ldquo;Order doesn&rsquo;t matter&rdquo; means that the three-line version <em>always</em> returns <code>False</code>, and the semicolon version <em>always</em> returns <code>True</code>.</p>
+
+<h4>You control only the contents of the lines</h4>
+
+<p>Several people, including <a href="https://twitter.com/pepijndevos">Pepijn De Vos</a>, <a href="https://twitter.com/wolever">David Wolever</a>, and <a href="https://twitter.com/diarmuidbourke">diarmuidbourke</a> suggested something like the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="s">&quot;&quot;&quot;a; b; c&quot;&quot;&quot;</span> <span class="o">==</span> <span class="s">&#39;a; b; c&#39;</span>
+</span><span class='line'><span class="bp">True</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="s">&quot;&quot;&quot;a</span>
+</span><span class='line'><span class="s">... b</span>
+</span><span class='line'><span class="s">... c&quot;&quot;&quot;</span> <span class="o">==</span> <span class="s">&#39;a; b; c&#39;</span>
+</span><span class='line'><span class="bp">False</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;m being pedantic here, but I rule this cheating, since (a) each line has to be a valid python expression or statement, and a multi-line string literal is only one expression, and (b) the string <code>"""a; b; c"""</code> is not the same as the string <code>"""a\nb\nc"""</code>.</p>
+
+<p>Solutions appear below the fold.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/10/31/python-puzzle-solutions/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -2079,221 +2149,9 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/12/18/git-add-p-the-wave-of-the-future/">Git Add -p: The Wave of the Future</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-12-18T16:12:00-05:00" pubdate data-updated="true">Dec 18<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I recently started using git&rsquo;s patch mode via <code>git add -p</code>. Patch mode makes my commits more granular, which means my commit messages are more accurate.  Better still, patch mode allows you to abstract away from adding &ldquo;files&rdquo; &ndash; you&rsquo;re adding changes to be committed.  This is a closer mental model to what git is actually doing.  I&rsquo;m finding it particularly useful for code review: make several changes in a friend&rsquo;s program, group the changes by concept, and commit one concept at a time.</p>
-
-<p>That&rsquo;s the why &ndash; here&rsquo;s the how.</p>
-
-<p><code>git add -p</code> launches what git calls the &ldquo;interactive hunk selector.&rdquo;  This leads me to my other favorite reason to use -p: besides being useful, all the <a href="http://www.kernel.org/pub/software/scm/git/docs/git-add.html">docs</a> sound like an episode of The Bachelorette.  &ldquo;Once you have decided the fate of all the hunks, if there is any hunk that is chosen, the index is updated with the selected hunks.&rdquo; And if not, our bachelorette takes the million dollars!</p>
-
-<p>In practice, I only end up using three of the interactive hunk selector options: [y]es, [n]o, and [s]plit.  Split takes the current hunk and divides it into smaller hunks, then presents them for selection one at a time.  (If you&rsquo;re attempting to continue the Bachelorette metaphor, now is a good time to stop.)</p>
-
-<p>Let&rsquo;s look at an example.  Suppose I&rsquo;m working on a function that recursively calculates the sum of element of a list.  My first draft looks like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>def sum(list_in):
-</span><span class='line'>    """ Returns the sum of elements of a list."""
-</span><span class='line'>    if list_in == []:
-</span><span class='line'>        return 0
-</span><span class='line'>    else:
-</span><span class='line'>        return list_in.pop() + sum(list_in)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Not bad, but it&rsquo;s a little verbose.  Let&rsquo;s take advantage of the fact that an empty list is falsey.  And, oops, we&rsquo;re overwriting the built-in <code>sum</code> function in python &ndash; we probably don&rsquo;t want to do that.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>def summer(list_in):
-</span><span class='line'>    """ Returns the sum of elements of a list."""
-</span><span class='line'>    if not list_in:
-</span><span class='line'>        return 0
-</span><span class='line'>    else:
-</span><span class='line'>        return list_in.pop() + summer(list_in)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Ok, these are two different thoughts, but we didn&rsquo;t commit in between.  Interactive mode to the rescue &ndash; let&rsquo;s stage those hunks.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sum [master]\ ⚲git add -p
-</span><span class='line'>diff --git a/sum.py b/sum.py
-</span><span class='line'>index fdccd3f..6d000f7 100644
-</span><span class='line'>--- a/sum.py
-</span><span class='line'>+++ b/sum.py
-</span><span class='line'>@@ -1,6 +1,6 @@
-</span><span class='line'>-def sum(list_in):
-</span><span class='line'>+def summer(list_in):
-</span><span class='line'>     """ Returns the sum of elements of a list."""
-</span><span class='line'>-    if list_in == []:
-</span><span class='line'>+    if not list_in:
-</span><span class='line'>         return 0
-</span><span class='line'>     else:
-</span><span class='line'>-        return list_in.pop() + sum(list_in)
-</span><span class='line'>+        return list_in.pop() + summer(list_in)
-</span><span class='line'>Stage this hunk [y,n,q,a,d,/,s,e,?]? </span></code></pre></td></tr></table></div></figure>
-
-
-<p>Our changes aren&rsquo;t in the right hunks, so we&rsquo;ll pick <code>s</code> to split them.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Stage this hunk [y,n,q,a,d,/,s,e,?]? s
-</span><span class='line'>Split into 3 hunks.
-</span><span class='line'>@@ -1,2 +1,2 @@
-</span><span class='line'>-def sum(list_in):
-</span><span class='line'>+def summer(list_in):
-</span><span class='line'>     """ Returns the sum of elements of a list."""
-</span><span class='line'>Stage this hunk [y,n,q,a,d,/,j,J,g,e,?]? </span></code></pre></td></tr></table></div></figure>
-
-
-<p>Let&rsquo;s deal with the naming issue first.  <code>y</code>.  Next up:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>@@ -2,4 +2,4 @@
-</span><span class='line'>     """ Returns the sum of elements of a list."""
-</span><span class='line'>-    if list_in == []:
-</span><span class='line'>+    if not list_in:
-</span><span class='line'>         return 0
-</span><span class='line'>     else:</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This one&rsquo;s different. <code>n</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Stage this hunk [y,n,q,a,d,/,K,j,J,g,e,?]? n
-</span><span class='line'>@@ -4,3 +4,3 @@
-</span><span class='line'>         return 0
-</span><span class='line'>     else:
-</span><span class='line'>-        return list_in.pop() + sum(list_in)
-</span><span class='line'>+        return list_in.pop() + summer(list_in)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Back to the naming issue.  <code>y</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sum [master *+]\ ⚲git commit -m "fix naming to not conflict with builtin"
-</span><span class='line'>[master caaa300] fix naming to not conflict with builtin
-</span><span class='line'> 1 file changed, 2 insertions(+), 2 deletions(-)</span></code></pre></td></tr></table></div></figure>
-
-
-<p> Now we can repeat this process for our other change.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'> sum [master *]\ ⚲git add -p
-</span><span class='line'>diff --git a/sum.py b/sum.py
-</span><span class='line'>index 77676b1..6d000f7 100644
-</span><span class='line'>--- a/sum.py
-</span><span class='line'>+++ b/sum.py
-</span><span class='line'>@@ -1,6 +1,6 @@
-</span><span class='line'> def summer(list_in):
-</span><span class='line'>     """ Returns the sum of elements of a list."""
-</span><span class='line'>-    if list_in == []:
-</span><span class='line'>+    if not list_in:
-</span><span class='line'>         return 0
-</span><span class='line'>     else:
-</span><span class='line'>         return list_in.pop() + summer(list_in)
-</span><span class='line'>Stage this hunk [y,n,q,a,d,/,e,?]? </span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is our only hunk now, so <code>y</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sum [master +]\ ⚲git commit -m "use falseyness of empty list"
-</span><span class='line'>[master 5209728] use falseyness of empty list
-</span><span class='line'> 1 file changed, 1 insertion(+), 1 deletion(-)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Of course, you may not want your commits to be quite <em>this</em> granular &ndash; but hopefully the example has demonstrated the strength of <code>git add -p</code> in creating single-concept commits.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="/blog/page/3/">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -2306,6 +2164,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/08/03/getting-started-with-python-internals/">Getting Started with Python Internals</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/08/02/the-cpython-peephole-optimizer-and-you/">The CPython Peephole Optimizer and You</a>
@@ -2321,10 +2183,6 @@
     
       <li class="post">
         <a href="/blog/2014/03/16/reading-ebnf/">Reading EBNF</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/02/16/pycon-prep-require-in-ruby/">PyCon prep: `require` in Ruby</a>
       </li>
     
   </ul>
