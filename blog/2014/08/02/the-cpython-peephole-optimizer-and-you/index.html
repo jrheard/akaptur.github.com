@@ -757,7 +757,7 @@
 <li id="fn:2">
 <p>I&rsquo;ve previously written an introduction to the disassembler <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">here</a>.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
 <li id="fn:3">
-<p>You may be wondering what the <code>JUMP_FORWARD</code> instruction at position 69 is doing.  This instruction does nothing unless a particular compiler optimization is turned on. The optimization support faster loops, but creates restrictions on what those loops can do. See <code>ceval.c</code> for more.<a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+<p>You may be wondering what the <code>JUMP_ABSOLUTE</code> instruction at position 66 is doing.  This instruction does nothing unless a particular compiler optimization is turned on. The optimization support faster loops, but creates restrictions on what those loops can do. See <code>ceval.c</code> for more. <em>Edit: This footnote previously incorrectly referenced <code>JUMP_FORWARD</code>.</em><a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
 </ol>
 </div>
 
