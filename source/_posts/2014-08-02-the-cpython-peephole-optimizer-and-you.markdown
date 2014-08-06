@@ -384,4 +384,4 @@ Beyond the interesting Python-dev thread linked above, my other suggestions are 
 
 [^1]: We need to include `call` events to capture the first line of a function declaration, `def fn(...):`
 [^2]: I've previously written an introduction to the disassembler [here](/blog/2013/11/17/introduction-to-the-python-interpreter-3/).
-[^3]: You may be wondering what the `JUMP_FORWARD` instruction at position 69 is doing.  This instruction does nothing unless a particular compiler optimization is turned on. The optimization support faster loops, but creates restrictions on what those loops can do. See `ceval.c` for more.
+[^3]: You may be wondering what the `JUMP_ABSOLUTE` instruction at position 66 is doing.  This instruction does nothing unless a particular compiler optimization is turned on. The optimization support faster loops, but creates restrictions on what those loops can do. See `ceval.c` for more. _Edit: This footnote previously incorrectly referenced `JUMP_FORWARD`._
