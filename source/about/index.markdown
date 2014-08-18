@@ -7,7 +7,7 @@ sharing: true
 footer: true
 ---
 
-I live in Brooklyn and work for [Hacker School](www.hackerschool.com).  If you like this blog, you'll probably like Hacker School!
+I live in Brooklyn and work for [Hacker School](//www.hackerschool.com).  If you like this blog, you'll probably like Hacker School!
 
 I write mostly Python, and I love silly hacks. I've given some [talks](/talks) about Python internals. Python internals are very cool.
 
