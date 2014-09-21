@@ -4,7 +4,7 @@
   <title><![CDATA[Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-09-11T18:22:34-04:00</updated>
+  <updated>2014-09-21T18:36:56-04:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,6 +12,102 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Debugging with pstree]]></title>
+    <link href="http://akaptur.github.com/blog/2014/09/21/debugging-with-pstree/"/>
+    <updated>2014-09-21T17:46:00-04:00</updated>
+    <id>http://akaptur.github.com/blog/2014/09/21/debugging-with-pstree</id>
+    <content type="html"><![CDATA[<p>I hit a very fun bug yesterday while trying to run a script that sends emails to certain subsets of Hacker Schoolers. When I tried to test the script locally, I discovered that one of the tables of the database, <code>Batch</code>, was missing from my local version.  After briefly panicking and making sure that the actual site was still up, I could dig in.</p>
+
+<p>It turns out that my local version of psql was way out of date, and as of a few days ago we&rsquo;d started using a data type that wasn&rsquo;t present in my old version. Because of that, creating that particular table failed when I pulled from the production database the night before. The failure was logged, but the output is so verbose that I didn&rsquo;t notice the problem. Both the diagnosis and the fix here were easy &ndash; I went back and read the logs, googled the data type that was raising an error, and then upgraded Postgres.app and psql. That&rsquo;s when the real trouble started.</p>
+
+<p>The new version of Postgres.app was placed in a new spot on the $PATH, as you&rsquo;d expect, and the upgrade prompted me to change my <code>.bashrc</code>, which I did. But the rake tasks we use to manage local copies of the database errored out with this message:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>$ pg_restore --verbose --clean --no-acl --no-owner -h localhost -U `whoami` -d hackerschool latest.dump
+</span><span class='line'>sh: pg_restore: command not found
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This was pretty clearly a $PATH problem. I tried the usual things first, like sourcing my <code>.bashrc</code> in the terminal I was using, closing the terminal and opening a new one, etc. None of that worked.</p>
+
+<p>One thing that jumped out to me was the <code>sh</code> in the error message. That was an indicator that rake wasn&rsquo;t using bash as a shell &ndash; it was using <code>sh</code> &ndash; which means my <code>.bashrc</code> wasn&rsquo;t setting the environment. Reading the rake task showed that it was a thin wrapper around lots of system calls via Ruby&rsquo;s <code>system("cmd here")</code>. I added the line <code>system("echo $PATH")</code> and verified that the new location of <code>pg_restore</code> wasn&rsquo;t in it.</p>
+
+<p>At this point I found I had lots of questions about the execution context of the rake task. Since I was making system calls and could easily edit the rakefile, I added in the line <code>system("sh")</code> to drop me into a shell mid-execution. This turned out to be an efficient way to figure out what was going on (and made me feel like a badass hacker).</p>
+
+<p>From within in that shell, I could do <code>$$</code> to get that process&rsquo;s PID, then repeatedly do <code>ps -ef | grep [PID]</code> to find the parent process.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>sh-3.2$ $$
+</span><span class='line'>sh: 34652: command not found
+</span><span class='line'>sh-3.2$ ps -ef | grep 34652
+</span><span class='line'>  501 34652 34639   0  4:18PM ??         0:00.04 sh
+</span><span class='line'>    0 34881 34652   0  4:26PM ??         0:00.01 ps -ef
+</span><span class='line'>  501 34882 34652   0  4:26PM ??         0:00.01 grep 34652
+</span><span class='line'>sh-3.2$ ps -ef | grep 34639
+</span><span class='line'>  501 34639  2914   0  4:18PM ??         0:00.41 rake db:drop db:create db:pull
+</span><span class='line'>  501 34652 34639   0  4:18PM ??         0:00.04 sh
+</span><span class='line'>  501 34885 34652   0  4:28PM ??         0:00.00 grep 34639
+</span><span class='line'>sh-3.2$ ps -ef | grep 2914
+</span><span class='line'>  501  2914  2913   0 10Sep14 ??        27:11.72 spring app    | hackerschool | started 244 hours ago | development mode
+</span><span class='line'>  501 34639  2914   0  4:18PM ??         0:00.41 rake db:drop db:create db:pull
+</span><span class='line'>  501 34889 34652   0  4:28PM ??         0:00.01 grep 2914
+</span><span class='line'>sh-3.2$ ps -ef | grep 2913
+</span><span class='line'>  501  2914  2913   0 10Sep14 ??        27:11.98 spring app    | hackerschool | started 244 hours ago | development mode
+</span><span class='line'>  501 34892 34652   0  4:29PM ??         0:00.00 grep 2913
+</span><span class='line'>  501  2913     1   0 10Sep14 ttys001    0:00.94 spring server | hackerschool | started 244 hours ago
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Aha! The parent process of the rake task I was running is the spring server, which starts on boot &ndash; several days ago, at the time &ndash; and doesn&rsquo;t have the new and updated $PATH information.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> A kick to the spring server (with <code>kill 2913</code>) forced the server process to restart with the new environment.</p>
+
+<p>It turns out there&rsquo;s a handy utility called <code>pstree</code><sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup> (brew installable) to visualize the tree of processes. This would have saved me a couple of steps of grepping. For example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>hackerschool [master] $ pstree -p 35351
+</span><span class='line'>-+= 00001 root /sbin/launchd
+</span><span class='line'> \-+- 35129 afk spring server | hackerschool | started 25 hours ago
+</span><span class='line'>   \-+= 35130 afk spring app    | hackerschool | started 25 hours ago | development mode
+</span><span class='line'>     \--- 35351 afk rails_console
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This bug and some related ones have gotten me more interested in operating systems, and I&rsquo;ve started reading the book <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/">Operating Systems: Three Easy Pieces</a>. I&rsquo;m only a few chapters in, but so far it&rsquo;s readable, clear, and entertaining. I look forward to building up my mental model of processes and environments as I keep reading it.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>We can tell it (probably) starts on boot because the parent process ID is 1. This means that rebooting my computer would have solved the problem.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>Thanks to <a href="http://akaptur.github.com//twitter.com/paultag">Paul Tag</a> for the pointer to <code>pstree</code>.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Rejected PyCon Proposals]]></title>
@@ -3836,69 +3932,6 @@ However, Jessica&rsquo;s solution <del>fails the &ldquo;order doesn&rsquo;t matt
 
 
 <p>Now go forth and git in peace.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Surprised by Stable Sort]]></title>
-    <link href="http://akaptur.github.com/blog/2013/01/02/surprised-by-stable-sort/"/>
-    <updated>2013-01-02T00:02:00-05:00</updated>
-    <id>http://akaptur.github.com/blog/2013/01/02/surprised-by-stable-sort</id>
-    <content type="html"><![CDATA[<p>I encountered some surprising behavior in python&rsquo;s list.sort() method.  I was calling list.sort() with a function, then list.reverse().  This was silly &ndash; I forgot I could call list.sort(reverse=True).  As it turns out, these are not the always the same, or even usually the same.</p>
-
-<p>Here&rsquo;s the code:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>def two_sort(ex):
-</span><span class='line'>    ex_copy = ex[:]
-</span><span class='line'> 
-</span><span class='line'>    ex.sort(key=lambda tup: tup[1])
-</span><span class='line'>    ex.reverse()
-</span><span class='line'>    print "Ex:  ", ex
-</span><span class='line'> 
-</span><span class='line'>    ex_copy.sort(key=lambda tup: tup[1], reverse=True)
-</span><span class='line'>    print "Copy:", ex_copy
-</span><span class='line'> 
-</span><span class='line'>    assert ex == ex_copy # fails
-</span><span class='line'> 
-</span><span class='line'>ex = [('a', 0), ('b', 0), ('c', 2), ('d', 3)]
-</span><span class='line'>two_sort(ex)
-</span><span class='line'># Ex:   [('d', 3), ('c', 2), ('b', 0), ('a', 0)]
-</span><span class='line'># Copy: [('d', 3), ('c', 2), ('a', 0), ('b', 0)]</span></code></pre></td></tr></table></div></figure>
-
-
-<p>What&rsquo;s happening here is that .sort() and sorted() in python are &ldquo;stable sorts&rdquo;, meaning that it&rsquo;ll preserve the existing order when faced with a tie.  This leads to a nice side effect, as described in the <a href="http://wiki.python.org/moin/HowTo/Sorting/">python wiki</a>: you can sort by multiple criteria.  So if we wanted to sort primarily by number (ascending), and secondarily by letter, we could do that quite easily.  Just sort by the secondary key first, then by the primary key.  Since the sort is stable, you know that a tie in the second (primary) sort will preserve the order you had going in.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt;&gt;&gt; a = [('d', 3), ('c', 5), ('b', 0), ('a', 0)]
-</span><span class='line'>&gt;&gt;&gt; a.sort(key=lambda tup: tup[0])
-</span><span class='line'>&gt;&gt;&gt; a
-</span><span class='line'>[('a', 0), ('b', 0), ('c', 5), ('d', 3)]
-</span><span class='line'>&gt;&gt;&gt; a.sort(key=lambda tup:tup[1])
-</span><span class='line'>&gt;&gt;&gt; a
-</span><span class='line'>[('a', 0), ('b', 0), ('d', 3), ('c', 5)]</span></code></pre></td></tr></table></div></figure>
-
 ]]></content>
   </entry>
   

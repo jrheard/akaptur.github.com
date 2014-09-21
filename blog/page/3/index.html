@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="I&rsquo;m currently digging into the source of virtualenv, a python utility for managing environments. It&rsquo;s incredibly handy, and I&rsquo;d &hellip;">
+  <meta name="description" content="I encountered some surprising behavior in python&rsquo;s list.sort() method. I was calling list.sort() with a function, then list.reverse(). This was &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +78,96 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/01/02/surprised-by-stable-sort/">Surprised by Stable Sort</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-02T00:02:00-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I encountered some surprising behavior in python&rsquo;s list.sort() method.  I was calling list.sort() with a function, then list.reverse().  This was silly &ndash; I forgot I could call list.sort(reverse=True).  As it turns out, these are not the always the same, or even usually the same.</p>
+
+<p>Here&rsquo;s the code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>def two_sort(ex):
+</span><span class='line'>    ex_copy = ex[:]
+</span><span class='line'> 
+</span><span class='line'>    ex.sort(key=lambda tup: tup[1])
+</span><span class='line'>    ex.reverse()
+</span><span class='line'>    print "Ex:  ", ex
+</span><span class='line'> 
+</span><span class='line'>    ex_copy.sort(key=lambda tup: tup[1], reverse=True)
+</span><span class='line'>    print "Copy:", ex_copy
+</span><span class='line'> 
+</span><span class='line'>    assert ex == ex_copy # fails
+</span><span class='line'> 
+</span><span class='line'>ex = [('a', 0), ('b', 0), ('c', 2), ('d', 3)]
+</span><span class='line'>two_sort(ex)
+</span><span class='line'># Ex:   [('d', 3), ('c', 2), ('b', 0), ('a', 0)]
+</span><span class='line'># Copy: [('d', 3), ('c', 2), ('a', 0), ('b', 0)]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What&rsquo;s happening here is that .sort() and sorted() in python are &ldquo;stable sorts&rdquo;, meaning that it&rsquo;ll preserve the existing order when faced with a tie.  This leads to a nice side effect, as described in the <a href="http://wiki.python.org/moin/HowTo/Sorting/">python wiki</a>: you can sort by multiple criteria.  So if we wanted to sort primarily by number (ascending), and secondarily by letter, we could do that quite easily.  Just sort by the secondary key first, then by the primary key.  Since the sort is stable, you know that a tie in the second (primary) sort will preserve the order you had going in.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt;&gt;&gt; a = [('d', 3), ('c', 5), ('b', 0), ('a', 0)]
+</span><span class='line'>&gt;&gt;&gt; a.sort(key=lambda tup: tup[0])
+</span><span class='line'>&gt;&gt;&gt; a
+</span><span class='line'>[('a', 0), ('b', 0), ('c', 5), ('d', 3)]
+</span><span class='line'>&gt;&gt;&gt; a.sort(key=lambda tup:tup[1])
+</span><span class='line'>&gt;&gt;&gt; a
+</span><span class='line'>[('a', 0), ('b', 0), ('d', 3), ('c', 5)]</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -404,6 +494,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/09/21/debugging-with-pstree/">Debugging with pstree</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/09/11/rejected-pycon-proposals/">Rejected PyCon Proposals</a>
       </li>
     
@@ -417,10 +511,6 @@
     
       <li class="post">
         <a href="/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/">Of Syntax Warnings and Symbol Tables</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/03/16/pycon-prep-import-is-a-keyword/">PyCon prep: import is a keyword</a>
       </li>
     
   </ul>

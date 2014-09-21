@@ -1,0 +1,319 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Debugging with pstree - Allison Kaptur</title>
+  <meta name="author" content="akaptur">
+
+  
+  <meta name="description" content="I hit a very fun bug yesterday while trying to run a script that sends emails to certain subsets of Hacker Schoolers. When I tried to test the script &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://akaptur.github.com/blog/2014/09/21/debugging-with-pstree/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Allison Kaptur" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42870230-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Allison Kaptur</a></h1>
+  
+    <h2>An occasional blog on programming</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:akaptur.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+  <li><a href="/talks">Talks</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Debugging With Pstree</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-21T17:46:00-04:00" pubdate data-updated="true">Sep 21<span>st</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I hit a very fun bug yesterday while trying to run a script that sends emails to certain subsets of Hacker Schoolers. When I tried to test the script locally, I discovered that one of the tables of the database, <code>Batch</code>, was missing from my local version.  After briefly panicking and making sure that the actual site was still up, I could dig in.</p>
+
+<p>It turns out that my local version of psql was way out of date, and as of a few days ago we&rsquo;d started using a data type that wasn&rsquo;t present in my old version. Because of that, creating that particular table failed when I pulled from the production database the night before. The failure was logged, but the output is so verbose that I didn&rsquo;t notice the problem. Both the diagnosis and the fix here were easy &ndash; I went back and read the logs, googled the data type that was raising an error, and then upgraded Postgres.app and psql. That&rsquo;s when the real trouble started.</p>
+
+<p>The new version of Postgres.app was placed in a new spot on the $PATH, as you&rsquo;d expect, and the upgrade prompted me to change my <code>.bashrc</code>, which I did. But the rake tasks we use to manage local copies of the database errored out with this message:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>$ pg_restore --verbose --clean --no-acl --no-owner -h localhost -U `whoami` -d hackerschool latest.dump
+</span><span class='line'>sh: pg_restore: command not found
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This was pretty clearly a $PATH problem. I tried the usual things first, like sourcing my <code>.bashrc</code> in the terminal I was using, closing the terminal and opening a new one, etc. None of that worked.</p>
+
+<p>One thing that jumped out to me was the <code>sh</code> in the error message. That was an indicator that rake wasn&rsquo;t using bash as a shell &ndash; it was using <code>sh</code> &ndash; which means my <code>.bashrc</code> wasn&rsquo;t setting the environment. Reading the rake task showed that it was a thin wrapper around lots of system calls via Ruby&rsquo;s <code>system("cmd here")</code>. I added the line <code>system("echo $PATH")</code> and verified that the new location of <code>pg_restore</code> wasn&rsquo;t in it.</p>
+
+<p>At this point I found I had lots of questions about the execution context of the rake task. Since I was making system calls and could easily edit the rakefile, I added in the line <code>system("sh")</code> to drop me into a shell mid-execution. This turned out to be an efficient way to figure out what was going on (and made me feel like a badass hacker).</p>
+
+<p>From within in that shell, I could do <code>$$</code> to get that process&rsquo;s PID, then repeatedly do <code>ps -ef | grep [PID]</code> to find the parent process.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>sh-3.2$ $$
+</span><span class='line'>sh: 34652: command not found
+</span><span class='line'>sh-3.2$ ps -ef | grep 34652
+</span><span class='line'>  501 34652 34639   0  4:18PM ??         0:00.04 sh
+</span><span class='line'>    0 34881 34652   0  4:26PM ??         0:00.01 ps -ef
+</span><span class='line'>  501 34882 34652   0  4:26PM ??         0:00.01 grep 34652
+</span><span class='line'>sh-3.2$ ps -ef | grep 34639
+</span><span class='line'>  501 34639  2914   0  4:18PM ??         0:00.41 rake db:drop db:create db:pull
+</span><span class='line'>  501 34652 34639   0  4:18PM ??         0:00.04 sh
+</span><span class='line'>  501 34885 34652   0  4:28PM ??         0:00.00 grep 34639
+</span><span class='line'>sh-3.2$ ps -ef | grep 2914
+</span><span class='line'>  501  2914  2913   0 10Sep14 ??        27:11.72 spring app    | hackerschool | started 244 hours ago | development mode
+</span><span class='line'>  501 34639  2914   0  4:18PM ??         0:00.41 rake db:drop db:create db:pull
+</span><span class='line'>  501 34889 34652   0  4:28PM ??         0:00.01 grep 2914
+</span><span class='line'>sh-3.2$ ps -ef | grep 2913
+</span><span class='line'>  501  2914  2913   0 10Sep14 ??        27:11.98 spring app    | hackerschool | started 244 hours ago | development mode
+</span><span class='line'>  501 34892 34652   0  4:29PM ??         0:00.00 grep 2913
+</span><span class='line'>  501  2913     1   0 10Sep14 ttys001    0:00.94 spring server | hackerschool | started 244 hours ago
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Aha! The parent process of the rake task I was running is the spring server, which starts on boot &ndash; several days ago, at the time &ndash; and doesn&rsquo;t have the new and updated $PATH information.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> A kick to the spring server (with <code>kill 2913</code>) forced the server process to restart with the new environment.</p>
+
+<p>It turns out there&rsquo;s a handy utility called <code>pstree</code><sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup> (brew installable) to visualize the tree of processes. This would have saved me a couple of steps of grepping. For example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>hackerschool [master] $ pstree -p 35351
+</span><span class='line'>-+= 00001 root /sbin/launchd
+</span><span class='line'> \-+- 35129 afk spring server | hackerschool | started 25 hours ago
+</span><span class='line'>   \-+= 35130 afk spring app    | hackerschool | started 25 hours ago | development mode
+</span><span class='line'>     \--- 35351 afk rails_console
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This bug and some related ones have gotten me more interested in operating systems, and I&rsquo;ve started reading the book <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/">Operating Systems: Three Easy Pieces</a>. I&rsquo;m only a few chapters in, but so far it&rsquo;s readable, clear, and entertaining. I look forward to building up my mental model of processes and environments as I keep reading it.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>We can tell it (probably) starts on boot because the parent process ID is 1. This means that rebooting my computer would have solved the problem.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>Thanks to <a href="//twitter.com/paultag">Paul Tag</a> for the pointer to <code>pstree</code>.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">akaptur</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-21T17:46:00-04:00" pubdate data-updated="true">Sep 21<span>st</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ruby/'>ruby</a>, <a class='category' href='/blog/categories/systems/'>systems</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://akaptur.github.com/blog/2014/09/21/debugging-with-pstree/" data-via="" data-counturl="http://akaptur.github.com/blog/2014/09/21/debugging-with-pstree/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/09/11/rejected-pycon-proposals/" title="Previous Post: Rejected PyCon Proposals">&laquo; Rejected PyCon Proposals</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/09/21/debugging-with-pstree/">Debugging with pstree</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/11/rejected-pycon-proposals/">Rejected PyCon Proposals</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/03/getting-started-with-python-internals/">Getting Started with Python Internals</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/02/the-cpython-peephole-optimizer-and-you/">The CPython Peephole Optimizer and You</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/">Of Syntax Warnings and Symbol Tables</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - akaptur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
+  <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
