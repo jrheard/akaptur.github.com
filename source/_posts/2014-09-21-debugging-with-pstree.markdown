@@ -16,11 +16,11 @@ $ pg_restore --verbose --clean --no-acl --no-owner -h localhost -U `whoami` -d h
 sh: pg_restore: command not found
 ~~~~
 
-This was pretty clearly a $PATH problem. I tried the usual things first, like sourcing the file and the terminal I was using, closing the terminal and opening a new one, etc. None of that worked.
+This was pretty clearly a $PATH problem. I tried the usual things first, like sourcing my `.bashrc` in the terminal I was using, closing the terminal and opening a new one, etc. None of that worked.
 
-One thing that jumped out to me was the `sh` in the error message. That was an indicator that rake weren't using bash as a shell - instead, it was using `sh`. Reading the rake task showed that it was a thin wrapper around lots of calls to Ruby's `system("cmd here")`. I added the line `system("echo $PATH")` and verified that the new location of pg_restore wasn't in it.
+One thing that jumped out to me was the `sh` in the error message. That was an indicator that rake wasn't using bash as a shell - it was using `sh` - which means my `.bashrc` wasn't setting the environment. Reading the rake task showed that it was a thin wrapper around lots of system calls via Ruby's `system("cmd here")`. I added the line `system("echo $PATH")` and verified that the new location of `pg_restore` wasn't in it.
 
-At this point I found I had lots of questions about the execution context of the rake task, but since I was making system calls and could easily edit the rakefile, I added in the line `system("sh")` to drop me into a shell mid-execution. This turned out to be an efficient way to figure out what was going on (and made me feel like a badass hacker).
+At this point I found I had lots of questions about the execution context of the rake task. Since I was making system calls and could easily edit the rakefile, I added in the line `system("sh")` to drop me into a shell mid-execution. This turned out to be an efficient way to figure out what was going on (and made me feel like a badass hacker).
 
 From within in that shell, I could do `$$` to get that process's PID, then repeatedly do `ps -ef | grep [PID]` to find the parent process.
 
@@ -57,5 +57,7 @@ hackerschool [master] $ pstree -p 35351
      \--- 35351 afk rails_console
 ~~~~
 
-[^1]: We can tell it starts on boot because the parent process ID is 1. This means that rebooting my computer would have solved the problem.)
+This bug and some related ones have gotten me more interested in operating systems, and I've started reading the book [Operating Systems: Three Easy Pieces](http://pages.cs.wisc.edu/~remzi/OSTEP/). I'm only a few chapters in, but so far it's readable, clear, and entertaining. I look forward to building up my mental model of processes and environments as I keep reading it.
+
+[^1]: We can tell it (probably) starts on boot because the parent process ID is 1. This means that rebooting my computer would have solved the problem.
 [^2]: Thanks to [Paul Tag](//twitter.com/paultag) for the pointer to `pstree`.
