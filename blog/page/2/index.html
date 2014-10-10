@@ -9,8 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="This is part of a series on the python interpreter.
-Part 1 here. When we left our heroes, they were examining a simple function object. Let&rsquo;s &hellip;">
+  <meta name="description" content="This is Part 3 in a series on the Python interpreter. Part 1 here, Part 2 here. If you&rsquo;re enjoying this series, consider applying to Hacker &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -79,6 +78,145 @@ Part 1 here. When we left our heroes, they were examining a simple function obje
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Introduction to the Python Interpreter, Part 3: Understanding Bytecode</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-17T09:56:00-05:00" pubdate data-updated="true">Nov 17<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><em>This is Part 3 in a series on the Python interpreter.  Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</a>, Part 2 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">here</a>.  If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
+
+<h3>Bytecode</h3>
+
+<p>When we left our heroes, they had come across some odd-looking output:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span>
+</span><span class='line'><span class="s">&#39;d</span><span class="se">\x01\x00</span><span class="s">}</span><span class="se">\x01\x00</span><span class="s">|</span><span class="se">\x01\x00</span><span class="s">|</span><span class="se">\x00\x00\x17</span><span class="s">S&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is python <em>bytecode</em>.</p>
+
+<p>You recall from Part 2 that &ldquo;python bytecode&rdquo; and &ldquo;a python code object&rdquo; are not the same thing: the bytecode is an attribute of the code object, among many other attributes.  Bytecode is found in the <code>co_code</code> attribute of the code object, and contains instructions for the interpreter.</p>
+
+<p>So what is bytecode?  Well, it&rsquo;s just a series of bytes.  They look wacky when we print them because some bytes are printable and others aren&rsquo;t, so let&rsquo;s take the <code>ord</code> of each byte to see that they&rsquo;re just numbers.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span><span class="p">]</span>
+</span><span class='line'><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">83</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here are the bytes that make up python bytecode.  The interpreter will loop through each byte, look up what it should do for each one, and then do that thing.  Notice that the bytecode itself doesn&rsquo;t include any python objects, or references to objects, or anything like that.</p>
+
+<p>One way to understand python bytecode would be to find the CPython interpreter file (it&rsquo;s <code>ceval.c</code>), and flip through it looking up what <code>100</code> means, then <code>1</code>, then <code>0</code>, and so on.  We&rsquo;ll do this later in the series!  For now, there&rsquo;s a simpler way: the <code>dis</code> module.</p>
+
+<h3>Disassembling bytecode</h3>
+
+<p>Disassembling bytecode means taking this series of bytes and printing out something we humans can understand.  It&rsquo;s not a step in python execution; the <code>dis</code> module just helps us understand an intermediate state of python internals. I can&rsquo;t think of a reason why you&rsquo;d ever want to use <code>dis</code> in production code &ndash; it&rsquo;s for humans, not for machines.</p>
+
+<p>Today, however, taking some bytecode and making it human-readable is exactly what we&rsquo;re trying to do, so <code>dis</code> is a great tool.  We&rsquo;ll use the function <code>dis.dis</code> to analyze the code object of our function <code>foo</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+</span><span class='line'><span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span class='line'><span class="o">...</span>     <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">a</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">dis</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">3</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="mi">3</span>           <span class="mi">6</span> <span class="n">LOAD_FAST</span>                <span class="mi">1</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>              <span class="mi">9</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</span><span class='line'>             <span class="mi">12</span> <span class="n">BINARY_ADD</span>
+</span><span class='line'>             <span class="mi">13</span> <span class="n">RETURN_VALUE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(You usually see this called as <code>dis.dis(foo)</code>, directly on the function object.  That&rsquo;s just a convenience: <code>dis</code> is really analyzing the code object.  If it&rsquo;s passed a function, it just gets its code object.)</p>
+
+<p>The numbers in the left-hand column are line numbers in the original source code.  The second column is the offset into the bytecode: <code>LOAD_CONST</code> appears at position 0, <code>STORE_FAST</code> at position 3, and so on.  The middle column shows the names of bytes. These names are just for our (human) benefit &ndash; the interpreter doesn&rsquo;t need the names.</p>
+
+<p>The last two columns give details about the instructions&rsquo;s argument, if there is an argument.  The fourth column shows the argument itself, which represents an index into other attributes of the code object. In the example, <code>LOAD_CONST</code>&rsquo;s argument is an index into the list <code>co_consts</code>, and <code>STORE_FAST</code>&rsquo;s argument is an index into <code>co_varnames</code>.  Finally, in the fifth column, <code>dis</code> has looked up the constants or names in the place the fourth column specified and told us what it found there. We can easily verify this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_consts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'><span class="mi">3</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_varnames</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'><span class="s">&#39;x&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This also explains why the second instruction, <code>STORE_FAST</code>, is found at bytecode position 3.  If a bytecode has an argument, the next two bytes are that argument. It&rsquo;s the interpreter&rsquo;s job to handle this correctly.</p>
+
+<p>(You may be surprised that <code>BINARY_ADD</code> doesn&rsquo;t have arguments. We&rsquo;ll come back to this in a future installment, when we get to the interpreter itself.)</p>
+
+<p>People often say that <code>dis</code> is a disassembler of python bytecode.  This is true enough &ndash; the <code>dis</code> module&rsquo;s docs say it &ndash; but <code>dis</code> knows about more than just the bytecode, too: it uses the whole code object to give us an understandable printout.  The middle three columns show information actually encoded in the bytecode, while the first and the last columns show other information.  Again, the bytecode itself is really limited: it&rsquo;s just a series of numbers, and things like names and constants are not a part of it.</p>
+
+<p>How does the <code>dis</code> module get from bytes like <code>100</code> to names like <code>LOAD_CONST</code> and back?  Try to think of a way you&rsquo;d do it.  If you thought &ldquo;Well, you could have a list that has the byte names in the right order,&rdquo; or you thought, &ldquo;I guess you could have a dictionary where the names are the keys and the byte values are the values,&rdquo; then congratulations!  That&rsquo;s exactly what&rsquo;s going on.  The file <code>opcode.py</code> defines the list and the dictionary.  It&rsquo;s full of lines like these (<code>def_op</code> inserts the mapping in both the list and the dictionary):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">def_op</span><span class="p">(</span><span class="s">&#39;LOAD_CONST&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>       <span class="c"># Index in const list</span>
+</span><span class='line'><span class="n">def_op</span><span class="p">(</span><span class="s">&#39;BUILD_TUPLE&#39;</span><span class="p">,</span> <span class="mi">102</span><span class="p">)</span>      <span class="c"># Number of tuple items</span>
+</span><span class='line'><span class="n">def_op</span><span class="p">(</span><span class="s">&#39;BUILD_LIST&#39;</span><span class="p">,</span> <span class="mi">103</span><span class="p">)</span>       <span class="c"># Number of list items</span>
+</span><span class='line'><span class="n">def_op</span><span class="p">(</span><span class="s">&#39;BUILD_SET&#39;</span><span class="p">,</span> <span class="mi">104</span><span class="p">)</span>        <span class="c"># Number of set items</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There&rsquo;s even a friendly comment telling us what each byte&rsquo;s argument means.</p>
+
+<p>Ok, now we understand what python bytecode is (and isn&rsquo;t), and how to use <code>dis</code> to make sense of it. In Part 4, we&rsquo;ll look at another example to see how Python can compile down to bytecode but still be a dynamic language.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2033,130 +2171,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/06/25/new-git-tricks/">New Git Tricks</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-06-25T14:14:00-04:00" pubdate data-updated="true">Jun 25<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I picked up a couple of new tricks at Hacker School&rsquo;s intermediate/advanced Git seminar, led by Peter Bell.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ git checkout -</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This checks out whatever you had checked out last.  Thanks, <a href="https://github.com/nnja">Nina</a>!</p>
-
-<p>Draw a graph of the commit history:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git-advanced [master]\ $ git log --graph --oneline --all
-</span><span class='line'>*   b2da179 Merge branch 'test-graph'
-</span><span class='line'>|\  
-</span><span class='line'>| * d71e4fc testing graph thing
-</span><span class='line'>* | 8535311 still testing graph
-</span><span class='line'>|/  
-</span><span class='line'>* b90b105 Added contact form
-</span><span class='line'>* b36ba51 added gitignore to ignore generated log files
-</span><span class='line'>* 70461dc added about
-</span><span class='line'>* c57f995 added homepage</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can alias this with <code>git config --global alias.plog "log --graph --oneline --all"</code>.  (Looking at this graph may motivate you to start using <code>git merge --no-ff</code>.)  You can substitute whatever you want for <code>plog</code> above.</p>
-
-<p>If you get really screwed up, it&rsquo;s reflog time!  (This is pronounced ref-log, not re-flog as I&rsquo;d been reading it.  On the other hand, as my colleague <a href="https://github.com/happy4crazy">Alan</a> notes, &ldquo;You damn well ought to feel penitent if you&rsquo;re wedged enough to need the reflog.&rdquo;)  Here, we&rsquo;re using <code>git reset</code> to undo the last commit.  Even though the commit doesn&rsquo;t appear in <code>git log</code> anymore, there&rsquo;s still a references to it in the reflog.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git-advanced [master %]\ $ git add tester.css
-</span><span class='line'>git-advanced [master +]\ $ git commit -m "add some file"
-</span><span class='line'>git-advanced [master]\ $ git reset HEAD~1
-</span><span class='line'>git-advanced [master %]\ $ git add tester.css
-</span><span class='line'>git-advanced [master +]\ $ git commit -m "redoing some file"
-</span><span class='line'>
-</span><span class='line'>git-advanced [master]\ $ git log --oneline
-</span><span class='line'>8039ec5 redoing some file
-</span><span class='line'>b2da179 Merge branch 'test-graph'
-</span><span class='line'>8535311 still testing graph
-</span><span class='line'>d71e4fc testing graph thing
-</span><span class='line'>
-</span><span class='line'>git-advanced [master]\ $ git reflog
-</span><span class='line'>8039ec5 HEAD@{0}: commit: redoing some file
-</span><span class='line'>b2da179 HEAD@{1}: reset: moving to HEAD~1
-</span><span class='line'>848874d HEAD@{2}: commit: add some file</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It turns out that there is a better way to get a commit sha than running <code>git log</code> and copying and pasting the relevant shas.  You can use <code>rev-parse</code> instead.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git-advanced [master]\ $ git rev-parse HEAD~2
-</span><span class='line'>0fafe464f4b7d524c8ba707ea2115950d6dd4bdf
-</span><span class='line'>git-advanced [master]\ $ git rev-parse master
-</span><span class='line'>8039ec584485540f07aac1209389022f627bc8c5</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then you can inline with backticks!</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git-advanced [master]\ $ git diff `git rev-parse HEAD~2` `git rev-parse HEAD`</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now go forth and git in peace.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -2174,6 +2188,10 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/10/10/im-joining-dropbox/">I&#8217;m joining Dropbox</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/09/21/debugging-with-pstree/">Debugging with pstree</a>
       </li>
     
@@ -2187,10 +2205,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
     
       <li class="post">
         <a href="/blog/2014/08/02/the-cpython-peephole-optimizer-and-you/">The CPython Peephole Optimizer and You</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/">Of Syntax Warnings and Symbol Tables</a>
       </li>
     
   </ul>
