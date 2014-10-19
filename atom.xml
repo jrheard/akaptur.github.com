@@ -4,7 +4,7 @@
   <title><![CDATA[Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-10-19T17:56:29-04:00</updated>
+  <updated>2014-10-19T17:59:49-04:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -12,15 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Cool demo post]]></title>
-    <link href="http://akaptur.github.com/blog/2014/10/10/cool-demo-post/"/>
-    <updated>2014-10-10T13:11:00-04:00</updated>
-    <id>http://akaptur.github.com/blog/2014/10/10/cool-demo-post</id>
-    <content type="html"><![CDATA[
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[I'm joining Dropbox]]></title>
@@ -3520,6 +3511,345 @@ However, Jessica&rsquo;s solution <del>fails the &ldquo;order doesn&rsquo;t matt
 </ol>
 </div>
 
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Side-effecting Assignment]]></title>
+    <link href="http://akaptur.github.com/blog/2013/06/28/side-effecting-assignment/"/>
+    <updated>2013-06-28T14:35:00-04:00</updated>
+    <id>http://akaptur.github.com/blog/2013/06/28/side-effecting-assignment</id>
+    <content type="html"><![CDATA[<h2>Surprises</h2>
+
+<p>My colleague <a href="https://github.com/davidbalbert">Dave</a> told me about an interesting bit of Ruby the other day.  If you make a new <code>Class</code> object, it initially has no name. If you then assign a name to it, with your new class on the right-hand side of the assignment, the name is attached to the Class object.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">c</span> <span class="o">=</span> <span class="no">Class</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Class:0x007ff19bc46988&gt;</span>
+</span><span class='line'><span class="o">[</span><span class="mi">3</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kp">nil</span>
+</span><span class='line'><span class="o">[</span><span class="mi">4</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Foo</span> <span class="o">=</span> <span class="n">c</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
+</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Foo</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
+</span><span class='line'><span class="o">[</span><span class="mi">6</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">c</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
+</span><span class='line'><span class="o">[</span><span class="mi">7</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;Foo&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I found this shockingly non-intuitive. Really, an assignment statement permanently modified the object on the right-hand side?</p>
+
+<p>In a word, yes.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="mi">8</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Bar</span> <span class="o">=</span> <span class="n">c</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
+</span><span class='line'><span class="o">[</span><span class="mi">9</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">c</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
+</span><span class='line'><span class="o">[</span><span class="mi">10</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Foo</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
+</span><span class='line'><span class="o">[</span><span class="mi">11</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Bar</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">[</span><span class="mi">12</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Baz</span> <span class="o">=</span> <span class="no">Foo</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
+</span><span class='line'><span class="o">[</span><span class="mi">13</span><span class="o">]</span> <span class="n">pry</span><span class="p">(</span><span class="n">main</span><span class="p">)</span><span class="o">&gt;</span> <span class="no">Baz</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="no">Foo</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To recap:</p>
+
+<p>Step 1: <code>c</code> is some object</p>
+
+<p>Step 2: set <code>Foo = c</code></p>
+
+<p>Step 3: <code>c</code> is permanently altered.</p>
+
+<p>Wow.</p>
+
+<p>Luckily for our intuition, this is a pretty special case, and not a way that Ruby generally behaves.  But it got me wondering if there&rsquo;s something similar in python.</p>
+
+<h2>What about python?</h2>
+
+<p>The simplest answer is &ldquo;no&rdquo;.  In python, <a href="http://docs.python.org/2/reference/simple_stmts.html#assignment-statements">assignment is a simple statement</a>, not an operator, so you can&rsquo;t do things like operator overloading.  This also means we can&rsquo;t somehow add a hook to assignment.</p>
+
+<p>Ok, fine.  But wait &ndash; we&rsquo;re programmers!  We don&rsquo;t give up that easily.</p>
+
+<p>What about hooking on <code>__getattribute__</code>?  (Defining your own <code>__getattribute__</code> is &ldquo;the bad way&rdquo; to do it.  You almost always want to define your own <code>__getattr__</code>, unless you&rsquo;re doing something silly and/or malicious, like we are.  Note that we have to use the parent class (<code>object</code>)&rsquo;s <code>__getattribute__</code> to extract and save the attribute we want.  If we didn&rsquo;t do that, we&rsquo;d trigger an infinitely recursive lookup.)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">some_attr</span> <span class="o">=</span> <span class="s">&quot;sup foo&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">attribute</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+</span><span class='line'>        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="s">&quot;you&#39;re too late!&quot;</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">attribute</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This looks like it works!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">f</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">obj</span><span class="o">.</span><span class="n">Foo</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x10253dd10</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">word</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">some_attr</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">word</span>
+</span><span class='line'><span class="n">sup</span> <span class="n">foo</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">f</span><span class="o">.</span><span class="n">some_attr</span>
+</span><span class='line'><span class="n">you</span><span class="s">&#39;re too late!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Unfortunately, this behavior has nothing to do with assignment.  The object was mutated when <code>__getattribute__</code> was called, which happened to be in an assignment statement in this code above.  We&rsquo;d get exactly the same behavior without the assignment:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">g</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">g</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">obj</span><span class="o">.</span><span class="n">Foo</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x10253dd10</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">g</span><span class="o">.</span><span class="n">some_attr</span>
+</span><span class='line'><span class="n">sup</span> <span class="n">foo</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">g</span><span class="o">.</span><span class="n">some_attr</span>
+</span><span class='line'><span class="n">you</span><span class="s">&#39;re too late!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Darn.</p>
+
+<p>But we&rsquo;re programmers, right?  We don&rsquo;t give up that easily.</p>
+
+<h2>Trace functions to the rescue</h2>
+
+<p>There&rsquo;s a <code>settrace</code> function in python&rsquo;s <code>sys</code> module that we can use to examine stack frames, events, and lots of other code data while our program is running.  <code>sys.settrace(fn)</code> takes a trace function as an argument, and that trace function must take <code>frame, event, args</code> as arguments.  It will then get called every time an event happens.  A line of code, a function call, a function return, and an exception are all &ldquo;events&rdquo;.  We can use this to inspect each line of code before it runs and check manually if it&rsquo;s an assignment statement.</p>
+
+<p>(I know this is silly, but isn&rsquo;t it fun?)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">linecache</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Tracer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">program</span> <span class="o">=</span> <span class="n">program</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">traceit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="s">&#39;line&#39;</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">linenum</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_lineno</span>
+</span><span class='line'>            <span class="n">linetext</span> <span class="o">=</span> <span class="n">linecache</span><span class="o">.</span><span class="n">getline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="p">,</span> <span class="n">linenum</span><span class="p">)</span>
+</span><span class='line'>            <span class="n">vprint</span><span class="p">(</span> <span class="s">&#39;line&#39;</span><span class="p">,</span> <span class="n">linenum</span><span class="p">,</span> <span class="n">linetext</span> <span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">is_assignment</span> <span class="o">=</span> <span class="s">&quot;=&quot;</span> <span class="ow">in</span> <span class="n">linetext</span> <span class="ow">and</span> <span class="s">&quot;==&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">linetext</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">if</span> <span class="n">is_assignment</span><span class="p">:</span>
+</span><span class='line'>                <span class="bp">self</span><span class="o">.</span><span class="n">mess_up_on_assignment</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">linetext</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">traceit</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(The trace function returns a reference to itself to indicate that tracing should continue.)</p>
+
+<p>Now let&rsquo;s write our code to mess up assignment.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">Tracer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>    <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">mess_up_on_assignment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">linetext</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">rhs</span> <span class="o">=</span> <span class="n">linetext</span><span class="p">[</span><span class="n">linetext</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+</span><span class='line'>        <span class="n">names</span> <span class="o">=</span> <span class="n">rhs</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</span><span class='line'>        <span class="n">local_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">+</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">local_objs</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">JANKY_NAMESPACE_MANAGER</span><span class="p">:</span>
+</span><span class='line'>                <span class="n">box</span> <span class="o">=</span> <span class="n">Box</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="p">)</span>
+</span><span class='line'>                <span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">box</span>
+</span><span class='line'>            <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>                <span class="n">JANKY_NAMESPACE_MANAGER</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">assignments</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">JANKY_NAMESPACE_MANAGER</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Box</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">assignments</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">JANKY_NAMESPACE_MANAGER</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s">&quot;this message has self-destructed.&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here our &ldquo;box&rdquo; object is pretty silly.  It takes the original object and wraps it in a box.  (You could implement <code>__getattr__</code> and <code>__setattr__</code> so that the box behaves basically like the original object, which I haven&rsquo;t done.)  The box then explodes when you try to print it.  We&rsquo;re also tracking which names we&rsquo;ve seen with the aptly-named <code>JANKY_NAMESPACE_MANAGER</code> (which has all kinds of scope issues, but whatever).</p>
+
+<p>Meanwhile, in the <code>mess_up_on_assignment</code> code, we check to see if any of the whitespace-separated words on the right-hand side of the equation are names we recognize from <code>frame.f_locals</code> or <code>frame.f_globals</code>.  If so, and if we haven&rsquo;t seen them before, throw them in a self-destructing box!</p>
+
+<p>Add a simple helper to get things set up.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">assignment</span><span class="p">(</span><span class="n">orig_file</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">trace_obj</span> <span class="o">=</span> <span class="n">Tracer</span><span class="p">(</span><span class="n">orig_file</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">sys</span><span class="o">.</span><span class="n">settrace</span><span class="p">(</span><span class="n">trace_obj</span><span class="o">.</span><span class="n">traceit</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can now sabotage simple-looking programs!</p>
+
+<p>This one runs fine:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">sabotage</span>
+</span><span class='line'><span class="n">sabotage</span><span class="o">.</span><span class="n">assignment</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">greet</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">name</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s">&quot;Enter your name: &quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;hello,&quot;</span><span class="p">,</span> <span class="n">name</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;goodbye, &quot;</span><span class="p">,</span> <span class="n">name</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">greet</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And this one blows up:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">sabotage</span>
+</span><span class='line'><span class="n">sabotage</span><span class="o">.</span><span class="n">assignment</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;done sabotaging&quot;</span>
+</span><span class='line'><span class="nb">raw_input</span><span class="p">(</span><span class="s">&quot;Hit enter to continue&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">greet</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">name</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s">&quot;Enter your name: &quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;hello,&quot;</span><span class="p">,</span> <span class="n">name</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">name_copy</span> <span class="o">=</span> <span class="n">name</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;goodbye, &quot;</span><span class="p">,</span> <span class="n">name</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">greet</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And there you have it &ndash; a (incredibly goofy) side-effecting assignment that mutates the object on the right-hand side of the assignment statement.</p>
 ]]></content>
   </entry>
   
