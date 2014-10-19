@@ -9,7 +9,8 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="Big news for me: I’m leaving Hacker School and going to work for Dropbox in San Francisco, joining Jessica McKellar’s team. I met Jessica when she &hellip;">
+  <meta name="description" content="
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +79,42 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/10/cool-demo-post/">Cool Demo Post</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-10T13:11:00-04:00" pubdate data-updated="true">Oct 10<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1919,159 +1956,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/12/03/introduction-to-the-python-interpreter-4/">Introduction to the Python Interpreter, Part 4: It&#8217;s Dynamic!</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-03T11:25:00-05:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><em>This is Part 4 in a <a href="/blog/categories/python-internals">series</a> on the Python interpreter. Read <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Part 1</a>, <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">Part 2</a>, and <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Part 3</a>. If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
-
-<p>One of the things I was confused about when I started digging into python internals was how python could be &ldquo;dynamic&rdquo; if it was also &ldquo;compiled.&rdquo; Often, in casual coversation, those two words are used as antonyms &ndash; there are &ldquo;dynamic languages,&rdquo;<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> like Python, Ruby, and Javascript, and &ldquo;compiled languages,&rdquo; like C, Java, and Haskell.</p>
-
-<p>Most of the time, when people talk about a &ldquo;compiled&rdquo; language, they mean one that compiles down to native x86/ARM/etc instructions<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup> &ndash; instructions for an actual machine made of metal. An &ldquo;interpreted&rdquo; language either doesn&rsquo;t have any compilation at all<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup>, or compiles to an intermediate representation, like bytecode.  Bytecode is instructions for a virtual machine, not a piece of hardware. Python falls into this latter category: the Python compiler&rsquo;s job is to generate bytecode for the Python interpreter.<sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></p>
-
-<p>The Python interpreter&rsquo;s job is to make sense of the bytecode via the virtual machine, which turns out to be a lot of work. We&rsquo;ll dig in to the virtual machine in Part 5.</p>
-
-<p>So far our discussion of compiling versus interpretation has been abstract. These ideas become more clear with an example.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">modulus</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">return</span> <span class="n">x</span> <span class="o">%</span> <span class="n">y</span>
-</span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">modulus</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span><span class="p">]</span>
-</span><span class='line'><span class="p">[</span><span class="mi">124</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">83</span><span class="p">]</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">modulus</span><span class="o">.</span><span class="n">func_code</span><span class="p">)</span>
-</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">3</span> <span class="n">LOAD_FAST</span>                <span class="mi">1</span> <span class="p">(</span><span class="n">y</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">6</span> <span class="n">BINARY_MODULO</span>
-</span><span class='line'>              <span class="mi">7</span> <span class="n">RETURN_VALUE</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Here&rsquo;s a function, its bytecode, and its bytecode run through the disassembler. By the time we get the prompt back after the function definition, the <code>modulus</code> function has been compiled and a code object generated. That code object will never be modified.</p>
-
-<p>This seems pretty easy to reason about. Unsurprisingly, typing a modulus (<code>%</code>) causes the compiler to emit the instruction <code>BINARY_MODULO</code>. It looks like this function will be useful if we need to calculate a remainder.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-</span><span class='line'><span class="mi">3</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So far, so good. But what if we don&rsquo;t pass it numbers?</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="s">&quot;hello </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;world&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="s">&#39;hello world&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Uh-oh, what happened there? You&rsquo;ve probably seen this before, but it usually looks like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="s">&quot;hello </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;world&quot;</span>
-</span><span class='line'><span class="n">hello</span> <span class="n">world</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Somehow, when <code>BINARY_MODULO</code> is faced with two strings, it does string interpolation instead of taking a remainder. This situation is a great example of dynamic typing. When the compiler built our code object for <code>modulus</code>, it had no idea whether <code>x</code> and <code>y</code> would be strings, numbers, or something else entirely. It just emitted some instructions: load one name, load another, <code>BINARY_MODULO</code> the two objects, and return the result. It&rsquo;s the interpreter&rsquo;s job to figure out what <code>BINARY_MODULO</code> actually means.</p>
-
-<p>I&rsquo;d like to reflect on the depth of our ignorance for a moment. Our function <code>modulus</code> can calculate remainders, or it can do string formatting &hellip; what else?  If we define a custom object that responds to <code>__mod__</code>, then we can do <em>anything</em>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">Surprise</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>         <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">num</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__mod__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">num</span>
-</span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">seven</span> <span class="o">=</span> <span class="n">Surprise</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">four</span> <span class="o">=</span> <span class="n">Surprise</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="n">seven</span><span class="p">,</span> <span class="n">four</span><span class="p">)</span>
-</span><span class='line'><span class="mi">11</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-</span><span class='line'><span class="mi">3</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">modulus</span><span class="p">(</span><span class="s">&quot;hello </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;world&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="s">&#39;hello world&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The same function <code>modulus</code>, with the same bytecode, has wildly different effects when passed different kinds of objects.  It&rsquo;s also possible for <code>modulus</code> to raise an error &ndash; for example, a <code>TypeError</code> if we called it on objects that didn&rsquo;t implement <code>__mod__</code>. Heck, we could even write a custom object that raises a <code>SystemExit</code> when <code>__mod__</code> is invoked.  Our <code>__mod__</code> function could have written to a file, or changed a global variable, or deleted another attribute of the object. We have near-total freedom.</p>
-
-<p>This ignorance is one of the reasons that it&rsquo;s hard to optimize Python: you don&rsquo;t know when you&rsquo;re compiling the code object and generating the bytecode what it&rsquo;s going to end up doing. The compiler has no idea what&rsquo;s going to happen. As Russell Power and Alex Rubinsteyn wrote in <a href="http://arxiv.org/pdf/1306.6047v2.pdf">&ldquo;How fast can we make interpreted Python?&rdquo;</a>, &ldquo;In the general absence of type information, almost every instruction must be treated as INVOKE_ARBITRARY_METHOD.&rdquo;</p>
-
-<p>While a general definition of &ldquo;compiling&rdquo; and &ldquo;interpreting&rdquo; can be difficult to nail down, in the context of Python it&rsquo;s fairly straightforward. Compiling is generating the code objects, including the bytecode. Interpreting is making sense of the bytecode in order to actually make things happen. One of the ways in which Python is &ldquo;dynamic&rdquo; is that the same bytecode doesn&rsquo;t always have the same effect. More generally, in Python the compiler does relatively little work, and the intrepreter relatively more.</p>
-
-<p>In Part 5, we&rsquo;ll look at the actual virtual machine and interpreter.</p>
-<div class="footnotes">
-<hr/>
-<ol>
-<li id="fn:1">
-<p>You sometimes hear &ldquo;interpreted language&rdquo; instead of &ldquo;dynamic language,&rdquo; which is usually, mostly, synonymous.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
-<li id="fn:2">
-<p>Thanks to David Nolen for this definition. The lines between &ldquo;parsing,&rdquo; &ldquo;compiling,&rdquo; and &ldquo;interpreting&rdquo; are not always clear. <a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
-<li id="fn:3">
-<p>Some languages that are usually not compiled at all include R, Scheme, and binary, depending on the implementation and your definition of &ldquo;compile.&rdquo;<a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
-<li id="fn:4">
-<p>As always in this series, I&rsquo;m talking about CPython and Python 2.7, although most of this content is true across implementations.<a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
-</ol>
-</div>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -2087,6 +1971,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/10/10/cool-demo-post/">Cool demo post</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/10/im-joining-dropbox/">I&#8217;m joining Dropbox</a>
       </li>
     
@@ -2100,10 +1988,6 @@
     
       <li class="post">
         <a href="/blog/2014/08/03/getting-started-with-python-internals/">Getting Started with Python Internals</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/08/02/the-cpython-peephole-optimizer-and-you/">The CPython Peephole Optimizer and You</a>
       </li>
     
   </ul>
