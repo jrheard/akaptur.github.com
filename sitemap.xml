@@ -2,134 +2,134 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://akaptur.github.com/blog/2012/12/18/git-add-p-the-wave-of-the-future/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2012/12/23/some-wacky-shell-scripting/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/01/02/surprised-by-stable-sort/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/06/25/new-git-tricks/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/06/28/side-effecting-assignment/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/07/02/more-side-effecting/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/07/24/systematic-debugging/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/08/14/python-bytecode-fun-with-dis/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/10/15/bug-hunting/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/10/29/a-python-puzzle/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2013/10/31/python-puzzle-solutions/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/
         </loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2/
         </loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3/
         </loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://akaptur.github.com/blog/2013/12/03/introduction-to-the-python-interpreter-4/
         </loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2014/02/16/pycon-prep-require-in-ruby/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2014/03/16/reading-ebnf/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2014/03/16/pycon-prep-import-is-a-keyword/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://akaptur.github.com/blog/2014/08/02/the-cpython-peephole-optimizer-and-you/
         </loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://akaptur.github.com/blog/2014/08/03/getting-started-with-python-internals/
         </loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2014/09/11/rejected-pycon-proposals/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2014/09/21/debugging-with-pstree/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2014/10/10/im-joining-dropbox/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2014/10/23/ps1-for-python3/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/about/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/archives/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/robots.txt</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/talks/</loc>
-        <lastmod>2014-10-23T15:04:00-04:00</lastmod>
+        <lastmod>2014-10-23T15:16:55-04:00</lastmod>
     </url>
 </urlset>
