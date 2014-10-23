@@ -1,0 +1,287 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>PS1 for Python3 - Allison Kaptur</title>
+  <meta name="author" content="akaptur">
+
+  
+  <meta name="description" content="I spend a lot of time flipping back and forth between Python 2.x and 3.x: I use different versions for different projects, talk to people about &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://akaptur.github.com/blog/2014/10/23/ps1-for-python3/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Allison Kaptur" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42870230-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Allison Kaptur</a></h1>
+  
+    <h2>An occasional blog on programming</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:akaptur.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+  <li><a href="/talks">Talks</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">PS1 for Python3</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-23T14:38:00-04:00" pubdate data-updated="true">Oct 23<span>rd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I spend a lot of time flipping back and forth between Python 2.x and 3.x: I use different versions for different projects, talk to people about different versions, explore differences between the two, and paste the output of REPL sessions into chat windows.  I also like to keep long-running REPL sessions.  These two activities in combination became quite confusing, and I&rsquo;d often forget which version I was using.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">some_var</span>
+</span><span class='line'>  <span class="n">File</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">print</span> <span class="n">some_var</span>
+</span><span class='line'>                 <span class="o">^</span>
+</span><span class='line'><span class="ne">SyntaxError</span><span class="p">:</span> <span class="n">invalid</span> <span class="n">syntax</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="c"># *swears*</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After the hundredth time I made this mistake, I decided to modify my prompt to make it always obvious which version was which, even in long-running REPL sessions.  You can do this by creating a file to be run when Python starts up.  Add this line to your <code>.bashrc</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">export</span> <span class="n">PYTHONSTARTUP</span><span class="o">=~/</span><span class="n">mystartupscript</span><span class="o">.</span><span class="n">py</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then in <code>mystartupscript.py</code>:</p>
+
+<figure class='code'><figcaption><span>mystartupscript.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class='line'><span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">major</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">sys</span><span class="o">.</span><span class="n">ps1</span> <span class="o">=</span> <span class="s">&quot;PY3 &gt;&gt;&gt; &quot;</span>
+</span><span class='line'>    <span class="n">sys</span><span class="o">.</span><span class="n">ps2</span> <span class="o">=</span> <span class="s">&quot;PY3 ... &quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This makes it obvious when you&rsquo;re about to slip up:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">PY3</span> <span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">giant_collection</span><span class="p">:</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span class='line'><span class="n">PY3</span> <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;ve also add this line to <code>mystartupscript.py</code> to bite the bullet and start using print as a function everywhere:</p>
+
+<figure class='code'><figcaption><span>mystartupscript.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This has no effect in Python3.x, but will move 2.x to the new syntax.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">akaptur</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-23T14:38:00-04:00" pubdate data-updated="true">Oct 23<span>rd</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/python/'>python</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://akaptur.github.com/blog/2014/10/23/ps1-for-python3/" data-via="" data-counturl="http://akaptur.github.com/blog/2014/10/23/ps1-for-python3/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/10/10/im-joining-dropbox/" title="Previous Post: I'm joining Dropbox">&laquo; I'm joining Dropbox</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/23/ps1-for-python3/">PS1 for Python3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/10/im-joining-dropbox/">I'm joining Dropbox</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/21/debugging-with-pstree/">Debugging with pstree</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/11/rejected-pycon-proposals/">Rejected PyCon Proposals</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/03/getting-started-with-python-internals/">Getting Started with Python Internals</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - akaptur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
+  <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
