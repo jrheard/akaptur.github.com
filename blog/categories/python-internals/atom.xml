@@ -4,7 +4,7 @@
   <title><![CDATA[Category: python-internals | Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/blog/categories/python-internals/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-10-23T15:50:01-04:00</updated>
+  <updated>2015-10-10T18:18:55-07:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[The CPython Peephole Optimizer and You]]></title>
     <link href="http://akaptur.github.com/blog/2014/08/02/the-cpython-peephole-optimizer-and-you/"/>
-    <updated>2014-08-02T11:25:00-04:00</updated>
+    <updated>2014-08-02T11:25:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/08/02/the-cpython-peephole-optimizer-and-you</id>
     <content type="html"><![CDATA[<p>Last Thursday I gave a lightning talk at <a href="//www.hackerschool.com">Hacker School</a> about the peephole optimizer in Python.  A &ldquo;peephole optimization&rdquo; is a compiler optimization that looks at a small chunk of code at a time and optimizes in that little spot. This post explains one surprising side-effect of an optimization in CPython.</p>
 
@@ -510,7 +510,7 @@ peephole [master *+] ⚲ ../cpython/python.exe coverage2.py
   <entry>
     <title type="html"><![CDATA[Of Syntax Warnings and Symbol Tables]]></title>
     <link href="http://akaptur.github.com/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/"/>
-    <updated>2014-06-11T18:30:00-04:00</updated>
+    <updated>2014-06-11T18:30:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/06/11/of-syntax-warnings-and-symbol-tables</id>
     <content type="html"><![CDATA[<p>A Hacker Schooler hit an interesting bug today: her program would sometimes emit the message <code>SyntaxWarning: import * only allowed at module level</code>.  I had never seen a <code>SyntaxWarning</code> before, so I decided to dig in.</p>
 
@@ -740,7 +740,7 @@ SyntaxError: import * is not allowed in function &lsquo;one&rsquo; because it co
   <entry>
     <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 4: It's Dynamic!]]></title>
     <link href="http://akaptur.github.com/blog/2013/12/03/introduction-to-the-python-interpreter-4/"/>
-    <updated>2013-12-03T11:25:00-05:00</updated>
+    <updated>2013-12-03T11:25:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2013/12/03/introduction-to-the-python-interpreter-4</id>
     <content type="html"><![CDATA[<p><em>This is Part 4 in a <a href="/blog/categories/python-internals">series</a> on the Python interpreter. Read <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Part 1</a>, <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">Part 2</a>, and <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Part 3</a>. If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
 
@@ -844,7 +844,7 @@ modulus(&ldquo;hello %s&rdquo;, &ldquo;world&rdquo;)
   <entry>
     <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 3: Understanding Bytecode]]></title>
     <link href="http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3/"/>
-    <updated>2013-11-17T09:56:00-05:00</updated>
+    <updated>2013-11-17T09:56:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3</id>
     <content type="html"><![CDATA[<p><em>This is Part 3 in a series on the Python interpreter.  Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</a>, Part 2 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">here</a>.  If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
 
@@ -940,7 +940,7 @@ def_op('BUILD_SET', 104)        # Number of set items
   <entry>
     <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 2: Code Objects]]></title>
     <link href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2/"/>
-    <updated>2013-11-15T19:22:00-05:00</updated>
+    <updated>2013-11-15T19:22:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2</id>
     <content type="html"><![CDATA[<p>This is part of a <a href="/blog/categories/python-internals">series</a> on the python interpreter.
 Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</a>.</p>

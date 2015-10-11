@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ruby | Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-10-23T15:50:01-04:00</updated>
+  <updated>2015-10-10T18:18:55-07:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Debugging with pstree]]></title>
     <link href="http://akaptur.github.com/blog/2014/09/21/debugging-with-pstree/"/>
-    <updated>2014-09-21T17:46:00-04:00</updated>
+    <updated>2014-09-21T17:46:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/09/21/debugging-with-pstree</id>
     <content type="html"><![CDATA[<p>I hit a very fun bug yesterday while trying to run a script that sends emails to certain subsets of Hacker Schoolers. When I tried to test the script locally, I discovered that one of the tables of the database, <code>Batch</code>, was missing from my local version.  After briefly panicking and making sure that the actual site was still up, I could dig in.</p>
 

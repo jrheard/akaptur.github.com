@@ -4,7 +4,7 @@
   <title><![CDATA[Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-10-23T15:50:01-04:00</updated>
+  <updated>2015-10-10T18:18:55-07:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -14,9 +14,217 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Effective Learning Strategies for Programmers]]></title>
+    <link href="http://akaptur.github.com/blog/2015/10/10/effective-learning-strategies-for-programmers/"/>
+    <updated>2015-10-10T15:15:00-07:00</updated>
+    <id>http://akaptur.github.com/blog/2015/10/10/effective-learning-strategies-for-programmers</id>
+    <content type="html"><![CDATA[<p>In early September I gave a keynote at <a href="https://nzpug.org/">Kiwi PyCon</a> in New Zealand on effective learning for programmers. There were two pieces to talk: one about mindset, and one about particular strategies we can use. The text below is an aspirational and lightly edited transcript of the mindset piece of that talk. There&rsquo;s also a <a href="https://www.youtube.com/watch?v=Mcc6JEhDSpo">video</a> available if you&rsquo;d like to see the strategies piece.</p>
+
+<h3>Recurse Center</h3>
+
+<p>Before I joined Dropbox last year, I spent two years working at a company in NYC called the <a href="https://www.recurse.com/">Recurse Center</a>. The Recurse Center is like a writers&#8217; retreat for programmers. Participants spend 3 months working on whatever is most interesting to them. So someone who&rsquo;d been writing Java for ten years might come to RC to learn a new language like Clojure, or someone who just graduated with a CS degree might come work on their web development skills, or someone who&rsquo;d been learning programming in their spare time might come to turbo-charge their learning. There&rsquo;s almost no structure to the program &ndash; no deadlines, no assignments, no teaching. It&rsquo;s an experiment in unstructured learning for adults.</p>
+
+<p>My role as a facilitator was to help people make the most of that disorienting amount of freedom that they had at RC. People who come out of traditional educational experiences or traditional jobs very often don&rsquo;t know what to do with that. So I&rsquo;d help them with goal-setting and help them make the most of the experience. One of the things we thought a lot about was how to have the most effective learning experience possible for programmers. Today I&rsquo;ll talk about some of the research into how to be an effective learner, and how we can apply that research to our daily lives as programmers and engineers.</p>
+
+<h3>What to get out of this post</h3>
+
+<p>Take a minute and consider what you&rsquo;d like to get out of this post. You might want to learn something new about how to be as efficient and effective in your job as possible. You might want to hear about how you can be a better teacher or mentor to junior engineers. Or you might want to hear about how you can make institutional change in your organization to set up a better environment for these kinds of things.</p>
+
+<p>All of these are useful goals, and I&rsquo;ll touch on material relevant to all of them. However, I want to challenge you to consider the strategies mostly for yourself. When I hear about these strategies, very often it seems obvious to me that other people should be following them, but not necessarily obvious that I myself should. I&rsquo;ll come back to that tension a little bit later on.</p>
+
+<h2>Growth mindset: Carol Dweck</h2>
+
+<p>Let&rsquo;s talk about the first key to effective learning. The sociologist Carol Dweck has ton a ton of interesting research about how people think about intelligence. She&rsquo;s found that there are two different frameworks for thinking about intelligence. The first, which she calls the fixed mindset, holds that intelligence is a fixed trait, and people can&rsquo;t change how much of it they have. The other mindset is a growth mindset. Under a growth mindset, people believe that intelligence is malleable and can increase with effort.</p>
+
+<p>Dweck found that a person&rsquo;s theory of intelligence &ndash; whether they hold a fixed or growth mindset &ndash; can significantly influence the way they select tasks to work on, the way they respond to challenges, their cognitive performance, and even their honesty. I&rsquo;m going to run through a couple of the most interesting results from her work here.</p>
+
+<h3>These mindsets cause differences in effort</h3>
+
+<p>The first interesting result is that this framing impacts how people view effort. If you have a fixed mindset &ndash; you believe that people are either smart or they&rsquo;re not, and they can&rsquo;t really change that &ndash; then you also tend to believe that if you&rsquo;re good at something, it should be easy for you, and if something is hard for you than you must not be good at it. That&rsquo;s a fixed-mindset view.  People who have a growth mindset believe that you need to exert effort and work hard at something to become better at it.</p>
+
+<p>Several studies found that people with a fixed mindset can be reluctant to really exert effort, because they believe it means they&rsquo;re not good at the thing they&rsquo;re working hard on. Dweck notes, &ldquo;It would be hard to maintain confidence in your ability if every time a task requires effort, your intelligence is called into question.&rdquo;</p>
+
+<h3>&ldquo;Praise that backfires&rdquo;</h3>
+
+<p>The second interesting result is probably the most famous. Dweck and her collaborators showed that giving students subtly different kinds of praise significantly impacted their performance.</p>
+
+<p>In this study, Dweck and her collaborators gave a students a series of problems. After the first set of problems, all of the students did pretty well. Then half of the students were told &ldquo;Wow, you did really well on those problems &ndash; you must be very smart.&rdquo; and the other  &ldquo;Wow, you did really well on those problems &ndash; you must have worked very hard.&rdquo;  Then they got a second set of problems, much harder, where everyone did badly. Then they got a third set of problems that were like the first set &ndash; back to the easier level.</p>
+
+<p>Here, they&rsquo;re creating a fixed mindset in the first group of students (your performance shows that you&rsquo;re smart) and a growth mindset in the second set of students (your effort drives your success).</p>
+
+<p>They found a bunch of interesting things from this. The first aspect of the experiment is that in between the first and second problem sets they asked the students if they&rsquo;d like to do an easier exercise or a harder one next. (In practice, everyone got the harder set next.) Dweck et al. wanted to see if there would be a difference between the students who got different kinds of praise. And sure enough, there was: 90% of the students praised for effort chose to do a harder set of problems next, compared to only a third of the group praised for intelligence. The kids praised for effort were much more interested in a challenge.</p>
+
+<p>The second thing that they looked at was how student performed on the third set of problems. They found that students who&rsquo;d been praised for their intelligence did significantly worse on the third problem set than they had on the first, but students who&rsquo;d been praised for effort did slightly better.  Students who got intelligence praise weren&rsquo;t able to recover effectively from hitting a wall on the second set of problems, while students who got effort praise could bounce back.</p>
+
+<p>After this, they had the students write letters to pen pals about the study, saying &ldquo;We did this study at school, and here&rsquo;s the score that I got.&rdquo; They found that <em>almost half of the students praised for intelligence lied about their scores</em>, and almost no one who was praised for working hard was dishonest.</p>
+
+<p>So there are three implications here: a growth mindset made students more likely to choose a challenge instead of something easy, more likely to persist after a setback, and more honest about their performance, compared to the students with a fixed mindset.</p>
+
+<p>What&rsquo;s fascinating about this is how subtle the difference in praise is. Being told you&rsquo;re smart leads to all of these attempts to preserve the appearance of smartness, by only doing easy things you know you can perform well on and by hiding your poor performance. Being told that you work hard leads to attempts to preserve the appearance of working hard &ndash; and the best way to do that is to actually work hard.</p>
+
+<h3>Response to confusion</h3>
+
+<p>Another study looked at what happened when students faced a temporary period of confusion. Dweck and her collaborators designed a short course on psychology to give to elementary school students. The course was a booklet on psychology followed by a quiz. Some of the booklets had a confusing passage in them, and others didn&rsquo;t. The confusing part wasn&rsquo;t on the quiz, so students could master the material if they just completely ignored the confusing bit. The researchers wanted to see whether students would be able to recover from being totally bewildered in the middle of this booklet.</p>
+
+<p>They found that students with a growth mindset mastered the material about 70% of the time, regardless of whether there was a confusing passage in it. Among students with a fixed mindset, if they read the booklet without the confusing passage, again about 70% of them mastered the material. But the fixed-mindset students who encountered the confusing passage saw their mastery drop to 30%. Students with a fixed mindset were pretty bad at recovering from being confused.</p>
+
+<blockquote><p>&ldquo;How can one best describe the nature of people who will most of all be that way which will make the imitating of others happen most often? Is it that these are the people we want to be like because they are fine or is it that these are the people we want to be liked by?&rdquo;</p></blockquote>
+
+<p>I wanted to put up a section of the confusing passage because this really resonated with me. Hands up if you&rsquo;ve ever started using a new tool and run into documentation that sounded like this. [Roughly 100% of hands go up.] It happens all the time &ndash; you get domain experts writing docs aimed at beginners, or out-of-date docs, or some other issue. It&rsquo;s a critical skill for programmers to push past this kind of confusion and be able to successfully retain the rest of the information in the document we&rsquo;re reading.</p>
+
+<h3>Programmers need a growth mindset</h3>
+
+<p>Programmers need a growth mindset! Key skills for programmers &ndash; like responding to confusion, recovering from setbacks, and being willing to take on new challenges &ndash; are all much easier with a growth mindset, and much harder with a fixed mindset.</p>
+
+<h3>Does anyone believe in a fixed mindset?</h3>
+
+<p>Now sometimes when people hear this idea of the fixed mindset, it almost sounds like a straw man. Like, does anyone in the tech industry actually believe this? I think that absolutely a fixed mindset is a widespread belief. Here are a couple of examples.</p>
+
+<h4>10x engineers</h4>
+
+<p>Start with the idea of the 10x engineer. This is the idea that some engineers are an order of magnitude more effective than others, for some definition of effective. And there&rsquo;s lots of critiques of this framing, but we&rsquo;ll set that aside for a moment. If you believe in the idea of the 10x engineer, do you think that engineer was born as a super effective engineer? Or did they get to be 10x one x at a time?</p>
+
+<p>I think very often in the popular framing of this, the 10x engineer is set up on a pedestal, as someone that other people cannot become. Very often this is approached from a fixed-mindset perspective.</p>
+
+<h4>Hero worship</h4>
+
+<p>Another case where we see evidence of a fixed mindset is with hero worship. So Julie Pagano did a great talk at PyCon 2014 about impostor syndrome, and one of her suggestions for a way to combat impostor syndrome was &ldquo;kill your heroes.&rdquo; Don&rsquo;t put other programmers on a pedestal, don&rsquo;t say &ldquo;that person is so different from me.&rdquo; Fixed/growth mindset is a really useful framing for this too. If you have programming heroes, do you consider them to be totally different from you? Could you become <em>more like</em> the kind of person you admire? If you don&rsquo;t think so, that&rsquo;s some evidence of a fixed mindset.</p>
+
+<p>So I&rsquo;d argue that yes, a fixed mindset is quite prevalent in the tech industry.</p>
+
+<h3>Can you change a fixed mindset? Heck yes</h3>
+
+<p>Hopefully by now you&rsquo;re convinced that a growth mindset is better for you than a fixed mindset. So the next question is: is this malleable? Can you take a fixed mindset and turn it into a growth mindset? And the answer is heck yes, you absolutely can change a fixed mindset into a growth one.</p>
+
+<p>In fact, in many of Dweck&rsquo;s studies they experimentally induce a fixed or growth mindset, often in really subtle ways. The praise study is one example: one sentence of praise changes the students&#8217; behavior. In other studies they have students read a paragraph about a famous person&rsquo;s success, and at the end it says &ldquo;because they worked very hard,&rdquo; or &ldquo;because it was in their DNA.&rdquo; This is absolutely a malleable thing.</p>
+
+<p>So how do you change a fixed mindset? Sometimes the challenge is mostly in actually identifying the fixed mindset, and once you hear yourself say the words, &ldquo;I could never learn physics,&rdquo; it&rsquo;s already obvious that that&rsquo;s probably not true. But other times it&rsquo;s harder to root out the fixed mindset. So here are a couple of flags you can use to identify fixed mindsets so you can root them out.</p>
+
+<h3>How do you identify a fixed mindset?</h3>
+
+<h4>&ldquo;I am ..&rdquo;</h4>
+
+<h4>&ldquo;Some people are just &hellip;&rdquo;</h4>
+
+<p>If you&rsquo;re on the lookout for places where your mindset might be fixed, you should be listening for sentences that start like this. Things like &ldquo;I&rsquo;ve never been good at CSS&rdquo; or &ldquo;I&rsquo;m not a people person&rdquo; or &ldquo;Some programmers are just faster than others.&rdquo; Anything that starts with &ldquo;I am &hellip;&rdquo; is a candidate. The word &ldquo;just&rdquo; is often present.</p>
+
+<p>Now, obviously, you can say sentences with &ldquo;I am&rdquo; that aren&rsquo;t indicators of a fixed mindset. Instead, the point here is to treat sentences like this as a little bit of a yellow flag for yourself, to notice and then to examine your mindset more closely.</p>
+
+<p>Just as an aside, the example &ldquo;I&rsquo;m not a people person&rdquo; is supported by the research &ndash; Dweck and collaborators did a study on making friends and social situations, and this research holds there too. [See the Q&amp;A for more about this.]</p>
+
+<h3>How do you change a fixed mindset?</h3>
+
+<h4>Reframe praise &amp; success</h4>
+
+<p>Ok, so once you&rsquo;ve identified a fixed mindset, how can you go about changing it? Here are four strategies.</p>
+
+<p>The first is to reframe praise and success. By reframe praise I mean that when you get the wrong kind of compliments, turn them into growth-mindset compliments. So if someone says &ldquo;wow, great job on that project, you&rsquo;re so smart,&rdquo; translate it to &ldquo;yeah, it was great, I worked really hard on that project.&rdquo; You don&rsquo;t necessarily have to do this out loud! But this reframing reinforces for yourself that you gain mastery by seeking out challenges and by exerting effort.</p>
+
+<p>And you can use the same techniques for successes and accomplishments. When something goes well, don&rsquo;t think, &ldquo;Of course that went well because I&rsquo;m awesome.&rdquo; Instead think, &ldquo;I used an effective strategy on that project! I should do that more often.&rdquo;</p>
+
+<h4>Reframe failure</h4>
+
+<p>Of course the flip side of this dynamic is also really effective. A huge part of a fixed or growth mindset is how you respond to failure. What&rsquo;s your self-talk when you face a setback or don&rsquo;t get what you wanted? If you&rsquo;re saying, &ldquo;Maybe I&rsquo;m not cut out for this job after all,&rdquo; treat that as a red flag. Instead, ask what you <em>learned</em> from your unsuccessful attempt or what strategies you could have used instead. It sounds cheesy, but it really works.</p>
+
+<h4>Celebrate challenges</h4>
+
+<p>The third way that you can change a fixed mindset is to celebrate challenges. How do you respond when you have to struggle? Try explicitly celebrating. This is something that I was really consistent about when I was facilitating at the Recurse Center. Someone would sit down next to me and say, &ldquo;[sigh] I think I&rsquo;ve got a weird Python bug,&rdquo; and I&rsquo;d say, &ldquo;Awesome, I <em>love</em> weird Python bugs!&rdquo; First of all, this is definitely true &ndash; if you have a weird Python bug, let&rsquo;s discuss &ndash; but more importantly, it emphasized to the participant that finding something where they struggled an accomplishment, it was intentional, and it was a good thing for them to have done that day.</p>
+
+<p>As I mentioned, at the Recurse Center there are no deadlines and no assignments, so this attitude is pretty much free. I&rsquo;d say, &ldquo;You get to spend a day chasing down this weird bug in Flask, how exciting!&rdquo; Now, at Dropbox, where we have a product to ship, and deadlines, and users, I&rsquo;m not always uniformly delighted about spending a day on a weird bug. So I&rsquo;m sympathetic to the reality of the world where there are deadlines. However, if I have a bug to fix, I have to fix it, and being grumbly about the existence of the bug isn&rsquo;t going to help me fix it faster. I think that even in a world where deadlines loom, you can still apply this attitude.</p>
+
+<h4>Ask about processes</h4>
+
+<p>The last strategy for changing a fixed mindset is to ask about processes. Like many of you, I work with some great engineers. Sometimes, I&rsquo;ll try to fix a tricky bug and won&rsquo;t be able to, and then one of them will be able to fix it right away. In these situations I&rsquo;ve tried to be really disciplined about <em>asking how they did it.</em> Particularly when I was new at Dropbox, the answers would be really illuminating. Sometimes the information had come from a source I didn&rsquo;t know existed. Now that I&rsquo;ve been there longer, it&rsquo;s usually a technique or strategy difference, or a detail about why my strategy had not succeeded.</p>
+
+<p>This is a much more useful strategy in the long term than saying &ldquo;Oh, of course, that person got the bug because they are a wizard.&rdquo;</p>
+
+<h2>Confidence &amp; imposter syndrome</h2>
+
+<p>Dweck&rsquo;s research is really interesting in the context of the discussion around impostor syndrome. Impostor syndrome is the feeling that you&rsquo;re secretly an unqualified fraud who will be uncovered any second now. Hands up if you&rsquo;ve ever felt impostor syndrome in your career? [80% of hands in the room go up.] Yeah, that&rsquo;s lots of you, and I definitely have as well. And it <em>sucks</em>! It&rsquo;s so painful, and it&rsquo;s really bad for your career, because you&rsquo;re less likely to take chances or to look for new opportunities to grow if you&rsquo;re worrying about getting fired from the job you already have.</p>
+
+<p>The proposed solutions for impostor syndrome very often center around confidence. Like, &ldquo;Oh, if you feel like you&rsquo;re not qualified for the job you already have, you should be more confident, and then you&rsquo;ll be fine.&rdquo; This sometimes is as simple as, &ldquo;Don&rsquo;t feel that way,&rdquo; which is not very helpful as advice goes. But even when it&rsquo;s more nuanced than that, there&rsquo;s a focus on confidence and past accomplishments.</p>
+
+<h3>Confidence doesn&rsquo;t help you <em>respond to challenges</em></h3>
+
+<h4>Henderson &amp; Dweck, 1990</h4>
+
+<p>But here&rsquo;s the catch. Dweck&rsquo;s research shows that confidence doesn&rsquo;t actually predict your success at responding to new challenges or recovering from setbacks.</p>
+
+<p>Henderson and Dweck did a study of students moving from elementary school to junior high in the U.S. They asked the students to assess their confidence when they were still in the younger grade, and they also measured whether the students held fixed or growth mindsets. Then they tracked the students&#8217; academic performance in junior high.</p>
+
+<p>They found that confident students with a fixed mindset suffered academically. By contrast, students with a growth mindset tended to thrive academically, regardless of whether their confidence was high or low. Confidence wasn&rsquo;t a useful predictor of success at all.</p>
+
+<p>Now, there&rsquo;s lots of other research that shows confidence is correlated with success. Dweck argues that confidence is a good predictor of how well you can do <em>things you&rsquo;re already doing,</em> but it&rsquo;s not a good predictor of how you respond to new challenges and how you feel about failure.</p>
+
+<p>The second, related point that Dweck has discovered is that a history of success also doesn&rsquo;t impact how you respond to challenges and how you deal with failure.</p>
+
+<p>So past successes don&rsquo;t predict your response to new setbacks and failures, and your confidence level also doesn&rsquo;t predict your response to failure. The thing that is a good predictor of resilience in the face of failure is having a growth mindset.</p>
+
+<h3>Break the framework</h3>
+
+<p>This is hugely exciting to me and I think it doesn&rsquo;t come up nearly often enough in the discussions around impostor syndrome. This gives us a new and more useful framework for combating impostor syndrome. Basically, if you&rsquo;re holding a fixed mindset, you&rsquo;re going to be really stressed and afraid at any moment that you have to struggle. We&rsquo;re programmers, so it&rsquo;s <em>mostly</em> struggle, right? It&rsquo;s struggle all the time. With a growth mindset, you can enjoy the struggling and enjoy working on something that&rsquo;s really hard.</p>
+
+<p>And guess what? When your identity isn&rsquo;t being threatened by a particularly tricky bug, it&rsquo;s a lot easier to stay focused on the bug. You&rsquo;re not worried about also getting fired and being a fraud, so you can free up those cognitive resources to focus on the task at hand.</p>
+
+<p>So, again: if you believe, for example, that &ldquo;some people just aren&rsquo;t cut out for programming,&rdquo; you can spend a ton of time &amp; energy trying to find evidence and validation and reassurance that you are one of the people who can make it. Instead, upend this framework. Break the idea of fixed levels of talent and move to the idea that everyone can increase their skill by exerting effort.</p>
+
+<h4><em>Self-theories: Their role in motivation, personality, and development</em></h4>
+
+<p>Having a growth mindset makes you more resilient to failure, makes it easier to exert effort, makes you more likely to take on challenges, all things that are very useful to programmers.</p>
+
+<p>If you&rsquo;d like to dig more into the details of this research, and also see some of the findings that I didn&rsquo;t have time to cover today, I highly recommend a book Dweck wrote called <a href="http://www.amazon.com/Self-theories-Motivation-Personality-Development-Psychology/dp/1841690244"><em>Self-theories</em></a>.  Self-theories is a collection of short essays that summarize many major points of her research. It&rsquo;s got detail about the studies but is accessible to a lay reader. She&rsquo;s also got a book called <em>Mindset</em> that&rsquo;s written for a pop-science audience, but if you want a little more nuance and detail about the particular studies, <em>Self-theories</em> is the way to go.</p>
+
+<h3>Q &amp; A</h3>
+
+<p>A selection from the Q&amp;A:</p>
+
+<p><em>Q</em>: Is there any research in growth and fixed mindsets at the team-level, and how teams approach problems?</p>
+
+<p><em>A</em>: I&rsquo;m not aware of any, but that&rsquo;s a fascinating question. I&rsquo;d love to see that research if it exists.</p>
+
+<p><em>Q</em>: I read Mindset, and I&rsquo;m a father to twin girls. I found that these strategies really changed their resilience and their approach to problem solving.</p>
+
+<p><em>A</em>: Yeah, this research is kind of terrifying. Like, do you tell your children that they&rsquo;re smart? You&rsquo;re ruining them! I didn&rsquo;t have a chance to talk about this, but there is some research in this book about gender discrepancies, and findings that high-achieving girls are more likely to have a fixed mindset and less likely to risk failure when they hit something hard. Many of the women in the room in particular can probably relate to this.</p>
+
+<p><em>Q</em>: Is this binary, or a gray scale?</p>
+
+<p><em>A</em>: I think it probably is a spectrum, yes. For this research it&rsquo;s classified into a binary model. I&rsquo;m not precisely sure where the line gets drawn. And some of these cases with experimental induction of a fixed or growth mindset, if someone has one mindset going in and has the other induced, they&rsquo;ll probably end up in a moderate place.</p>
+
+<p><em>Q</em>: Is it possible to have a fixed mindset in one area and a growth mindset in another?</p>
+
+<p><em>A</em>: Absolutely. One that is common for programmers is to have a growth mindset about programming and a fixed mindset about social skills.</p>
+
+<p><em>Q</em> (from a CS lecturer/TA): For our new students, is there a way we can create a growth mindset in the students? A lot of people come in from school with a fixed one, and it can be damaging in those early courses.</p>
+
+<p><em>A</em>: If you&rsquo;re a lecturer or have a chance to get up in front of the auditorium, you can say it explicitly: &ldquo;Programming is a skill that you can get better at with effort,&rdquo; and even though it doesn&rsquo;t sound like it&rsquo;d convince people, the research shows that it does make a difference.</p>
+
+<p>The other thing that&rsquo;s really interesting is a study on a values exercise. This shows that having women in particular write down their values before they enter into a context where they&rsquo;d experience stereotype threat can significantly improve their performance. The basic idea here is if you&rsquo;re identifying as a programmer, and your programmer identity is threatened, that&rsquo;s very painful and difficult. But if you have these other things that you value about yourself, then that mitigates the threat. The results are really dramatic for people who are marginalized in tech (and it doesn&rsquo;t hurt those who aren&rsquo;t).
+For more, see <a href="https://github.com/hypatia/virtuoso/">this worksheet</a> by Leigh Honeywell.</p>
+
+<p><em>Q</em>: So this is nature versus nurture all over again, isn&rsquo;t it?</p>
+
+<p><em>A</em>: I wouldn&rsquo;t characterize it that way, in part because I think both of those remove agency from the individual. Your mindset is something that you can control to a significant extent. That&rsquo;s why I think it&rsquo;s so important to think about this research from the context of ourselves, and not just our children or our students.</p>
+
+<p><em>Q</em>: It&rsquo;s easy to think of lots of ways to apply this in programming, but can you talk more about ways to apply this in social situations?</p>
+
+<p><em>A</em>: Sure. In the study covered in a <em>Self-theories</em>, Dweck had children write letters applying to the pen pal club (which was a real pen pal club &ndash; they did eventually match people up). Then all the children got rejected from the pen pal club. [Audience laughter] Before writing the letter, they&rsquo;d told half the children, &ldquo;This is to see how good you are at making friends,&rdquo; and the other half, &ldquo;This is a chance to practice and improve your ways of making friends.&rdquo; The children who heard the fixed-mindset framing sometimes wrote the same letter or sometimes wrote a shorter and less detailed letter. The kids who got the growth framing were much more likely to write longer things, to be more inviting, to say, &ldquo;Oh, I love talking to you&rdquo; even though it&rsquo;s a first letter to a pen pal. [Audience makes sympathetic noises.] Yeah, throughout this book Dweck and her collaborators were pretty careful to not traumatize any students, not to leave them thinking that they&rsquo;re stupid or bad at making friends.</p>
+
+<p>If you&rsquo;re interested in particular strategies for social situations, I highly recommend the blog <a href="http://captainawkward.com/">Captain Awkward</a>. Captain Awkward has some constructions of social challenges, like &ldquo;I&rsquo;ll go to a party and talk to three people, and award myself ten points for each person I talk to and learn a fact about.&rdquo; There&rsquo;s a lot of interesting stuff on the internet about strategies for coping with social anxiety that I think you can apply whether or not that&rsquo;s something that you struggle with.</p>
+
+<h3>Thanks</h3>
+
+<p>My thanks to Maggie Zhou, Amy Hanlon, Alyssa Frazee, and Julia Evans for feedback on early versions of this talk.</p>
+
+<p>Thanks to Sasha Laundy, who invited people to consider what they wanted to get out of her <a href="https://www.youtube.com/watch?v=hY14Er6JX2s">PyCon talk on giving and getting help</a>, and inspired me to use the same construction.</p>
+
+<p>Thanks to the Kiwi PyCon organizers, particularly Marek Kuziel, for hosting me.</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[PS1 for Python3]]></title>
     <link href="http://akaptur.github.com/blog/2014/10/23/ps1-for-python3/"/>
-    <updated>2014-10-23T14:38:00-04:00</updated>
+    <updated>2014-10-23T14:38:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/10/23/ps1-for-python3</id>
     <content type="html"><![CDATA[<p>I spend a lot of time flipping back and forth between Python 2.x and 3.x: I use different versions for different projects, talk to people about different versions, explore differences between the two, and paste the output of REPL sessions into chat windows.  I also like to keep long-running REPL sessions.  These two activities in combination became quite confusing, and I&rsquo;d often forget which version I was using.</p>
 
@@ -80,7 +288,7 @@
   <entry>
     <title type="html"><![CDATA[I'm joining Dropbox]]></title>
     <link href="http://akaptur.github.com/blog/2014/10/10/im-joining-dropbox/"/>
-    <updated>2014-10-10T11:49:00-04:00</updated>
+    <updated>2014-10-10T11:49:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/10/10/im-joining-dropbox</id>
     <content type="html"><![CDATA[<p>Big news for me: I’m leaving Hacker School and going to work for Dropbox in San Francisco, joining Jessica McKellar’s team.  I met Jessica when she was part of the first round of residents at Hacker School in fall 2012, and I’ve had tremendous respect for her work and leadership ever since.  Dropbox has an impressive crop of Pythonistas (including Guido van Rossum, of course), and I couldn’t be more excited to join.  I’ll be moving to San Francisco at the end of October.  If you have recommendations for people to meet, places to go, or things to do, let me know!</p>
 
@@ -95,7 +303,7 @@
   <entry>
     <title type="html"><![CDATA[Debugging with pstree]]></title>
     <link href="http://akaptur.github.com/blog/2014/09/21/debugging-with-pstree/"/>
-    <updated>2014-09-21T17:46:00-04:00</updated>
+    <updated>2014-09-21T17:46:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/09/21/debugging-with-pstree</id>
     <content type="html"><![CDATA[<p>I hit a very fun bug yesterday while trying to run a script that sends emails to certain subsets of Hacker Schoolers. When I tried to test the script locally, I discovered that one of the tables of the database, <code>Batch</code>, was missing from my local version.  After briefly panicking and making sure that the actual site was still up, I could dig in.</p>
 
@@ -191,7 +399,7 @@
   <entry>
     <title type="html"><![CDATA[Rejected PyCon Proposals]]></title>
     <link href="http://akaptur.github.com/blog/2014/09/11/rejected-pycon-proposals/"/>
-    <updated>2014-09-11T15:38:00-04:00</updated>
+    <updated>2014-09-11T15:38:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/09/11/rejected-pycon-proposals</id>
     <content type="html"><![CDATA[<blockquote><p>&ldquo;All accepted proposals are alike, but each rejected proposal is rejected in its own way&rdquo; &ndash; Tolstoy, if he were on the PyCon talk review committee</p></blockquote>
 
@@ -216,7 +424,7 @@
   <entry>
     <title type="html"><![CDATA[Getting Started with Python Internals]]></title>
     <link href="http://akaptur.github.com/blog/2014/08/03/getting-started-with-python-internals/"/>
-    <updated>2014-08-03T09:17:00-04:00</updated>
+    <updated>2014-08-03T09:17:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/08/03/getting-started-with-python-internals</id>
     <content type="html"><![CDATA[<p>I talk to a lot of people at Hacker School and elsewhere who have been programming Python for some time and want to get a better mental model of what&rsquo;s happening under the hood.  The words &ldquo;really&rdquo; or &ldquo;why&rdquo; often features in these questions &ndash; &ldquo;What&rsquo;s <em>really</em> happening when I write a list comprehension?&rdquo; &ldquo;Why are function calls considered expensive?&rdquo; If you&rsquo;ve seen any of the rest of this blog, you know I love digging around in Python internals, and I&rsquo;m always happy to share that with others.</p>
 
@@ -418,7 +626,7 @@
   <entry>
     <title type="html"><![CDATA[The CPython Peephole Optimizer and You]]></title>
     <link href="http://akaptur.github.com/blog/2014/08/02/the-cpython-peephole-optimizer-and-you/"/>
-    <updated>2014-08-02T11:25:00-04:00</updated>
+    <updated>2014-08-02T11:25:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/08/02/the-cpython-peephole-optimizer-and-you</id>
     <content type="html"><![CDATA[<p>Last Thursday I gave a lightning talk at <a href="http://akaptur.github.com//www.hackerschool.com">Hacker School</a> about the peephole optimizer in Python.  A &ldquo;peephole optimization&rdquo; is a compiler optimization that looks at a small chunk of code at a time and optimizes in that little spot. This post explains one surprising side-effect of an optimization in CPython.</p>
 
@@ -1083,7 +1291,7 @@
   <entry>
     <title type="html"><![CDATA[Of Syntax Warnings and Symbol Tables]]></title>
     <link href="http://akaptur.github.com/blog/2014/06/11/of-syntax-warnings-and-symbol-tables/"/>
-    <updated>2014-06-11T18:30:00-04:00</updated>
+    <updated>2014-06-11T18:30:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/06/11/of-syntax-warnings-and-symbol-tables</id>
     <content type="html"><![CDATA[<p>A Hacker Schooler hit an interesting bug today: her program would sometimes emit the message <code>SyntaxWarning: import * only allowed at module level</code>.  I had never seen a <code>SyntaxWarning</code> before, so I decided to dig in.</p>
 
@@ -1402,7 +1610,7 @@
   <entry>
     <title type="html"><![CDATA[PyCon prep: import is a keyword]]></title>
     <link href="http://akaptur.github.com/blog/2014/03/16/pycon-prep-import-is-a-keyword/"/>
-    <updated>2014-03-16T16:08:00-04:00</updated>
+    <updated>2014-03-16T16:08:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/03/16/pycon-prep-import-is-a-keyword</id>
     <content type="html"><![CDATA[<p>Last week I had a ton of fun working with <a href="https://twitter.com/amygdalama">Amy Hanlon</a> on her Harry Potter themed fork of Python, called Nagini.  Nagini is full of magic and surprises. It implements the things you&rsquo;d hope for out of a Harry Potter Python, like making <code>quit</code> into <code>avada_kedavra</code>, and many analogous jokes.</p>
 
@@ -1468,7 +1676,7 @@
   <entry>
     <title type="html"><![CDATA[Reading EBNF]]></title>
     <link href="http://akaptur.github.com/blog/2014/03/16/reading-ebnf/"/>
-    <updated>2014-03-16T15:39:00-04:00</updated>
+    <updated>2014-03-16T15:39:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/03/16/reading-ebnf</id>
     <content type="html"><![CDATA[<p>One of the fun parts of <a href="http://mathamy.com/import-accio-bootstrapping-python-grammar.html">pairing with Amy on Nagini</a> was modifying the grammar of Python. You should try this &ndash; it&rsquo;s easier than you think! Eli Bendersky has a <a href="eli.thegreenplace.net/2010/06/30/python-internals-adding-a-new-statement-to-python/">great post</a> with step-by-step instructions.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
 
@@ -1555,7 +1763,7 @@
   <entry>
     <title type="html"><![CDATA[PyCon prep: `require` in Ruby]]></title>
     <link href="http://akaptur.github.com/blog/2014/02/16/pycon-prep-require-in-ruby/"/>
-    <updated>2014-02-16T14:18:00-05:00</updated>
+    <updated>2014-02-16T14:18:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2014/02/16/pycon-prep-require-in-ruby</id>
     <content type="html"><![CDATA[<p>I&rsquo;m talking about <code>import</code> at PyCon in April. In the talk, we&rsquo;ll imagine that there is no <code>import</code> and will reinvent it from scratch. I hope this will give everyone (including me!) a deeper understanding of the choices <code>import</code> makes and the ways it could have been different. Ideally, the structure will be a couple of sections of the form &ldquo;We could have made [decisions].  That would mean [effects].  Surprise &ndash; that&rsquo;s how it works in [language]!&rdquo;<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
 
@@ -1677,7 +1885,7 @@
   <entry>
     <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 4: It's Dynamic!]]></title>
     <link href="http://akaptur.github.com/blog/2013/12/03/introduction-to-the-python-interpreter-4/"/>
-    <updated>2013-12-03T11:25:00-05:00</updated>
+    <updated>2013-12-03T11:25:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2013/12/03/introduction-to-the-python-interpreter-4</id>
     <content type="html"><![CDATA[<p><em>This is Part 4 in a <a href="http://akaptur.github.com/blog/categories/python-internals">series</a> on the Python interpreter. Read <a href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/">Part 1</a>, <a href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2/">Part 2</a>, and <a href="http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Part 3</a>. If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
 
@@ -1803,7 +2011,7 @@
   <entry>
     <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 3: Understanding Bytecode]]></title>
     <link href="http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3/"/>
-    <updated>2013-11-17T09:56:00-05:00</updated>
+    <updated>2013-11-17T09:56:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3</id>
     <content type="html"><![CDATA[<p><em>This is Part 3 in a series on the Python interpreter.  Part 1 <a href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/">here</a>, Part 2 <a href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2/">here</a>.  If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
 
@@ -1915,7 +2123,7 @@
   <entry>
     <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 2: Code Objects]]></title>
     <link href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2/"/>
-    <updated>2013-11-15T19:22:00-05:00</updated>
+    <updated>2013-11-15T19:22:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2</id>
     <content type="html"><![CDATA[<p>This is part of a <a href="http://akaptur.github.com/blog/categories/python-internals">series</a> on the python interpreter.
 Part 1 <a href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/">here</a>.</p>
@@ -1995,7 +2203,7 @@ Part 1 <a href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-py
   <entry>
     <title type="html"><![CDATA[Introduction to the Python Interpreter, Part 1: Function Objects]]></title>
     <link href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/"/>
-    <updated>2013-11-15T18:50:00-05:00</updated>
+    <updated>2013-11-15T18:50:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter</id>
     <content type="html"><![CDATA[<p>Over the last three months, I&rsquo;ve spent a lot of time working with Ned Batchelder on <a href="https://github.com/nedbat/byterun">byterun</a>, a python bytecode interpreter written in python.  Working on byterun has been tremendously educational and a lot of fun for me.  At the end of this series, I&rsquo;m going to attempt to convince you that it would be interesting and fun for you to play with byterun, too.  But before we do that, we need a bit of a warm-up: an overview of how python&rsquo;s internals work, so that we can understand what an interpreter is, what it does, and what it doesn&rsquo;t do.</p>
 
@@ -2054,7 +2262,7 @@ Part 1 <a href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-py
   <entry>
     <title type="html"><![CDATA[Python Puzzle Solutions]]></title>
     <link href="http://akaptur.github.com/blog/2013/10/31/python-puzzle-solutions/"/>
-    <updated>2013-10-31T10:47:00-04:00</updated>
+    <updated>2013-10-31T10:47:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2013/10/31/python-puzzle-solutions</id>
     <content type="html"><![CDATA[<p>I really enjoyed seeing all the clever solutions to the <a href="http://akaptur.github.io/blog/2013/10/29/a-python-puzzle/">python puzzle I posted</a>.  You&rsquo;re all very creative!  Here&rsquo;s a discussion of the solutions I&rsquo;ve seen, plus some clarifications.  All spoilers are below the fold.</p>
 
@@ -2376,7 +2584,7 @@ However, Jessica&rsquo;s solution <del>fails the &ldquo;order doesn&rsquo;t matt
   <entry>
     <title type="html"><![CDATA[A Python puzzle]]></title>
     <link href="http://akaptur.github.com/blog/2013/10/29/a-python-puzzle/"/>
-    <updated>2013-10-29T19:40:00-04:00</updated>
+    <updated>2013-10-29T19:40:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2013/10/29/a-python-puzzle</id>
     <content type="html"><![CDATA[<p>A couple of Hacker Schoolers were discussing an interesting corner of python today.  We discovered a nice bit of trivia: there exist three lines of python code that display the following behavior:</p>
 
@@ -2428,7 +2636,7 @@ However, Jessica&rsquo;s solution <del>fails the &ldquo;order doesn&rsquo;t matt
   <entry>
     <title type="html"><![CDATA[Bug hunting]]></title>
     <link href="http://akaptur.github.com/blog/2013/10/15/bug-hunting/"/>
-    <updated>2013-10-15T08:01:00-04:00</updated>
+    <updated>2013-10-15T08:01:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2013/10/15/bug-hunting</id>
     <content type="html"><![CDATA[<p>I&rsquo;ve managed to encounter three different bugs with the same obscure source in the last week.  I think Hacker School might be cursed.  Here&rsquo;s a blog post attempting to rid us of the curse.</p>
 
@@ -2472,7 +2680,7 @@ However, Jessica&rsquo;s solution <del>fails the &ldquo;order doesn&rsquo;t matt
   <entry>
     <title type="html"><![CDATA[Python Bytecode: Fun with dis]]></title>
     <link href="http://akaptur.github.com/blog/2013/08/14/python-bytecode-fun-with-dis/"/>
-    <updated>2013-08-14T16:04:00-04:00</updated>
+    <updated>2013-08-14T16:04:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2013/08/14/python-bytecode-fun-with-dis</id>
     <content type="html"><![CDATA[<p>Last week at <a href="https://www.hackerschool.com/">Hacker School</a> I did a quick presentation on python bytecode and the <code>dis</code> module.  The disassembler is a very powerful tool with a gentle learning curve &ndash; that is, you can get a fair amount out of it without really knowing much about what&rsquo;s going on.  This post is a quick introduction to how and why you should use it.</p>
 
@@ -2663,7 +2871,7 @@ However, Jessica&rsquo;s solution <del>fails the &ldquo;order doesn&rsquo;t matt
   <entry>
     <title type="html"><![CDATA[Systematic Debugging]]></title>
     <link href="http://akaptur.github.com/blog/2013/07/24/systematic-debugging/"/>
-    <updated>2013-07-24T13:54:00-04:00</updated>
+    <updated>2013-07-24T13:54:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2013/07/24/systematic-debugging</id>
     <content type="html"><![CDATA[<p>We&rsquo;ve asked many of our residents at Hacker School what qualities all great programmers share.  There&rsquo;s very little agreement &ndash; clearly, there are a multitude of ways to be a great programmer, and you can think of a counter-example for almost every quality you can name.  One of the rare non-controversial statements came first from Jessica McKellar, who identified systematic debugging as a key skill.</p>
 
@@ -3393,187 +3601,6 @@ However, Jessica&rsquo;s solution <del>fails the &ldquo;order doesn&rsquo;t matt
 <li><p>My mental model of regular expressions was largely correct.  That&rsquo;s satisfying.</p></li>
 <li><p>Strings!  Ouch.  This may not seem like much of a lesson, but it&rsquo;s useful to add to my mental list of Places That Bugs Lurk.</p></li>
 </ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[More side effecting]]></title>
-    <link href="http://akaptur.github.com/blog/2013/07/02/more-side-effecting/"/>
-    <updated>2013-07-02T15:47:00-04:00</updated>
-    <id>http://akaptur.github.com/blog/2013/07/02/more-side-effecting</id>
-    <content type="html"><![CDATA[<p><a href="https://twitter.com/ncoghlan_dev">Nick Coghlan</a> added another interesting note in response to my last post about creating side-effecting assignments in python.  Here&rsquo;s Nick:</p>
-
-<blockquote class="twitter-tweet" data-conversation="none" data-cards="hidden"><p><a href="https://twitter.com/brandon_rhodes">@brandon_rhodes</a> <a href="https://twitter.com/akaptur">@akaptur</a> You can do better if you&#39;re the one controlling the namespace creation (e.g. an importer): <a href="https://t.co/gA8LD121cD">https://t.co/gA8LD121cD</a></p>&mdash; Nick Coghlan (@ncoghlan_dev) <a href="https://twitter.com/ncoghlan_dev/statuses/350971160659378176">June 29, 2013</a></blockquote>
-
-
-<script async src="http://akaptur.github.com//platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-
-<p>Let&rsquo;s look at <a href="https://gist.github.com/ncoghlan/5891123#file-crazy-namespace-python-2">that gist</a>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">Madness</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>             <span class="n">value</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">attr</span>
-</span><span class='line'><span class="o">...</span>         <span class="nb">dict</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-</span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">code</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
-</span><span class='line'><span class="s">... class Example(object): pass</span>
-</span><span class='line'><span class="s">... NewName = Example</span>
-</span><span class='line'><span class="s">... print(Example.__name__)</span>
-</span><span class='line'><span class="s">... &quot;&quot;&quot;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">Madness</span><span class="p">()</span>
-</span><span class='line'><span class="n">NewName</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is really fun stuff, and nicely illustrates a core feature of python &ndash; that namespaces are basically just dictionaries.</p>
-
-<p>So what&rsquo;s going on here?  In this case, I think it&rsquo;s easiest to work backwards from the end.</p>
-
-<p>Last we have <code>exec code in Madness()</code>. The <code>exec</code> keyword in python 2<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> executes a string as code.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="s">&quot;hello&quot;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;print a&quot;</span>
-</span><span class='line'><span class="n">hello</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>exec</code> optionally takes a context in which to execute the code.  A dictionary is a perfectly legal context to use:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;print b&quot;</span> <span class="ow">in</span> <span class="p">{</span><span class="s">&#39;b&#39;</span> <span class="p">:</span> <span class="s">&quot;hi there&quot;</span><span class="p">}</span>
-</span><span class='line'><span class="n">hi</span> <span class="n">there</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>All the code is shown here &ndash; <code>b</code> is not defined elsewhere in the REPL session.</p>
-
-<p>If a dictionary is provided, it&rsquo;s presumed to contain both the global and the local variables.  This dictionary is the <strong>only</strong> context in which the code will be executed (it won&rsquo;t check the scope from which the <code>exec</code> statement was made).</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="s">&quot;hello&quot;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;print a&quot;</span> <span class="ow">in</span> <span class="p">{</span><span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&quot;hi there&quot;</span><span class="p">}</span>
-</span><span class='line'><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
-</span><span class='line'>  <span class="n">File</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
-</span><span class='line'>  <span class="n">File</span> <span class="s">&quot;&lt;string&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
-</span><span class='line'><span class="ne">NameError</span><span class="p">:</span> <span class="n">name</span> <span class="s">&#39;a&#39;</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">defined</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So without knowing anything about the <code>Madness()</code> object, we&rsquo;d expect it to be a dictionary-like thing.</p>
-
-<p>And sure enough, it is:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">Madness</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>__setitem__</code> is the standard way to override setting a key:value pair in a dictionary.  It works just like you&rsquo;d expect:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">d</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="s">&#39;hello&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">d</span>
-</span><span class='line'><span class="p">{</span><span class="s">&#39;hello&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We&rsquo;re intercepting any attempt to write to the Madness dictionary-like object.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">...</span>     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>             <span class="n">value</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">attr</span>
-</span><span class='line'><span class="o">...</span>         <span class="nb">dict</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If the value of the key:value pair that we&rsquo;re setting is an instance of the <code>type</code> type &ndash; that is, if the object in question is a class &ndash; then grab that class&rsquo;s <strong>name</strong> and set it to the key.  (This step will blow up if the key in question isn&rsquo;t a legal name in the first place.)  Then use the parent class (<code>dict</code>)&rsquo;s <code>__setitem__</code> to actually write to the Madness object.</p>
-
-<p>We can execute the code string one line at a time to better see what&rsquo;s happening.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span> <span class="o">=</span> <span class="n">Madness</span><span class="p">()</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-</span><span class='line'><span class="p">[]</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;class Example(object): pass&quot;</span> <span class="ow">in</span> <span class="n">m</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-</span><span class='line'><span class="p">[</span><span class="s">&#39;__builtins__&#39;</span><span class="p">,</span> <span class="s">&#39;Example&#39;</span><span class="p">]</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="p">[</span><span class="s">&#39;Example&#39;</span><span class="p">]</span>
-</span><span class='line'><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">Example</span><span class="s">&#39;&gt;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;NewName = Example&quot;</span> <span class="ow">in</span> <span class="n">m</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-</span><span class='line'><span class="p">[</span><span class="s">&#39;__builtins__&#39;</span><span class="p">,</span> <span class="s">&#39;NewName&#39;</span><span class="p">,</span> <span class="s">&#39;Example&#39;</span><span class="p">]</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="p">[</span><span class="s">&#39;Example&#39;</span><span class="p">]</span>
-</span><span class='line'><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">NewName</span><span class="s">&#39;&gt;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="p">[</span><span class="s">&#39;NewName&#39;</span><span class="p">]</span>
-</span><span class='line'><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">NewName</span><span class="s">&#39;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">exec</span> <span class="s">&quot;OtherName = Example&quot;</span> <span class="ow">in</span> <span class="n">m</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="p">[</span><span class="s">&#39;Example&#39;</span><span class="p">]</span>
-</span><span class='line'><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">OtherName</span><span class="s">&#39;&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>(I&rsquo;m using <code>m.keys()</code> to examine the state of the namespace instead of just printing <code>m</code> because the reference to <code>__builtins__</code> pukes a bunch of tiresome definitions and copyright statements into the REPL.  <code>exec</code> adds a reference to <code>__builtins__</code> on the execution of any statement.)</p>
-
-<p>We&rsquo;re now quite close to the original Ruby behavior &ndash; with a deeper understanding of python namespaces!</p>
-<div class="footnotes">
-<hr/>
-<ol>
-<li id="fn:1">
-<p>All of this works in python 3, too, with slightly different syntax because <code>exec</code> is a function, not a keyword.  Nick&rsquo;s gist includes the python 3 version too.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
-</ol>
-</div>
 
 ]]></content>
   </entry>

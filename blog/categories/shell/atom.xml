@@ -4,7 +4,7 @@
   <title><![CDATA[Category: shell | Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/blog/categories/shell/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-10-23T15:50:01-04:00</updated>
+  <updated>2015-10-10T18:18:55-07:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Some wacky shell scripting]]></title>
     <link href="http://akaptur.github.com/blog/2012/12/23/some-wacky-shell-scripting/"/>
-    <updated>2012-12-23T16:16:00-05:00</updated>
+    <updated>2012-12-23T16:16:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2012/12/23/some-wacky-shell-scripting</id>
     <content type="html"><![CDATA[<p>I&rsquo;m currently digging into the source of virtualenv, a python utility for managing environments.  It&rsquo;s incredibly handy, and I&rsquo;d been using it for a while without really understanding how it worked.  I&rsquo;ll have more later on the details, but in the meantime, I hit a particularly puzzling bit of code:
 ```

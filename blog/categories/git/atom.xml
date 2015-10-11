@@ -4,7 +4,7 @@
   <title><![CDATA[Category: git | Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/blog/categories/git/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-10-23T15:50:01-04:00</updated>
+  <updated>2015-10-10T18:18:55-07:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[New git tricks]]></title>
     <link href="http://akaptur.github.com/blog/2013/06/25/new-git-tricks/"/>
-    <updated>2013-06-25T14:14:00-04:00</updated>
+    <updated>2013-06-25T14:14:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2013/06/25/new-git-tricks</id>
     <content type="html"><![CDATA[<p>I picked up a couple of new tricks at Hacker School&rsquo;s intermediate/advanced Git seminar, led by Peter Bell.
 <code>
@@ -83,7 +83,7 @@ git-advanced [master]\ $ git diff `git rev-parse HEAD~2` `git rev-parse HEAD`
   <entry>
     <title type="html"><![CDATA[Git add -p: The Wave of the Future]]></title>
     <link href="http://akaptur.github.com/blog/2012/12/18/git-add-p-the-wave-of-the-future/"/>
-    <updated>2012-12-18T16:12:00-05:00</updated>
+    <updated>2012-12-18T16:12:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2012/12/18/git-add-p-the-wave-of-the-future</id>
     <content type="html"><![CDATA[<p>I recently started using git&rsquo;s patch mode via <code>git add -p</code>. Patch mode makes my commits more granular, which means my commit messages are more accurate.  Better still, patch mode allows you to abstract away from adding &ldquo;files&rdquo; &ndash; you&rsquo;re adding changes to be committed.  This is a closer mental model to what git is actually doing.  I&rsquo;m finding it particularly useful for code review: make several changes in a friend&rsquo;s program, group the changes by concept, and commit one concept at a time.</p>
 

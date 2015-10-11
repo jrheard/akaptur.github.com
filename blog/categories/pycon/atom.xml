@@ -4,7 +4,7 @@
   <title><![CDATA[Category: pycon | Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/blog/categories/pycon/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2014-10-23T15:50:01-04:00</updated>
+  <updated>2015-10-10T18:18:55-07:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Rejected PyCon Proposals]]></title>
     <link href="http://akaptur.github.com/blog/2014/09/11/rejected-pycon-proposals/"/>
-    <updated>2014-09-11T15:38:00-04:00</updated>
+    <updated>2014-09-11T15:38:00-07:00</updated>
     <id>http://akaptur.github.com/blog/2014/09/11/rejected-pycon-proposals</id>
     <content type="html"><![CDATA[<blockquote><p>&ldquo;All accepted proposals are alike, but each rejected proposal is rejected in its own way&rdquo; &ndash; Tolstoy, if he were on the PyCon talk review committee</p></blockquote>
 
@@ -41,7 +41,7 @@
   <entry>
     <title type="html"><![CDATA[PyCon prep: `require` in Ruby]]></title>
     <link href="http://akaptur.github.com/blog/2014/02/16/pycon-prep-require-in-ruby/"/>
-    <updated>2014-02-16T14:18:00-05:00</updated>
+    <updated>2014-02-16T14:18:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2014/02/16/pycon-prep-require-in-ruby</id>
     <content type="html"><![CDATA[<p>I&rsquo;m talking about <code>import</code> at PyCon in April. In the talk, we&rsquo;ll imagine that there is no <code>import</code> and will reinvent it from scratch. I hope this will give everyone (including me!) a deeper understanding of the choices <code>import</code> makes and the ways it could have been different. Ideally, the structure will be a couple of sections of the form &ldquo;We could have made [decisions].  That would mean [effects].  Surprise &ndash; that&rsquo;s how it works in [language]!&rdquo;<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
 
