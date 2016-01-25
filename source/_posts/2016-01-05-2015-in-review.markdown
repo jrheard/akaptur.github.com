@@ -1,0 +1,90 @@
+---
+layout: post
+title: "2015 in review"
+date: 2016-01-05 08:34
+comments: true
+categories: talks, python
+---
+
+My 2015 was a year of recovering from a serious injury and becoming a better engineer. I also gave four talks and published a chapter I've been working on for a while. I'm hopeful that 2016 will bring as many opportunities for growth and fewer broken bones.
+
+# TPF
+
+I broke my knee - a tibial plateau fracture - at the beginning of February, 2015. It required surgery and several months on crutches. I absolutely do not recommend this.
+
+Recovering from an injury like this requires a lot of determination and a lot of help. I'm grateful to have been able to temporarily use all of the lazy-techie apps (groceries, laundry, ridesharing, etc. etc.). But there aren't apps for everything, and I'm incredibly thankful for the many friends and family who helped with this process, from bringing me crutches when I first broke the knee, coming over with dinner, or keeping me company and taking out the trash on the way out.
+
+It is *really hard* to be on crutches. Your triceps burn constantly. You can't carry anything in your hands. I was very worried about falling. I live in a third-floor walkup, so the last thing I did every day was climb two flights of stairs. (How? One hand on the railing, one hand on the crutches, [then jump](https://youtu.be/9XkvmpNJ-X8?t=206).)
+
+### Body battles
+
+Oddly, I felt more comfortable in some ways while on crutches than I do while healthy. On crutches, it was obvious what the current focus was at any given point: learn to use crutches; avoid falling down; manage medication; go to physical therapy. When healthy, I constantly think that I'm about to start working out harder than I currently do. (I think I'm not the only one who does this.) It was in some ways easier to think, "Nothing about my fitness routine is going to change for at least twelve weeks. All I need to do is work on my knee."
+
+### Persistent questions
+
+When I first started using the crutches, I was flabbergasted by some people who would ask about my injury very persistently. ("What happened? What kind of fracture? When's your surgery? Where'd you have it? Do you have hardware?") Then I realized that everyone with persistent questions _had had knee surgery themselves._ After realizing that, those people became very easy to deal with: I'd just ask them about their own surgeries and sit back while they told me all about it. Better yet, almost everyone I talked to had recovered fully and was now doing great, some number of years later.
+
+If you're on crutches, especially if you're wearing the distinctive knee brace, the best piece of advice I can give you is this fact. Those with persistent questions have had their own surgeries. They would love to tell you about it.
+
+In case you're wondering - now that I'm recovered, I most certainly am one of those people. However, I always lead with my own surgery before asking any questions. :)
+
+If you're on crutches, I also recommend [this marvel of human engineering and velcro](https://www.amazon.com/dp/B004D00P0I), [this detachable shower head](https://www.amazon.com/gp/product/B006FYAOU6), a travel coffee mug, a stylish backpack, and as much stubbornness as you can muster.
+
+
+# Talks
+
+Notwithstanding the broken leg, I gave four conference talks in 2015. Two were at PyCon North America in Montreal while on crutches. One was at !!con in NYC, near the very end of the crutches era, and the fourth was at Kiwi PyCon in Christchurch, New Zealand, where I was fully ambulatory.
+
+### Exploring is Never Boring: Understanding CPython without reading the code & Bytes in the Machine: Inside the CPython interpreter (PyCon North America)
+
+I gave these two talks at PyCon in Montreal back-to-back. "I think this'll actually be easier for you," said the organizer, and that turned out to be true, but not for reasons either of us predicted. As it turned out, the hardest part of PyCon 2015 for me was getting around on crutches, so the less of that I had to do the better off I was.
+
+I was pleased with how these talks went, especially "Bytes in the Machine", which I'd been working on in one form or another for more than a year. I originally proposed this talk for PyCon 2014 and it was rejected. I was able to propose and then give a substantially better version of it at PyCon 2015. One person told me that they'd never wanted to dig into CPython before and now they did, which was exactly what I was hoping for.
+
+PyCon 2015 on crutches took an enormous amount of energy. The organizers were all very kind and helpful, but the convention center in Montreal was simply very large, and a ton of moving was required. My thanks to the organizers for their accomodations, and to the friends and strangers I pressed into carrying my lunches. (I also offer my apologies to anyone near enough to smell me on Friday, before my wayward luggage arrived. Crutching around is regrettably strenuous.)
+
+This photo from [Anja Boskovic](https://twitter.com/damedebugger/status/586954607483490304) shows me in the same body position I was in for almost three months: sitting on a chair with one leg up. I find this position to be quite masculine - asymmetric and unapologetically taking up space.  There aren't a lot of perks to breaking a leg, but I enjoyed taking up a lot of space while having a perfect excuse for doing so. There's something delightful about having your foot up on the table during a meeting with someone who outranks you, or while presenting a talk at a conference. Interestingly, not everyone who attended the talk realized that I was using crutches during the conference, which means they can't have properly attributed my body language to my injury.[^1]
+
+[Video](https://www.youtube.com/watch?v=ZSIRGLmQTLk) and [slides](http://www.slideshare.net/akaptur/exploring-slides) for Exploring is Never Boring
+[Video](https://www.youtube.com/watch?v=HVUTjQzESeo) and [slides](http://www.slideshare.net/akaptur/bytes-in-the-machine-inside-the-cpython-interpreter) for Bytes in the Machine
+
+If you're catching up now and you prefer written material, consider [reading the chapter version](http://aosabook.org/en/500L/a-python-interpreter-written-in-python.html) of this talk instead of watching the video.
+
+### Limitless and Recursion-free recursions limits! (!!con)
+
+!!con ("bangbangcon") is a conference about "the joy, excitement, and surprise in programming." This was my second year speaking there, and it's consistently one of my favorite conferences. I described the CfP as "an invitation to meditate on your delight," and the whole conference felt like that. Things can be challenging and difficult and outright terrible in this industry, and there's a lot of hard work to do, but it's nice to spend a couple of days learning about the amazing, fascinating, and weird world we live in.
+
+This year there were talks on how wifi keeps getting faster, how to program a knitting machine, lightpainting with robots, making a cell phone, quines, and roller derby. It was a truly delightful lineup, and I'm honored to have been a part of it.
+
+My talk covered how to hit the recursion limit in Python without doing any recursion and how to implement the world's jankiest tail call optimization in Python. This talk features the following:
+- Me saying "Any day we can segfault Python is a good day in my book."
+- Me saying "Remember, our beef today is with the compiler."
+- An audible "Oh no" from the audience on seeing a slide with Python code and GOTOs
+
+Unfortunately, the sound quality's not great on this video.
+
+[sketch by Danielle]
+
+[Video](https://www.youtube.com/watch?v=Qk1I6ZxcceU) and [slides](http://www.slideshare.net/akaptur/limitless-and-recursionfree-recursion-limits) for Limitless and Recursion-free recursion limits!
+
+### Learning Strategies for Programmers (Kiwi PyCon keynote)
+
+My final talk this year was a keynote at the [Kiwi PyCon](https://nzpug.org/) conference in Christchurch, New Zealand. I loved this trip. The organizers were hospitable from start to finish. Marek Kuziel was kind enough to meet me at the airport (and kind enough to depart before I attempted to drive my rental car on the left side of the road). I also want to give Marek credit for effective enforcement of a Code of Conduct. On one occassion in particular he gently redirected some mildly-dirty humor before anyone got uncomfortable. This can be tricky to do and he did it well.
+
+I wrote [a blog post](/blog/2015/10/10/effective-learning-strategies-for-programmers/) in October that captures the best parts of this talk. There is also [video](https://www.youtube.com/watch?v=Mcc6JEhDSpo) available and [slides](http://www.slideshare.net/akaptur/effective-learning-strategies-for-programmers).
+
+# Architecture of Open Source Applications chapter
+
+After many rounds of writing and procrastinating, I finished and published my chapter for the [Architecture of Open Source Applications](http://aosabook.org/en/index.html) 4th edition, on Byterun, a Python interpreter written in Python with Ned Batchelder. This version of the AOSA book is themed "500 lines or less," and it features real software that does something significant in under 500 lines. It was a fun challenge to trim Byterun down to that size, and an even better challenge to try to explain the resulting code clearly.
+
+My thanks to the editors enough for their patience and grit in this process, especially Mike DiBernardo and the talented copy editor Amy Brown.
+
+[A Python Interpreter written in Python](http://aosabook.org/en/500L/a-python-interpreter-written-in-python.html)
+
+# Dropbox
+
+I've now been at Dropbox for slightly over a year. Most of what I'm most excited about I can't talk about publically. What I can say is that I feel like I've matured as an engineer This means things like getting better at skills like living with my decisions, thinking farther ahead, architecting software, gathering consensus, getting and giving technical input, and other skills beyond pure programming.
+
+I'm on the desktop client team, and desktop software in particular presents interesting challenges that I hadn't thought much about before I joined Dropbox. For example, you generally can't roll back a desktop release - once it's out there, it's out there.  It's also nontrivial to make sure we can get enough data to debug when something goes wrong. With a badly-behaving server, you might be able to ssh in and poke around. This is obviously not possible with someone else's desktop.
+
+[1] One person even congratulated Jessica McKellar for my talk, thinking she was me. I was obviously thrilled to be mistaken for her.
