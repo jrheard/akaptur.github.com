@@ -4,7 +4,7 @@
   <title><![CDATA[Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2016-01-24T18:33:31-08:00</updated>
+  <updated>2017-06-03T19:05:53-07:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -14,27 +14,48 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Two kinds of feedback]]></title>
+    <link href="http://akaptur.github.com/blog/2017/06/03/two-kinds-of-feedback/"/>
+    <updated>2017-06-03T17:23:00-07:00</updated>
+    <id>http://akaptur.github.com/blog/2017/06/03/two-kinds-of-feedback</id>
+    <content type="html"><![CDATA[<p>I often hear junior engineers or newcomers to a company say that they&rsquo;re not getting enough feedback. It&rsquo;s a common feeling, especially for people who are just leaving school and the predictable assignment->work->grade feedback loop that it creates.</p>
+
+<p>There&rsquo;s lots of good advice for managers, mentors, and senior engineers about giving specific, actionable feedback &ndash; but it&rsquo;s important to know what kind of feedback someone needs. I&rsquo;ve found that people asking for more feedback are generally looking for one of two very different things:</p>
+
+<p>The first kind of feedback is <em>strategic feedback</em>. The engineer asking for strategic feedback means something like this: &ldquo;I feel like my work is going okay, and I&rsquo;m wondering if I can be more effective. Are there strategies I can change to be even better?&rdquo; The person asking these questions probably feels open, secure, and calm. They&rsquo;re eager to grow and want to know if there&rsquo;s anything they&rsquo;re missing. Ideally, this engineer is asking specific questions for the feedback they&rsquo;re seeking, like &ldquo;Did my architecture doc clearly explain our project? Was my last pull request the right size and scope? What are the most important problems that our team is facing?&rdquo; Feedback for this person should certainly be specific and actionable.</p>
+
+<p>The other kind of feedback is less often dicussed &ndash; <em>belonging feedback.</em> An engineer seeking belonging feedback might be asking &ldquo;Do you have any feedback for me?&rdquo; but means something like, &ldquo;Are things going ok? Do people like me? Am I making dumb mistakes?&rdquo; In this state, they probably feel vulnerable. They might not yet feel comfortable with their coworkers. They might even be worried they&rsquo;re going to get fired.</p>
+
+<p>As a feedback-seeker (whether you&rsquo;re a new engineer or an experienced hand), the more clear you can be about what you&rsquo;re looking for, the more likely you are to get it. I once sat down for a one-on-one with my manager to discuss an incident, and said, &ldquo;My agenda for this meeting is how it happened, what our plan for remediation is, and my feelings.&rdquo; For my manager and me, this worked great.  Being clear about what you want also helps you determine whom to ask for it &ndash; different problems might go to your direct manager, a more senior engineer, someone who joined the company at the same time you did, or a friend outside of work.</p>
+
+<p>As a manager, mentor, or senior colleague, the best thing you can do is understand what kind of feedback is being requested. You don&rsquo;t want to tell someone seeking strategic feedback, &ldquo;Don&rsquo;t worry! Everything&rsquo;s great!&rdquo; Similarly, you don&rsquo;t want to give a list of ten areas for improvement to someone who&rsquo;s already being too hard on themselves. What kind of feedback is being sought isn&rsquo;t always obvious, and probably requires some follow-up questions.</p>
+
+<p>Differentiating between these two types of request allows everyone to have a more pleasant experience and get better feedback at the same time.</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[2015 in review]]></title>
-    <link href="http://akaptur.github.com/blog/2016/01/24/2015-in-review/"/>
-    <updated>2016-01-24T08:34:00-08:00</updated>
-    <id>http://akaptur.github.com/blog/2016/01/24/2015-in-review</id>
-    <content type="html"><![CDATA[<p>My 2015 was a year of recovering from a serious injury and becoming a better engineer. I also gave four talks and published a chapter I&rsquo;ve been working on for a while. Here&rsquo;s a quick summary of the year.</p>
+    <link href="http://akaptur.github.com/blog/2016/01/05/2015-in-review/"/>
+    <updated>2016-01-05T08:34:00-08:00</updated>
+    <id>http://akaptur.github.com/blog/2016/01/05/2015-in-review</id>
+    <content type="html"><![CDATA[<p>My 2015 was a year of recovering from a serious injury and becoming a better engineer. I also gave four talks and published a chapter I&rsquo;ve been working on for a while. I&rsquo;m hopeful that 2016 will bring as many opportunities for growth and fewer broken bones.</p>
 
 <h1>TPF</h1>
 
 <p>I broke my knee &ndash; a tibial plateau fracture &ndash; at the beginning of February, 2015. It required surgery and several months on crutches. I absolutely do not recommend this.</p>
 
-<p>Recovering from an injury like this requires a lot of determination and a lot of help. I&rsquo;m grateful to have been able to temporarily use all of the SF-lazy-techie apps (grocery delivery, laundry pickup, ridesharing, etc. etc.). But there aren&rsquo;t apps for everything, and I&rsquo;m incredibly thankful for the many friends and family who helped with this process, from bringing me crutches when I first broke the knee, coming over with dinner, or keeping me company and then taking out the trash on the way out.</p>
+<p>Recovering from an injury like this requires a lot of determination and a lot of help. I&rsquo;m grateful to have been able to temporarily use all of the lazy-techie apps (groceries, laundry, ridesharing, etc. etc.). But there aren&rsquo;t apps for everything, and I&rsquo;m incredibly thankful for the many friends and family who helped with this process, from bringing me crutches when I first broke the knee, coming over with dinner, or keeping me company and taking out the trash on the way out.</p>
 
-<p>It is <em>really hard</em> to use crutches. Your triceps burn constantly. You can&rsquo;t carry anything in your hands. I was very worried about falling. I live in a third-floor walkup, so the last thing I did every day was climb two flights of stairs. (How? One hand on the railing, one hand on the crutches, <a href="https://youtu.be/9XkvmpNJ-X8?t=206">then jump</a>.)</p>
+<p>It is <em>really hard</em> to be on crutches. Your triceps burn constantly. You can&rsquo;t carry anything in your hands. I was very worried about falling. I live in a third-floor walkup, so the last thing I did every day was climb two flights of stairs. (How? One hand on the railing, one hand on the crutches, <a href="https://youtu.be/9XkvmpNJ-X8?t=206">then jump</a>.)</p>
 
-<h4>Picking your battles</h4>
+<h3>Body battles</h3>
 
-<p>Oddly, I felt more comfortable in some ways while on crutches than I do while healthy. On crutches, it was obvious what the current focus was at any given point: learn to use crutches; avoid falling down; manage medication; go to physical therapy. When healthy, I constantly think that I&rsquo;m about to start working out harder than I currently do. (I think I&rsquo;m not the only one who does this.) It was in some ways simpler to think, &ldquo;Nothing about my fitness routine is going to change for at least twelve weeks. All I need to do is work on my knee.&rdquo;</p>
+<p>Oddly, I felt more comfortable in some ways while on crutches than I do while healthy. On crutches, it was obvious what the current focus was at any given point: learn to use crutches; avoid falling down; manage medication; go to physical therapy. When healthy, I constantly think that I&rsquo;m about to start working out harder than I currently do. (I think I&rsquo;m not the only one who does this.) It was in some ways easier to think, &ldquo;Nothing about my fitness routine is going to change for at least twelve weeks. All I need to do is work on my knee.&rdquo;</p>
 
-<h4>Persistent questions</h4>
+<h3>Persistent questions</h3>
 
-<p>When I first started using the crutches, I was flabbergasted by some people who would ask about my injury very persistently. (&ldquo;What happened? What kind of fracture? When&rsquo;s your surgery? Where&rsquo;d you have it? Do you have hardware?&rdquo;) Then I realized that everyone with persistent questions <em>had had knee surgery themselves.</em> After realizing that, those people became very easy to deal with: I&rsquo;d just ask them about their own surgeries and sit back while they told me all about it. Better yet, almost everyone I talked to had recovered fully and was now doing great, which was reassuring to hear.</p>
+<p>When I first started using the crutches, I was flabbergasted by some people who would ask about my injury very persistently. (&ldquo;What happened? What kind of fracture? When&rsquo;s your surgery? Where&rsquo;d you have it? Do you have hardware?&rdquo;) Then I realized that everyone with persistent questions <em>had had knee surgery themselves.</em> After realizing that, those people became very easy to deal with: I&rsquo;d just ask them about their own surgeries and sit back while they told me all about it. Better yet, almost everyone I talked to had recovered fully and was now doing great, some number of years later.</p>
 
 <p>If you&rsquo;re on crutches, especially if you&rsquo;re wearing the distinctive knee brace, the best piece of advice I can give you is this fact. Those with persistent questions have had their own surgeries. They would love to tell you about it.</p>
 
@@ -46,50 +67,41 @@
 
 <p>Notwithstanding the broken leg, I gave four conference talks in 2015. Two were at PyCon North America in Montreal while on crutches. One was at !!con in NYC, near the very end of the crutches era, and the fourth was at Kiwi PyCon in Christchurch, New Zealand, where I was fully ambulatory.</p>
 
-<h3>Exploring is Never Boring: Understanding CPython without reading the code</h3>
-
-<h3>Bytes in the Machine: Inside the CPython interpreter</h3>
+<h3>Exploring is Never Boring: Understanding CPython without reading the code &amp; Bytes in the Machine: Inside the CPython interpreter (PyCon North America)</h3>
 
 <p>I gave these two talks at PyCon in Montreal back-to-back. &ldquo;I think this&rsquo;ll actually be easier for you,&rdquo; said the organizer, and that turned out to be true, but not for reasons either of us predicted. As it turned out, the hardest part of PyCon 2015 for me was getting around on crutches, so the less of that I had to do the better off I was.</p>
 
-<p>I was pleased with how these talks went, especially &ldquo;Bytes in the Machine&rdquo;, which I&rsquo;d been working on in one form or another for more than a year. I originally proposed this talk for PyCon 2014, when it was rejected; I was able to propose and then give a substantially better version of it at PyCon 2015. One person told me that they&rsquo;d never wanted to dig into CPython before and now they did, which was exactly what I was hoping for.</p>
+<p>I was pleased with how these talks went, especially &ldquo;Bytes in the Machine&rdquo;, which I&rsquo;d been working on in one form or another for more than a year. I originally proposed this talk for PyCon 2014 and it was rejected. I was able to propose and then give a substantially better version of it at PyCon 2015. One person told me that they&rsquo;d never wanted to dig into CPython before and now they did, which was exactly what I was hoping for.</p>
 
-<p>PyCon 2015 on crutches took an enormous amount of energy. The organizers were all very kind and helpful, but the convention center in Montreal was simply very large, and a ton of moving was required. My thanks to the organizers for their accommodations, and to the friends and strangers I pressed into carrying my lunches. (I also offer my apologies to anyone near enough to smell me on Friday, before my wayward luggage arrived. Crutching around is regrettably strenuous and my clean clothes were stuck in Chicago.)</p>
+<p>PyCon 2015 on crutches took an enormous amount of energy. The organizers were all very kind and helpful, but the convention center in Montreal was simply very large, and a ton of moving was required. My thanks to the organizers for their accomodations, and to the friends and strangers I pressed into carrying my lunches. (I also offer my apologies to anyone near enough to smell me on Friday, before my wayward luggage arrived. Crutching around is regrettably strenuous.)</p>
 
-<p>This photo of my talk from <a href="https://twitter.com/damedebugger/status/586954607483490304">Anja Boskovic</a> shows me in the same body position I was in for almost three months: sitting on a chair with one leg up. I find this position to be quite masculine &ndash; asymmetric and unapologetically taking up space.  There aren&rsquo;t a lot of perks to breaking a leg, but I enjoyed taking up a lot of space while having a perfect excuse for doing so. There&rsquo;s something delightful about having your foot up on the table during a meeting with someone who outranks you, or while presenting a talk at a conference. Interestingly, not everyone who attended the talk realized that I was using crutches during the conference, which means they can&rsquo;t have properly attributed my body language to my injury. <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+<p>This photo from <a href="https://twitter.com/damedebugger/status/586954607483490304">Anja Boskovic</a> shows me in the same body position I was in for almost three months: sitting on a chair with one leg up. I find this position to be quite masculine &ndash; asymmetric and unapologetically taking up space.  There aren&rsquo;t a lot of perks to breaking a leg, but I enjoyed taking up a lot of space while having a perfect excuse for doing so. There&rsquo;s something delightful about having your foot up on the table during a meeting with someone who outranks you, or while presenting a talk at a conference. Interestingly, not everyone who attended the talk realized that I was using crutches during the conference, which means they can&rsquo;t have properly attributed my body language to my injury.[^1]</p>
 
-<p><a href="https://www.youtube.com/watch?v=ZSIRGLmQTLk">Video</a> and <a href="http://www.slideshare.net/akaptur/exploring-slides">slides</a> for Exploring is Never Boring</p>
-
-<p><a href="https://www.youtube.com/watch?v=HVUTjQzESeo">Video</a> and <a href="http://www.slideshare.net/akaptur/bytes-in-the-machine-inside-the-cpython-interpreter">slides</a> for Bytes in the Machine</p>
+<p><a href="https://www.youtube.com/watch?v=ZSIRGLmQTLk">Video</a> and <a href="http://www.slideshare.net/akaptur/exploring-slides">slides</a> for Exploring is Never Boring
+<a href="https://www.youtube.com/watch?v=HVUTjQzESeo">Video</a> and <a href="http://www.slideshare.net/akaptur/bytes-in-the-machine-inside-the-cpython-interpreter">slides</a> for Bytes in the Machine</p>
 
 <p>If you&rsquo;re catching up now and you prefer written material, consider <a href="http://aosabook.org/en/500L/a-python-interpreter-written-in-python.html">reading the chapter version</a> of this talk instead of watching the video.</p>
 
-<h3>Limitless and Recursion-free recursions limits!</h3>
+<h3>Limitless and Recursion-free recursions limits! (!!con)</h3>
 
-<p>!!con (&ldquo;bangbangcon&rdquo;) is a conference about &ldquo;the joy, excitement, and surprise in programming.&rdquo; This was my second year speaking there, and it&rsquo;s consistently one of my favorite conferences. I described the CfP as &ldquo;an invitation to meditate on your delight,&rdquo; and the whole conference felt like that. It can sometimes be challenging and difficult and outright terrible in this industry, and there&rsquo;s a lot of hard work to do, but it&rsquo;s nice to spend a couple of days learning about the amazing, fascinating, and weird world we live in.</p>
+<p>!!con (&ldquo;bangbangcon&rdquo;) is a conference about &ldquo;the joy, excitement, and surprise in programming.&rdquo; This was my second year speaking there, and it&rsquo;s consistently one of my favorite conferences. I described the CfP as &ldquo;an invitation to meditate on your delight,&rdquo; and the whole conference felt like that. Things can be challenging and difficult and outright terrible in this industry, and there&rsquo;s a lot of hard work to do, but it&rsquo;s nice to spend a couple of days learning about the amazing, fascinating, and weird world we live in.</p>
 
-<p>This year there were <a href="https://www.youtube.com/channel/UC2kxl-dcUYQQvTCuQtfuChQ">talks</a> on how wifi keeps getting faster, how to program a knitting machine, lightpainting with robots, making a cell phone, quines, and roller derby. It was a truly delightful lineup, and I&rsquo;m honored to have been a part of it.</p>
+<p>This year there were talks on how wifi keeps getting faster, how to program a knitting machine, lightpainting with robots, making a cell phone, quines, and roller derby. It was a truly delightful lineup, and I&rsquo;m honored to have been a part of it.</p>
 
-<p>My talk covered how to hit the recursion limit in Python without doing any recursion and how to implement the world&rsquo;s jankiest tail call optimization in Python. This talk features the following:</p>
+<p>My talk covered how to hit the recursion limit in Python without doing any recursion and how to implement the world&rsquo;s jankiest tail call optimization in Python. This talk features the following:
+&ndash; Me saying &ldquo;Any day we can segfault Python is a good day in my book.&rdquo;
+&ndash; Me saying &ldquo;Remember, our beef today is with the compiler.&rdquo;
+&ndash; An audible &ldquo;Oh no&rdquo; from the audience on seeing a slide with Python code and GOTOs</p>
 
-<ul>
-<li><p>Me saying &ldquo;Any day we can segfault Python is a good day in my book.&rdquo;</p></li>
-<li><p>Me saying &ldquo;Remember, our beef today is with the compiler.&rdquo;</p></li>
-<li><p>An audible &ldquo;Oh no&rdquo; from the audience on seeing a slide with Python code and GOTOs</p></li>
-</ul>
+<p>Unfortunately, the sound quality&rsquo;s not great on this video.</p>
 
-
-<p>Unfortunately, the sound quality&rsquo;s not great on this video &ndash; sorry about that.</p>
-
-<p>The talented Danielle Sucher did four ten-minute sketches of speakers during four ten-minute talks, and I <a href="https://twitter.com/DanielleSucher/status/600078859095138304">loved the result</a>. (That&rsquo;s me in the green.)</p>
+<p>[sketch by Danielle]</p>
 
 <p><a href="https://www.youtube.com/watch?v=Qk1I6ZxcceU">Video</a> and <a href="http://www.slideshare.net/akaptur/limitless-and-recursionfree-recursion-limits">slides</a> for Limitless and Recursion-free recursion limits!</p>
 
-<h3>Learning Strategies for Programmers</h3>
+<h3>Learning Strategies for Programmers (Kiwi PyCon keynote)</h3>
 
-<p>My final talk this year was a keynote at the <a href="https://nzpug.org/">Kiwi PyCon</a> conference in Christchurch, New Zealand. I loved this trip. The organizers were hospitable from start to finish, and I welcome any excuse to visit New Zealand. Marek Kuziel was kind enough to meet me at the airport (and kind enough to depart before I attempted to drive my rental car on the left side of the road).</p>
-
-<p>I also want to give Marek credit for effective enforcement of a Code of Conduct. On one occasion in particular he gently redirected some mildly-dirty humor before anyone got uncomfortable. This can be tricky to do and he did it well.</p>
+<p>My final talk this year was a keynote at the <a href="https://nzpug.org/">Kiwi PyCon</a> conference in Christchurch, New Zealand. I loved this trip. The organizers were hospitable from start to finish. Marek Kuziel was kind enough to meet me at the airport (and kind enough to depart before I attempted to drive my rental car on the left side of the road). I also want to give Marek credit for effective enforcement of a Code of Conduct. On one occassion in particular he gently redirected some mildly-dirty humor before anyone got uncomfortable. This can be tricky to do and he did it well.</p>
 
 <p>I wrote <a href="http://akaptur.github.com/blog/2015/10/10/effective-learning-strategies-for-programmers/">a blog post</a> in October that captures the best parts of this talk. There is also <a href="https://www.youtube.com/watch?v=Mcc6JEhDSpo">video</a> available and <a href="http://www.slideshare.net/akaptur/effective-learning-strategies-for-programmers">slides</a>.</p>
 
@@ -97,31 +109,17 @@
 
 <p>After many rounds of writing and procrastinating, I finished and published my chapter for the <a href="http://aosabook.org/en/index.html">Architecture of Open Source Applications</a> 4th edition, on Byterun, a Python interpreter written in Python with Ned Batchelder. This version of the AOSA book is themed &ldquo;500 lines or less,&rdquo; and it features real software that does something significant in under 500 lines. It was a fun challenge to trim Byterun down to that size, and an even better challenge to try to explain the resulting code clearly.</p>
 
-<p>This chapter covers similar ground to &ldquo;Bytes in the Machine,&rdquo; but at a somewhat more relaxed pace.</p>
-
-<p>My thanks to the editors for their patience and grit in this process, especially Mike DiBernardo and the talented copy editor Amy Brown.</p>
+<p>My thanks to the editors enough for their patience and grit in this process, especially Mike DiBernardo and the talented copy editor Amy Brown.</p>
 
 <p><a href="http://aosabook.org/en/500L/a-python-interpreter-written-in-python.html">A Python Interpreter written in Python</a></p>
 
 <h1>Dropbox</h1>
 
-<p>I&rsquo;ve now been at Dropbox for slightly over a year. Most of what I&rsquo;m most excited about I can&rsquo;t talk about publicly. What I can say is that I feel like I&rsquo;ve matured as an engineer. This means getting better at skills like living with my decisions, thinking farther ahead, architecting software, gathering consensus, getting and giving technical input, and other skills beyond pure programming.</p>
+<p>I&rsquo;ve now been at Dropbox for slightly over a year. Most of what I&rsquo;m most excited about I can&rsquo;t talk about publically. What I can say is that I feel like I&rsquo;ve matured as an engineer This means things like getting better at skills like living with my decisions, thinking farther ahead, architecting software, gathering consensus, getting and giving technical input, and other skills beyond pure programming.</p>
 
 <p>I&rsquo;m on the desktop client team, and desktop software in particular presents interesting challenges that I hadn&rsquo;t thought much about before I joined Dropbox. For example, you generally can&rsquo;t roll back a desktop release &ndash; once it&rsquo;s out there, it&rsquo;s out there.  It&rsquo;s also nontrivial to make sure we can get enough data to debug when something goes wrong. With a badly-behaving server, you might be able to ssh in and poke around. This is obviously not possible with someone else&rsquo;s desktop.</p>
 
-<h1>2016</h1>
-
-<p>I&rsquo;m hopeful that 2016 will bring as many opportunities for growth and fewer broken bones.</p>
-
-<p>A few plugs: If you&rsquo;re a <a href="https://www.recurse.com/apply?r=akaptur">new or experienced</a> programmer, consider spending some time at the Recurse Center. If you&rsquo;re interested in joining Dropbox, please drop me a line on <a href="https://twitter.com/akaptur">twitter</a>.</p>
-<div class="footnotes">
-<hr/>
-<ol>
-<li id="fn:1">
-<p>One person even congratulated Jessica McKellar for my talk, thinking she was me. I was thrilled to be mistaken for her.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
-</ol>
-</div>
-
+<p>[1] One person even congratulated Jessica McKellar for my talk, thinking she was me. I was obviously thrilled to be mistaken for her.</p>
 ]]></content>
   </entry>
   
@@ -2786,197 +2784,6 @@ However, Jessica&rsquo;s solution <del>fails the &ldquo;order doesn&rsquo;t matt
 <p>Same story as #1 with different details: my colleague and I had done <code>require 'JSON'</code> instead of <code>require 'json'</code>, which worked fine locally and brought the entire app down on heroku.</p>
 
 <p>I&rsquo;ve finally learned to look for this bug when something mysterious happens between my machine and some other machine &ndash; which I&rsquo;m sure means I&rsquo;ll never encounter it again!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Python Bytecode: Fun with dis]]></title>
-    <link href="http://akaptur.github.com/blog/2013/08/14/python-bytecode-fun-with-dis/"/>
-    <updated>2013-08-14T16:04:00-07:00</updated>
-    <id>http://akaptur.github.com/blog/2013/08/14/python-bytecode-fun-with-dis</id>
-    <content type="html"><![CDATA[<p>Last week at <a href="https://www.hackerschool.com/">Hacker School</a> I did a quick presentation on python bytecode and the <code>dis</code> module.  The disassembler is a very powerful tool with a gentle learning curve &ndash; that is, you can get a fair amount out of it without really knowing much about what&rsquo;s going on.  This post is a quick introduction to how and why you should use it.</p>
-
-<h3>What&rsquo;s bytecode?</h3>
-
-<p>Bytecode is the internal representation of a python program in the compiler.  Here, we&rsquo;ll be looking at bytecode from cpython, the default compiler.  If you don&rsquo;t know what compiler you&rsquo;re using, it&rsquo;s probably cpython.</p>
-
-<h3>How do I get bytecode?</h3>
-
-<p>You already have it!  Bytecode is what&rsquo;s contained in those .pyc files you see when you import a module.  It&rsquo;s also created on the fly by running any python code.</p>
-
-<h3>Disassembling</h3>
-
-<p>Ok, so you have some bytecode, and you want to understand it.  Let&rsquo;s look at it without using the <code>dis</code> module first.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
-</span><span class='line'><span class="o">...</span>     <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span>
-</span><span class='line'><span class="o">...</span>     <span class="n">b</span> <span class="o">=</span> <span class="mi">3</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
-</span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span>
-</span><span class='line'><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">foo</span> <span class="n">at</span> <span class="mh">0x106353530</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span>
-</span><span class='line'><span class="s">&#39;d</span><span class="se">\x01\x00</span><span class="s">}</span><span class="se">\x00\x00</span><span class="s">d</span><span class="se">\x02\x00</span><span class="s">}</span><span class="se">\x01\x00</span><span class="s">|</span><span class="se">\x00\x00</span><span class="s">|</span><span class="se">\x01\x00\x17</span><span class="s">S&#39;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span><span class="p">]</span>
-</span><span class='line'><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">83</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Hmm, that was &hellip; not very enlightening.  We can see that we have a bunch of bytes (some printable, others not), but we have no idea what they mean.</p>
-
-<p>Let&rsquo;s run it through <code>dis.dis</code> instead.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">dis</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
-</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">3</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">a</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">3</span>           <span class="mi">6</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">9</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">b</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">4</span>          <span class="mi">12</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">a</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">15</span> <span class="n">LOAD_FAST</span>                <span class="mi">1</span> <span class="p">(</span><span class="n">b</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">18</span> <span class="n">BINARY_ADD</span>
-</span><span class='line'>             <span class="mi">19</span> <span class="n">RETURN_VALUE</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now this starts to make some sense.  <code>dis</code> takes each byte, finds the opcode that corresponds to it in <code>opcodes.py</code>, and prints it as a nice, readable constant.  If we look at <code>opcodes.py</code> we see that <code>LOAD_CONST</code> is 100, <code>STORE_FAST</code> is 125, etc. <code>dis</code> also shows the line numbers on the left and the values or names on the right.  So without ever seeing something like before, we have an idea what&rsquo;s going on: we first load a constant, 2, then somehow store it as <code>a</code>.  Then we repeat this with 3 and <code>b</code>.  We load <code>a</code> and <code>b</code> back up, do <code>BINARY_ADD</code>, which presumably adds the numbers, and then do <code>RETURN_VALUE</code>.</p>
-
-<p>Examining the bytecode can sometimes increase your understanding of python code.  Here is one example.</p>
-
-<h3>elif</h3>
-
-<p><code>elif</code> is identical in bytecode to <code>else ... if</code>.  Take a look:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">flat</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="s">&quot;Fizz&quot;</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">elif</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="s">&quot;Buzz&quot;</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">else</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="n">num</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">nested</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="s">&quot;Fizz&quot;</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">else</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>             <span class="k">print</span> <span class="s">&quot;Buzz&quot;</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">else</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>             <span class="k">print</span> <span class="n">num</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We&rsquo;ve read <a href="http://www.python.org/dev/peps/pep-0008/">PEP 8</a> so we know that <em>flat is better than nested</em> for style and readability.  But is there a performance difference?  Not at all &ndash; in fact, these two functions have identical bytecode.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">3</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">6</span> <span class="n">BINARY_MODULO</span>
-</span><span class='line'>              <span class="mi">7</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">10</span> <span class="n">COMPARE_OP</span>               <span class="mi">2</span> <span class="p">(</span><span class="o">==</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">13</span> <span class="n">POP_JUMP_IF_FALSE</span>       <span class="mi">24</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">3</span>          <span class="mi">16</span> <span class="n">LOAD_CONST</span>               <span class="mi">3</span> <span class="p">(</span><span class="s">&#39;Fizz&#39;</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">19</span> <span class="n">PRINT_ITEM</span>
-</span><span class='line'>             <span class="mi">20</span> <span class="n">PRINT_NEWLINE</span>
-</span><span class='line'>             <span class="mi">21</span> <span class="n">JUMP_FORWARD</span>            <span class="mi">29</span> <span class="p">(</span><span class="n">to</span> <span class="mi">53</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">4</span>     <span class="o">&gt;&gt;</span>   <span class="mi">24</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">27</span> <span class="n">LOAD_CONST</span>               <span class="mi">4</span> <span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">30</span> <span class="n">BINARY_MODULO</span>
-</span><span class='line'>             <span class="mi">31</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">34</span> <span class="n">COMPARE_OP</span>               <span class="mi">2</span> <span class="p">(</span><span class="o">==</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">37</span> <span class="n">POP_JUMP_IF_FALSE</span>       <span class="mi">48</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">5</span>          <span class="mi">40</span> <span class="n">LOAD_CONST</span>               <span class="mi">5</span> <span class="p">(</span><span class="s">&#39;Buzz&#39;</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">43</span> <span class="n">PRINT_ITEM</span>
-</span><span class='line'>             <span class="mi">44</span> <span class="n">PRINT_NEWLINE</span>
-</span><span class='line'>             <span class="mi">45</span> <span class="n">JUMP_FORWARD</span>             <span class="mi">5</span> <span class="p">(</span><span class="n">to</span> <span class="mi">53</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">7</span>     <span class="o">&gt;&gt;</span>   <span class="mi">48</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">51</span> <span class="n">PRINT_ITEM</span>
-</span><span class='line'>             <span class="mi">52</span> <span class="n">PRINT_NEWLINE</span>
-</span><span class='line'>        <span class="o">&gt;&gt;</span>   <span class="mi">53</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">56</span> <span class="n">RETURN_VALUE</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That makes sense &ndash; <code>else</code> just means &ldquo;start executing here if the <code>if</code> was false&rdquo; &ndash; there&rsquo;s no more computation to do.  <code>elif</code> is just <a href="https://en.wikipedia.org/wiki/Syntactic_sugar">syntactic sugar</a>.</p>
-
-<h3>Further reading:</h3>
-
-<p>This just scratches the surface of what&rsquo;s interesting about python bytecode.</p>
-
-<p>If you enjoyed this, you might enjoy diving into Yaniv Aknin&rsquo;s <a href="http://tech.blog.aknin.name/category/my-projects/pythons-innards/">series</a> on python internals.  If you&rsquo;re excited about bytecode, you should contribute to Ned Batchelder&rsquo;s <a href="https://github.com/nedbat/byterun">byterun</a>.</p>
 ]]></content>
   </entry>
   

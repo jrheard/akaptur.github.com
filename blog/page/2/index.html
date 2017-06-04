@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="One of the fun parts of pairing with Amy on Nagini was modifying the grammar of Python. You should try this &ndash; it&rsquo;s easier than you think &hellip;">
+  <meta name="description" content="Last week I had a ton of fun working with Amy Hanlon on her Harry Potter themed fork of Python, called Nagini. Nagini is full of magic and surprises &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +78,99 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/16/pycon-prep-import-is-a-keyword/">PyCon Prep: Import Is a Keyword</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-16T16:08:00-07:00" pubdate data-updated="true">Mar 16<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Last week I had a ton of fun working with <a href="https://twitter.com/amygdalama">Amy Hanlon</a> on her Harry Potter themed fork of Python, called Nagini.  Nagini is full of magic and surprises. It implements the things you&rsquo;d hope for out of a Harry Potter Python, like making <code>quit</code> into <code>avada_kedavra</code>, and many analogous jokes.</p>
+
+<p>Amy also had the idea to replace <code>import</code> with <code>accio</code>! Replacing <code>import</code> is a much harder problem than renaming a builtin.  Python doesn&rsquo;t prevent you from overwriting builtins, whereas to change keywords you have to edit the grammar and recompile Python. You should <a href="http://mathamy.com/import-accio-bootstrapping-python-grammar.html">go read Amy&rsquo;s post</a> on making this work.</p>
+
+<p>This brings us to an interesting question: why <em>is</em> <code>import</code> a keyword, anyway? There&rsquo;s a function, <code>__import__</code>, that does (mostly) the same thing:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;random&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">module</span> <span class="s">&#39;random&#39;</span> <span class="kn">from</span> <span class="s">&#39;/path/to/random.pyc&#39;</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The function form requires the programmer to assign the return value &ndash; the module &ndash; to a name, but once we&rsquo;ve done that it works just like a normal module:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">random</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;random&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+</span><span class='line'><span class="mf">0.32574174955668145</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>__import__</code> function can handle all the forms of import, including <code>from foo import bar</code> and <code>from baz import *</code> (although it never modifies the calling namespace).  There&rsquo;s no technical reason why <code>__import__</code> couldn&rsquo;t be the regular way to do imports.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<p>As far as I can tell, the main argument against an <code>import</code> function is aesthetic. Compare:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">foo</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">foo</span> <span class="kn">import</span> <span class="n">bar</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">longmodulename</span> <span class="kn">as</span> <span class="nn">short</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">foo</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">bar</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;random&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">bar</span>
+</span><span class='line'><span class="n">short</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;longmodulename&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The first way certainly feels much cleaner and more readable.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></p>
+
+<p>Part of my goal in my <a href="https://us.pycon.org/2014/schedule/presentation/229/">upcoming PyCon talk</a> is to invite Pythonistas to consider decisions they might not have thought about before. <code>import</code> is a great vehicle for this, because everyone learns it very early on in their programming development, but most people don&rsquo;t ever think about it again. Here&rsquo;s another variation on that theme: <code>import</code> doesn&rsquo;t have to be a keyword!</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>I think all keywords <em>could</em> be expressed as functions, except those used for flow control (which I loosely define as keywords that generate any <code>JUMP</code> instructions when compiled). For example, between Python 2 and 3, two keywords did become functions &ndash; <code>print</code> and <code>exec</code>.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>I realize this is a slightly circular argument &ndash; if the function strategy were the regular way to import, it probably wouldn&rsquo;t be so ugly.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1031,224 +1124,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/08/14/python-bytecode-fun-with-dis/">Python Bytecode: Fun With Dis</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-08-14T16:04:00-07:00" pubdate data-updated="true">Aug 14<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Last week at <a href="https://www.hackerschool.com/">Hacker School</a> I did a quick presentation on python bytecode and the <code>dis</code> module.  The disassembler is a very powerful tool with a gentle learning curve &ndash; that is, you can get a fair amount out of it without really knowing much about what&rsquo;s going on.  This post is a quick introduction to how and why you should use it.</p>
-
-<h3>What&rsquo;s bytecode?</h3>
-
-<p>Bytecode is the internal representation of a python program in the compiler.  Here, we&rsquo;ll be looking at bytecode from cpython, the default compiler.  If you don&rsquo;t know what compiler you&rsquo;re using, it&rsquo;s probably cpython.</p>
-
-<h3>How do I get bytecode?</h3>
-
-<p>You already have it!  Bytecode is what&rsquo;s contained in those .pyc files you see when you import a module.  It&rsquo;s also created on the fly by running any python code.</p>
-
-<h3>Disassembling</h3>
-
-<p>Ok, so you have some bytecode, and you want to understand it.  Let&rsquo;s look at it without using the <code>dis</code> module first.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
-</span><span class='line'><span class="o">...</span>     <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span>
-</span><span class='line'><span class="o">...</span>     <span class="n">b</span> <span class="o">=</span> <span class="mi">3</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
-</span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span>
-</span><span class='line'><span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="n">foo</span> <span class="n">at</span> <span class="mh">0x106353530</span><span class="p">,</span> <span class="nb">file</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span>
-</span><span class='line'><span class="s">&#39;d</span><span class="se">\x01\x00</span><span class="s">}</span><span class="se">\x00\x00</span><span class="s">d</span><span class="se">\x02\x00</span><span class="s">}</span><span class="se">\x01\x00</span><span class="s">|</span><span class="se">\x00\x00</span><span class="s">|</span><span class="se">\x01\x00\x17</span><span class="s">S&#39;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">foo</span><span class="o">.</span><span class="n">func_code</span><span class="o">.</span><span class="n">co_code</span><span class="p">]</span>
-</span><span class='line'><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">83</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Hmm, that was &hellip; not very enlightening.  We can see that we have a bunch of bytes (some printable, others not), but we have no idea what they mean.</p>
-
-<p>Let&rsquo;s run it through <code>dis.dis</code> instead.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">dis</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
-</span><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">3</span> <span class="n">STORE_FAST</span>               <span class="mi">0</span> <span class="p">(</span><span class="n">a</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">3</span>           <span class="mi">6</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">9</span> <span class="n">STORE_FAST</span>               <span class="mi">1</span> <span class="p">(</span><span class="n">b</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">4</span>          <span class="mi">12</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">a</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">15</span> <span class="n">LOAD_FAST</span>                <span class="mi">1</span> <span class="p">(</span><span class="n">b</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">18</span> <span class="n">BINARY_ADD</span>
-</span><span class='line'>             <span class="mi">19</span> <span class="n">RETURN_VALUE</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now this starts to make some sense.  <code>dis</code> takes each byte, finds the opcode that corresponds to it in <code>opcodes.py</code>, and prints it as a nice, readable constant.  If we look at <code>opcodes.py</code> we see that <code>LOAD_CONST</code> is 100, <code>STORE_FAST</code> is 125, etc. <code>dis</code> also shows the line numbers on the left and the values or names on the right.  So without ever seeing something like before, we have an idea what&rsquo;s going on: we first load a constant, 2, then somehow store it as <code>a</code>.  Then we repeat this with 3 and <code>b</code>.  We load <code>a</code> and <code>b</code> back up, do <code>BINARY_ADD</code>, which presumably adds the numbers, and then do <code>RETURN_VALUE</code>.</p>
-
-<p>Examining the bytecode can sometimes increase your understanding of python code.  Here is one example.</p>
-
-<h3>elif</h3>
-
-<p><code>elif</code> is identical in bytecode to <code>else ... if</code>.  Take a look:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">flat</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="s">&quot;Fizz&quot;</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">elif</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="s">&quot;Buzz&quot;</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">else</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="n">num</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">nested</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">print</span> <span class="s">&quot;Fizz&quot;</span>
-</span><span class='line'><span class="o">...</span>     <span class="k">else</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>             <span class="k">print</span> <span class="s">&quot;Buzz&quot;</span>
-</span><span class='line'><span class="o">...</span>         <span class="k">else</span><span class="p">:</span>
-</span><span class='line'><span class="o">...</span>             <span class="k">print</span> <span class="n">num</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We&rsquo;ve read <a href="http://www.python.org/dev/peps/pep-0008/">PEP 8</a> so we know that <em>flat is better than nested</em> for style and readability.  But is there a performance difference?  Not at all &ndash; in fact, these two functions have identical bytecode.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'>  <span class="mi">2</span>           <span class="mi">0</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">3</span> <span class="n">LOAD_CONST</span>               <span class="mi">1</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</span><span class='line'>              <span class="mi">6</span> <span class="n">BINARY_MODULO</span>
-</span><span class='line'>              <span class="mi">7</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">10</span> <span class="n">COMPARE_OP</span>               <span class="mi">2</span> <span class="p">(</span><span class="o">==</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">13</span> <span class="n">POP_JUMP_IF_FALSE</span>       <span class="mi">24</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">3</span>          <span class="mi">16</span> <span class="n">LOAD_CONST</span>               <span class="mi">3</span> <span class="p">(</span><span class="s">&#39;Fizz&#39;</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">19</span> <span class="n">PRINT_ITEM</span>
-</span><span class='line'>             <span class="mi">20</span> <span class="n">PRINT_NEWLINE</span>
-</span><span class='line'>             <span class="mi">21</span> <span class="n">JUMP_FORWARD</span>            <span class="mi">29</span> <span class="p">(</span><span class="n">to</span> <span class="mi">53</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">4</span>     <span class="o">&gt;&gt;</span>   <span class="mi">24</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">27</span> <span class="n">LOAD_CONST</span>               <span class="mi">4</span> <span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">30</span> <span class="n">BINARY_MODULO</span>
-</span><span class='line'>             <span class="mi">31</span> <span class="n">LOAD_CONST</span>               <span class="mi">2</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">34</span> <span class="n">COMPARE_OP</span>               <span class="mi">2</span> <span class="p">(</span><span class="o">==</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">37</span> <span class="n">POP_JUMP_IF_FALSE</span>       <span class="mi">48</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">5</span>          <span class="mi">40</span> <span class="n">LOAD_CONST</span>               <span class="mi">5</span> <span class="p">(</span><span class="s">&#39;Buzz&#39;</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">43</span> <span class="n">PRINT_ITEM</span>
-</span><span class='line'>             <span class="mi">44</span> <span class="n">PRINT_NEWLINE</span>
-</span><span class='line'>             <span class="mi">45</span> <span class="n">JUMP_FORWARD</span>             <span class="mi">5</span> <span class="p">(</span><span class="n">to</span> <span class="mi">53</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="mi">7</span>     <span class="o">&gt;&gt;</span>   <span class="mi">48</span> <span class="n">LOAD_FAST</span>                <span class="mi">0</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">51</span> <span class="n">PRINT_ITEM</span>
-</span><span class='line'>             <span class="mi">52</span> <span class="n">PRINT_NEWLINE</span>
-</span><span class='line'>        <span class="o">&gt;&gt;</span>   <span class="mi">53</span> <span class="n">LOAD_CONST</span>               <span class="mi">0</span> <span class="p">(</span><span class="bp">None</span><span class="p">)</span>
-</span><span class='line'>             <span class="mi">56</span> <span class="n">RETURN_VALUE</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That makes sense &ndash; <code>else</code> just means &ldquo;start executing here if the <code>if</code> was false&rdquo; &ndash; there&rsquo;s no more computation to do.  <code>elif</code> is just <a href="https://en.wikipedia.org/wiki/Syntactic_sugar">syntactic sugar</a>.</p>
-
-<h3>Further reading:</h3>
-
-<p>This just scratches the surface of what&rsquo;s interesting about python bytecode.</p>
-
-<p>If you enjoyed this, you might enjoy diving into Yaniv Aknin&rsquo;s <a href="http://tech.blog.aknin.name/category/my-projects/pythons-innards/">series</a> on python internals.  If you&rsquo;re excited about bytecode, you should contribute to Ned Batchelder&rsquo;s <a href="https://github.com/nedbat/byterun">byterun</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -1266,7 +1141,11 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2016/01/24/2015-in-review/">2015 in review</a>
+        <a href="/blog/2017/06/03/two-kinds-of-feedback/">Two kinds of feedback</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/05/2015-in-review/">2015 in review</a>
       </li>
     
       <li class="post">
@@ -1279,10 +1158,6 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
     
       <li class="post">
         <a href="/blog/2014/10/10/im-joining-dropbox/">I&#8217;m joining Dropbox</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/09/21/debugging-with-pstree/">Debugging with pstree</a>
       </li>
     
   </ul>
@@ -1298,7 +1173,7 @@ Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2016 - akaptur -
+  Copyright &copy; 2017 - akaptur -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
   - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
   <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
