@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="This is Part 4 in a series on the Python interpreter. Read Part 1, Part 2, and Part 3. If you&rsquo;re enjoying this series, consider applying to &hellip;">
+  <meta name="description" content="[Edit: A significantly expanded version of this series appears as a chapter in The Architecture of Open Source Applications, volume 4, as A Python &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -69,8 +69,9 @@
 <ul class="main-navigation">
   <li><a href="/">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
-  <li><a href="/about">About</a></li>
   <li><a href="/talks">Talks</a></li>
+  <li><a href="/other-writing">Other Writing</a></li>
+  <li><a href="/about">About</a></li>
 </ul>
 
 </nav>
@@ -104,7 +105,9 @@
   </header>
 
 
-<div class="entry-content"><p><em>This is Part 4 in a <a href="/blog/categories/python-internals">series</a> on the Python interpreter. Read <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Part 1</a>, <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">Part 2</a>, and <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Part 3</a>. If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
+<div class="entry-content"><p>[Edit: A significantly expanded version of this series appears as a chapter in The Architecture of Open Source Applications, volume 4, as <a href="//www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html">A Python Interpreter Written in Python</a>.]</p>
+
+<p><em>This is Part 4 in a <a href="/blog/categories/python-internals">series</a> on the Python interpreter. Read <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Part 1</a>, <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">Part 2</a>, and <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Part 3</a>. If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
 
 <p>One of the things I was confused about when I started digging into python internals was how python could be &ldquo;dynamic&rdquo; if it was also &ldquo;compiled.&rdquo; Often, in casual coversation, those two words are used as antonyms &ndash; there are &ldquo;dynamic languages,&rdquo;<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> like Python, Ruby, and Javascript, and &ldquo;compiled languages,&rdquo; like C, Java, and Haskell.</p>
 

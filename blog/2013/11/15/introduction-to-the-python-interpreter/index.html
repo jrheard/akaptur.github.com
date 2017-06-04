@@ -9,7 +9,7 @@
   <meta name="author" content="akaptur">
 
   
-  <meta name="description" content="Over the last three months, I&rsquo;ve spent a lot of time working with Ned Batchelder on byterun, a python bytecode interpreter written in python. &hellip;">
+  <meta name="description" content="[Edit: A significantly expanded version of this series appears as a chapter in The Architecture of Open Source Applications, volume 4, as A Python &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -69,8 +69,9 @@
 <ul class="main-navigation">
   <li><a href="/">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
-  <li><a href="/about">About</a></li>
   <li><a href="/talks">Talks</a></li>
+  <li><a href="/other-writing">Other Writing</a></li>
+  <li><a href="/about">About</a></li>
 </ul>
 
 </nav>
@@ -104,7 +105,9 @@
   </header>
 
 
-<div class="entry-content"><p>Over the last three months, I&rsquo;ve spent a lot of time working with Ned Batchelder on <a href="https://github.com/nedbat/byterun">byterun</a>, a python bytecode interpreter written in python.  Working on byterun has been tremendously educational and a lot of fun for me.  At the end of this series, I&rsquo;m going to attempt to convince you that it would be interesting and fun for you to play with byterun, too.  But before we do that, we need a bit of a warm-up: an overview of how python&rsquo;s internals work, so that we can understand what an interpreter is, what it does, and what it doesn&rsquo;t do.</p>
+<div class="entry-content"><p>[Edit: A significantly expanded version of this series appears as a chapter in The Architecture of Open Source Applications, volume 4, as <a href="//www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html">A Python Interpreter Written in Python</a>.]</p>
+
+<p>Over the last three months, I&rsquo;ve spent a lot of time working with Ned Batchelder on <a href="https://github.com/nedbat/byterun">byterun</a>, a python bytecode interpreter written in python.  Working on byterun has been tremendously educational and a lot of fun for me.  At the end of this series, I&rsquo;m going to attempt to convince you that it would be interesting and fun for you to play with byterun, too.  But before we do that, we need a bit of a warm-up: an overview of how python&rsquo;s internals work, so that we can understand what an interpreter is, what it does, and what it doesn&rsquo;t do.</p>
 
 <p>This series assumes that you&rsquo;re in a similar position to where I was three months ago: you know python, but you don&rsquo;t know anything about the internals.</p>
 

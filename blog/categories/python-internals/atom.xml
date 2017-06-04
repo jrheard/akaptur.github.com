@@ -4,7 +4,7 @@
   <title><![CDATA[Category: python-internals | Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/blog/categories/python-internals/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2017-06-03T19:06:03-07:00</updated>
+  <updated>2017-06-04T13:44:39-07:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -742,7 +742,9 @@ SyntaxError: import * is not allowed in function &lsquo;one&rsquo; because it co
     <link href="http://akaptur.github.com/blog/2013/12/03/introduction-to-the-python-interpreter-4/"/>
     <updated>2013-12-03T11:25:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2013/12/03/introduction-to-the-python-interpreter-4</id>
-    <content type="html"><![CDATA[<p><em>This is Part 4 in a <a href="/blog/categories/python-internals">series</a> on the Python interpreter. Read <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Part 1</a>, <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">Part 2</a>, and <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Part 3</a>. If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
+    <content type="html"><![CDATA[<p>[Edit: A significantly expanded version of this series appears as a chapter in The Architecture of Open Source Applications, volume 4, as <a href="//www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html">A Python Interpreter Written in Python</a>.]</p>
+
+<p><em>This is Part 4 in a <a href="/blog/categories/python-internals">series</a> on the Python interpreter. Read <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">Part 1</a>, <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">Part 2</a>, and <a href="/blog/2013/11/17/introduction-to-the-python-interpreter-3/">Part 3</a>. If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
 
 <p>One of the things I was confused about when I started digging into python internals was how python could be &ldquo;dynamic&rdquo; if it was also &ldquo;compiled.&rdquo; Often, in casual coversation, those two words are used as antonyms &ndash; there are &ldquo;dynamic languages,&rdquo;<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> like Python, Ruby, and Javascript, and &ldquo;compiled languages,&rdquo; like C, Java, and Haskell.</p>
 
@@ -846,7 +848,9 @@ modulus(&ldquo;hello %s&rdquo;, &ldquo;world&rdquo;)
     <link href="http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3/"/>
     <updated>2013-11-17T09:56:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3</id>
-    <content type="html"><![CDATA[<p><em>This is Part 3 in a series on the Python interpreter.  Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</a>, Part 2 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">here</a>.  If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
+    <content type="html"><![CDATA[<p>[Edit: A significantly expanded version of this series appears as a chapter in The Architecture of Open Source Applications, volume 4, as <a href="//www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html">A Python Interpreter Written in Python</a>.]</p>
+
+<p><em>This is Part 3 in a series on the Python interpreter.  Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</a>, Part 2 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter-2/">here</a>.  If you&rsquo;re enjoying this series, consider applying to <a href="https://www.hackerschool.com/">Hacker School</a>, where I work as a facilitator.</em></p>
 
 <h3>Bytecode</h3>
 
@@ -942,7 +946,9 @@ def_op('BUILD_SET', 104)        # Number of set items
     <link href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2/"/>
     <updated>2013-11-15T19:22:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2</id>
-    <content type="html"><![CDATA[<p>This is part of a <a href="/blog/categories/python-internals">series</a> on the python interpreter.
+    <content type="html"><![CDATA[<p>[Edit: A significantly expanded version of this series appears as a chapter in The Architecture of Open Source Applications, volume 4, as <a href="//www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html">A Python Interpreter Written in Python</a>.]</p>
+
+<p>This is part of a <a href="/blog/categories/python-internals">series</a> on the python interpreter.
 Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</a>.</p>
 
 <p>When we left our heroes, they were examining a simple function object.  Let&rsquo;s now dive a level deeper, and look at this function&rsquo;s code object.</p>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: python, | Allison Kaptur]]></title>
   <link href="http://akaptur.github.com/blog/categories/python/atom.xml" rel="self"/>
   <link href="http://akaptur.github.com/"/>
-  <updated>2017-06-03T19:06:03-07:00</updated>
+  <updated>2017-06-04T13:44:39-07:00</updated>
   <id>http://akaptur.github.com/</id>
   <author>
     <name><![CDATA[akaptur]]></name>
@@ -248,7 +248,9 @@ SyntaxError: import * is not allowed in function &lsquo;one&rsquo; because it co
     <link href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2/"/>
     <updated>2013-11-15T19:22:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2</id>
-    <content type="html"><![CDATA[<p>This is part of a <a href="/blog/categories/python-internals">series</a> on the python interpreter.
+    <content type="html"><![CDATA[<p>[Edit: A significantly expanded version of this series appears as a chapter in The Architecture of Open Source Applications, volume 4, as <a href="//www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html">A Python Interpreter Written in Python</a>.]</p>
+
+<p>This is part of a <a href="/blog/categories/python-internals">series</a> on the python interpreter.
 Part 1 <a href="/blog/2013/11/15/introduction-to-the-python-interpreter/">here</a>.</p>
 
 <p>When we left our heroes, they were examining a simple function object.  Let&rsquo;s now dive a level deeper, and look at this function&rsquo;s code object.</p>
@@ -309,7 +311,9 @@ foo.func_code.co_argcount
     <link href="http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/"/>
     <updated>2013-11-15T18:50:00-08:00</updated>
     <id>http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter</id>
-    <content type="html"><![CDATA[<p>Over the last three months, I&rsquo;ve spent a lot of time working with Ned Batchelder on <a href="https://github.com/nedbat/byterun">byterun</a>, a python bytecode interpreter written in python.  Working on byterun has been tremendously educational and a lot of fun for me.  At the end of this series, I&rsquo;m going to attempt to convince you that it would be interesting and fun for you to play with byterun, too.  But before we do that, we need a bit of a warm-up: an overview of how python&rsquo;s internals work, so that we can understand what an interpreter is, what it does, and what it doesn&rsquo;t do.</p>
+    <content type="html"><![CDATA[<p>[Edit: A significantly expanded version of this series appears as a chapter in The Architecture of Open Source Applications, volume 4, as <a href="//www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html">A Python Interpreter Written in Python</a>.]</p>
+
+<p>Over the last three months, I&rsquo;ve spent a lot of time working with Ned Batchelder on <a href="https://github.com/nedbat/byterun">byterun</a>, a python bytecode interpreter written in python.  Working on byterun has been tremendously educational and a lot of fun for me.  At the end of this series, I&rsquo;m going to attempt to convince you that it would be interesting and fun for you to play with byterun, too.  But before we do that, we need a bit of a warm-up: an overview of how python&rsquo;s internals work, so that we can understand what an interpreter is, what it does, and what it doesn&rsquo;t do.</p>
 
 <p>This series assumes that you&rsquo;re in a similar position to where I was three months ago: you know python, but you don&rsquo;t know anything about the internals.</p>
 

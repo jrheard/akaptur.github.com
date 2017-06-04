@@ -48,25 +48,25 @@
         <loc>
             http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter/
         </loc>
-        <lastmod>2014-10-23T12:51:16-07:00</lastmod>
+        <lastmod>2017-06-04T13:23:42-07:00</lastmod>
     </url>
     <url>
         <loc>
             http://akaptur.github.com/blog/2013/11/15/introduction-to-the-python-interpreter-2/
         </loc>
-        <lastmod>2014-10-23T12:51:16-07:00</lastmod>
+        <lastmod>2017-06-04T13:23:39-07:00</lastmod>
     </url>
     <url>
         <loc>
             http://akaptur.github.com/blog/2013/11/17/introduction-to-the-python-interpreter-3/
         </loc>
-        <lastmod>2014-10-23T12:51:16-07:00</lastmod>
+        <lastmod>2017-06-04T13:23:27-07:00</lastmod>
     </url>
     <url>
         <loc>
             http://akaptur.github.com/blog/2013/12/03/introduction-to-the-python-interpreter-4/
         </loc>
-        <lastmod>2014-10-23T12:51:16-07:00</lastmod>
+        <lastmod>2017-06-04T13:23:31-07:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/2014/02/16/pycon-prep-require-in-ruby/</loc>
@@ -132,11 +132,15 @@
     </url>
     <url>
         <loc>http://akaptur.github.com/blog/archives/</loc>
-        <lastmod>2017-06-03T19:03:07-07:00</lastmod>
+        <lastmod>2017-06-04T13:23:42-07:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/</loc>
-        <lastmod>2017-06-03T19:03:07-07:00</lastmod>
+        <lastmod>2017-06-04T13:23:42-07:00</lastmod>
+    </url>
+    <url>
+        <loc>http://akaptur.github.com/other-writing/</loc>
+        <lastmod>2017-06-04T13:40:40-07:00</lastmod>
     </url>
     <url>
         <loc>http://akaptur.github.com/robots.txt</loc>
