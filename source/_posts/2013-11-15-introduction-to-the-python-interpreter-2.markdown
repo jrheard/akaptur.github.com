@@ -6,6 +6,8 @@ comments: false
 categories: python, python-internals
 ---
 
+[Edit: A significantly expanded version of this series appears as a chapter in The Architecture of Open Source Applications, volume 4, as [A Python Interpreter Written in Python](//www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html).]
+
 This is part of a [series](/blog/categories/python-internals) on the python interpreter.
 Part 1 [here](/blog/2013/11/15/introduction-to-the-python-interpreter/).
 

@@ -6,6 +6,8 @@ comments: true
 categories: python, python-internals
 ---
 
+[Edit: A significantly expanded version of this series appears as a chapter in The Architecture of Open Source Applications, volume 4, as [A Python Interpreter Written in Python](//www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html).]
+
 Over the last three months, I've spent a lot of time working with Ned Batchelder on [byterun](https://github.com/nedbat/byterun), a python bytecode interpreter written in python.  Working on byterun has been tremendously educational and a lot of fun for me.  At the end of this series, I'm going to attempt to convince you that it would be interesting and fun for you to play with byterun, too.  But before we do that, we need a bit of a warm-up: an overview of how python's internals work, so that we can understand what an interpreter is, what it does, and what it doesn't do.
 
 This series assumes that you're in a similar position to where I was three months ago: you know python, but you don't know anything about the internals.

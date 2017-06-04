@@ -6,6 +6,8 @@ comments: false
 categories: python python-internals
 ---
 
+[Edit: A significantly expanded version of this series appears as a chapter in The Architecture of Open Source Applications, volume 4, as [A Python Interpreter Written in Python](//www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html).]
+
 _This is Part 3 in a series on the Python interpreter.  Part 1 [here](/blog/2013/11/15/introduction-to-the-python-interpreter/), Part 2 [here](/blog/2013/11/15/introduction-to-the-python-interpreter-2/).  If you're enjoying this series, consider applying to [Hacker School](https://www.hackerschool.com/), where I work as a facilitator._
 
 ### Bytecode
