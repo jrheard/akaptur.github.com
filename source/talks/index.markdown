@@ -6,6 +6,11 @@ sharing: true
 footer: true
 ---
 
+## Love your bugs (Python Brasil 2017 keynote)
+[video](//www.youtube.com/watch?v=h4pZZOmv4Qs)
+
+[writeup](/blog/2017/11/12/love-your-bugs/)
+
 ## Effective Learning for Programmers (Kiwi PyCon 2015 keynote)
 [video](//www.youtube.com/watch?v=Mcc6JEhDSpo)
 
