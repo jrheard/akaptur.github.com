@@ -289,7 +289,7 @@
 
 <h2>Bug #2</h2>
 
-<p>This bug also one that I encountered at Dropbox. At the time, I was investigating why some desktop client weren&rsquo;t sending logs as consistently as we expected. I&rsquo;d started digging into the client logging system and discovered a bunch of interesting bugs. I&rsquo;ll tell you only the subset of those bugs that is relevant to this story.</p>
+<p>This bug is also one that I encountered at Dropbox. At the time, I was investigating why some desktop client weren&rsquo;t sending logs as consistently as we expected. I&rsquo;d started digging into the client logging system and discovered a bunch of interesting bugs. I&rsquo;ll tell you only the subset of those bugs that is relevant to this story.</p>
 
 <p>Again here&rsquo;s a very simplified architecture of the system.</p>
 
@@ -333,7 +333,7 @@
 </span><span class='line'>                   +-----+  +-----+  +-----+  +-----+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>The desktop client would generate logs. Those logs were compress, encrypted, and written to disk. Then every so often the client would send them up to the server. The client would read a log off of disk and send it to the log server. The server would decrypt it and store it, then respond with a 200.</p>
+<p>The desktop client would generate logs. Those logs were compressed, encrypted, and written to disk. Then every so often the client would send them up to the server. The client would read a log off of disk and send it to the log server. The server would decrypt it and store it, then respond with a 200.</p>
 
 <p>If the client couldn&rsquo;t reach the log server, it wouldn&rsquo;t let the log directory grow unbounded. After a certain point it would start deleting logs to keep the directory under a maximum size.</p>
 
@@ -421,7 +421,7 @@
 
 <h3>Love your bugs</h3>
 
-<p>I learned to love bugs by explicitly celebrating challenges while working at the Recurse Center. A participant would sit down next to me and say, &ldquo;[sigh] I think I&rsquo;ve got a weird Python bug,&rdquo; and I&rsquo;d say, &ldquo;Awesome, I <em>love</em> weird Python bugs!&rdquo; First of all, this is definitely true, but more importantly, it emphasized to the participant that finding something where they struggled an accomplishment, and it was a good thing for them to have done that day.</p>
+<p>I learned to love bugs by explicitly celebrating challenges while working at the Recurse Center. A participant would sit down next to me and say, &ldquo;[sigh] I think I&rsquo;ve got a weird Python bug,&rdquo; and I&rsquo;d say, &ldquo;Awesome, I <em>love</em> weird Python bugs!&rdquo; First of all, this is definitely true, but more importantly, it emphasized to the participant that finding something where they struggled was an accomplishment, and it was a good thing for them to have done that day.</p>
 
 <p>As I mentioned, at the Recurse Center there are no deadlines and no assignments, so this attitude is pretty much free. I&rsquo;d say, &ldquo;You get to spend a day chasing down this weird bug in Flask, how exciting!&rdquo; At Dropbox and later at Pilot, where we have a product to ship, deadlines, and users, I&rsquo;m not always uniformly delighted about spending a day on a weird bug. So I&rsquo;m sympathetic to the reality of the world where there are deadlines. However, if I have a bug to fix, I have to fix it, and being grumbly about the existence of the bug isn&rsquo;t going to help me fix it faster. I think that even in a world where deadlines loom, you can still apply this attitude.</p>
 
